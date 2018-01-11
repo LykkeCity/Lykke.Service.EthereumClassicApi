@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Assets;
 using Lykke.Service.EthereumClassic.Api.Common;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +13,7 @@ namespace Lykke.Service.EthereumClassic.Api.Controllers
     {
         private static readonly AssetResponse AssetResponse;
 
-        private static readonly IEnumerable<AssetResponse> AssetsResponse;
+        private static readonly ImmutableList<AssetResponse> AssetsResponse;
 
 
         static AssetsController()
@@ -23,10 +25,8 @@ namespace Lykke.Service.EthereumClassic.Api.Controllers
                 Name     = Constants.EtcAsset.Name
             };
 
-            AssetsResponse = new[]
-            {
-                AssetResponse
-            };
+            AssetsResponse = (new[] { AssetResponse })
+                .ToImmutableList();
         }
 
         
@@ -46,7 +46,11 @@ namespace Lykke.Service.EthereumClassic.Api.Controllers
         [HttpGet]
         public IActionResult GetAssetList([FromQuery] int take, [FromQuery] string continuation = "")
         {
-            return Ok(AssetsResponse);
+            return Ok(new PaginationResponse<AssetResponse>
+            {
+                Continuation = null,
+                Items        = AssetsResponse
+            });
         }
     }
 }
