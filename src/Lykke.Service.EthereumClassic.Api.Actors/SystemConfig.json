@@ -1,0 +1,7 @@
+﻿{
+  "akka": {
+    "loggers": [
+      "Lykke.Service.EthereumClassic.Api.Logger.LykkeLogger, Lykke.Service.EthereumClassic.Api.Logger"
+    ]
+  }
+}
