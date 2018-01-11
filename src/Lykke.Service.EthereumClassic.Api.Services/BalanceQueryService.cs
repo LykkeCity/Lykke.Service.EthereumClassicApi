@@ -19,14 +19,16 @@ namespace Lykke.Service.EthereumClassic.Api.Services
         }
 
         
-        public async Task<IEnumerable<BalanceDto>> GetBalancesAsync(int take, string continuationToken)
+        public async Task<(IEnumerable<BalanceDto>, string)> GetBalancesAsync(int take, string continuationToken)
         {
-            return (await _balanceRepository.GetAsync(take, continuationToken))
+            var balances = (await _balanceRepository.GetAsync(take, continuationToken))
                 .Select(x => new BalanceDto
                 {
                     Address = x.Address,
                     Balance = x.Balance
                 });
+
+            return (balances, null);
         }
     }
 }

@@ -63,20 +63,21 @@ namespace Lykke.Service.EthereumClassic.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBalanceList([FromQuery] int take, [FromQuery] string continuation = "")
         {
-            // TODO: Add actual pagination
-
-            var balances = (await _balanceQueryService.GetBalancesAsync(take, continuation))
+            (var balances, var continuationToken) = await _balanceQueryService.GetBalancesAsync(take, continuation);
+            
+            var responseItems = balances
                 .Select(x => new WalletBalanceContract
                 {
                     Address = x.Address,
                     AssetId = Constants.EtcAsset.AssetId,
                     Balance = x.Balance.ToString()
-                });
+                })
+                .ToImmutableList();
 
             return Ok(new PaginationResponse<WalletBalanceContract>
             {
-                Continuation = null,
-                Items        = balances.ToImmutableList()
+                Continuation = continuationToken,
+                Items        = responseItems
             });
         }
     }

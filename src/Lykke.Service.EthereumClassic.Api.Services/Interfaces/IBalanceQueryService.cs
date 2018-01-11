@@ -6,6 +6,6 @@ namespace Lykke.Service.EthereumClassic.Api.Services.Interfaces
 {
     public interface IBalanceQueryService
     {
-        Task<IEnumerable<BalanceDto>> GetBalancesAsync(int take, string continuationToken);
+        Task<(IEnumerable<BalanceDto>, string)> GetBalancesAsync(int take, string continuationToken);
     }
 }
