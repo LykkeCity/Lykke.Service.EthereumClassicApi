@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Lykke.Service.BlockchainApi.Contract.Assets;
 using Lykke.Service.EthereumClassic.Api.Common;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ namespace Lykke.Service.EthereumClassic.Api.Controllers
         [HttpGet("{assetId}")]
         public IActionResult GetAsset(string assetId)
         {
-            if (assetId == Constants.EtcAsset.AssetId)
+            if (Constants.EtcAsset.AssetId.Equals(assetId, StringComparison.InvariantCultureIgnoreCase))
             {
                 return Ok(AssetResponse);
             }
