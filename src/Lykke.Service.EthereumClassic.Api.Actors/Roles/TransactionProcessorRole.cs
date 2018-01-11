@@ -32,7 +32,7 @@ namespace Lykke.Service.EthereumClassic.Api.Actors.Roles
             _operationTransactionRepository = operationTransactionRepository;
         }
 
-
+        /// <inheritdoc />
         public async Task<string> BroadcastTransaction(Guid operationId, string signedTxData)
         {
             if (!await _operationTransactionRepository.ExistsAsync(operationId, signedTxData))
@@ -56,9 +56,7 @@ namespace Lykke.Service.EthereumClassic.Api.Actors.Roles
             }
             else
             {
-                //TODO: Throw conflict exception
-
-                throw new NotImplementedException();
+                throw new ConflictException($"Specified transaction [{signedTxData}] for specified operation [{operationId:N}] has laready been broadcasted.");
             }
         }
 

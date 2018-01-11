@@ -9,6 +9,7 @@ using Lykke.Common.Api.Contract.Responses;
 using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
 using Lykke.Service.EthereumClassic.Api.Actors;
+using Lykke.Service.EthereumClassic.Api.Actors.Exceptions;
 using Lykke.Service.EthereumClassic.Api.Common;
 using Lykke.Service.EthereumClassic.Api.Common.Utils;
 using Lykke.Service.EthereumClassic.Api.Services.Interfaces;
@@ -39,15 +40,15 @@ namespace Lykke.Service.EthereumClassic.Api.Controllers
             {
                 await _actorSystemFacade.BroadcastTransactionAsync
                 (
-                    operationId:       request.OperationId,
+                    operationId:  request.OperationId,
                     signedTxData: request.SignedTransaction
                 );
 
                 return Ok();
             }
-            catch (Exception e) // If specified transaction is already broadcasted
+            catch (ConflictException e)
             {
-                return StatusCode((int) HttpStatusCode.Conflict);
+                return StatusCode((int) HttpStatusCode.Conflict, e.Message);
             }
         }
 
