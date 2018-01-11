@@ -1,9 +1,12 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Balances;
 using Lykke.Service.EthereumClassic.Api.Actors;
+using Lykke.Service.EthereumClassic.Api.Actors.Exceptions;
 using Lykke.Service.EthereumClassic.Api.Common;
 using Lykke.Service.EthereumClassic.Api.Services.Interfaces;
 using Lykke.Service.EthereumClassic.Api.Utils;
@@ -30,17 +33,31 @@ namespace Lykke.Service.EthereumClassic.Api.Controllers
         [HttpPost("{address}/observation")]
         public async Task<IActionResult> AddAddressToObservationList([Address] string address)
         {
-            await _actorSystemFacade.BeginBalanceMonitoringAsync(address);
+            try
+            {
+                await _actorSystemFacade.BeginBalanceMonitoringAsync(address);
 
-            return Ok();
+                return Ok();
+            }
+            catch (ConflictException e)
+            {
+                return StatusCode((int) HttpStatusCode.Conflict, e.Message);
+            }
         }
 
         [HttpDelete("{address}/observation")]
         public async Task<IActionResult> DeleteAddressFromObservationList([Address] string address)
         {
-            await _actorSystemFacade.EndBalanceMonitoringAsync(address);
+            try
+            {
+                await _actorSystemFacade.EndBalanceMonitoringAsync(address);
 
-            return Ok();
+                return Ok();
+            }
+            catch (NotFoundException)
+            {
+                return NoContent();
+            }
         }
 
         [HttpGet]

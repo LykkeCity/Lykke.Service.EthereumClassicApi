@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Assets;
@@ -39,7 +38,7 @@ namespace Lykke.Service.EthereumClassic.Api.Controllers
             }
             else
             {
-                return NotFound();
+                return NoContent();
             }
         }
 

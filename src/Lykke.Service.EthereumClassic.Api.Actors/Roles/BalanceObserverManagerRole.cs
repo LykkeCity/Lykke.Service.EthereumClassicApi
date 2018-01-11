@@ -17,6 +17,7 @@ namespace Lykke.Service.EthereumClassic.Api.Actors.Roles
         }
 
 
+        /// <inheritdoc />
         public async Task BeginBalanceMonitoringAsync(string address)
         {
             if (!await _observableBalanceRepository.ExistsAsync(address))
@@ -28,10 +29,11 @@ namespace Lykke.Service.EthereumClassic.Api.Actors.Roles
             }
             else
             {
-                throw new NotFoundException($"Specified address [{address}] is already observed.");
+                throw new ConflictException($"Specified address [{address}] is already observed.");
             }
         }
 
+        /// <inheritdoc />
         public async Task EndBalanceMonitoringAsync(string address)
         {
             if (await _observableBalanceRepository.ExistsAsync(address))
