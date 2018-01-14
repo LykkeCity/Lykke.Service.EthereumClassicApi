@@ -39,7 +39,7 @@ namespace Lykke.Service.EthereumClassicApi
             catch (Exception ex)
             {
                 var delay = TimeSpan.FromMinutes(1);
-
+                
                 Console.WriteLine("Fatal error:");
                 Console.WriteLine();
                 Console.WriteLine(ex);

@@ -27,10 +27,10 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
 
         public RepositoryFactory(
             ILog log,
-            IReloadingManager<AppSettings> settings)
+            IReloadingManager<DbSettings> settings)
         {
             _log              = log;
-            _connectionString = settings.ConnectionString(x => x.EthereumClassicApi.Db.DataConnectionString);
+            _connectionString = settings.ConnectionString(x => x.DataConnectionString);
         }
 
 

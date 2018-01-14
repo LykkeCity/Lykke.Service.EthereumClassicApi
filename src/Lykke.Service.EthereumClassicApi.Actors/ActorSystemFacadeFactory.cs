@@ -1,14 +1,14 @@
-﻿using System;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Akka.Configuration;
 using Autofac;
+using Common.Log;
 using Lykke.Service.EthereumClassicApi.Actors.Extensions;
 using Lykke.Service.EthereumClassicApi.Actors.Factories;
 using Lykke.Service.EthereumClassicApi.Actors.Factories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Actors.Messages;
 using Lykke.Service.EthereumClassicApi.Common.Settings;
 using Lykke.Service.EthereumClassicApi.Logger;
-using Lykke.SettingsReader;
+using Lykke.SlackNotifications;
 
 
 namespace Lykke.Service.EthereumClassicApi.Actors
@@ -46,15 +46,12 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             return facade;
         }
 
-        public static IActorSystemFacade Build(IReloadingManager<AppSettings> settings)
+        public static IActorSystemFacade Build(IContainer container)
         {
-            var container = BuildContainer(settings);
-            
-            LykkeLogger.Configure(container);
-            
             var actorSystem   = BuildActorSystem(container);
             var actorFactory  = new RootActorFactory(actorSystem);
-            var facadeFactory = new ActorSystemFacadeFactory(actorFactory, settings.CurrentValue.EthereumClassicApi, actorSystem.Scheduler);
+            var settings      = container.Resolve<EthereumClassicApiSettings>();
+            var facadeFactory = new ActorSystemFacadeFactory(actorFactory, settings, actorSystem.Scheduler);
             
 
             return facadeFactory.Build();
@@ -62,25 +59,20 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
         private static ActorSystem BuildActorSystem(IContainer container)
         {
+            var log                = container.Resolve<ILog>();
+            var notificationSender = container.Resolve<ISlackNotificationsSender>();
+
+            LykkeLogger.Configure(log, notificationSender);
+
             var systemConfig = ConfigurationFactory.FromResource
             (
-                "Lykke.Service.EthereumClassic.Api.Actors.SystemConfig.json",
+                "Lykke.Service.EthereumClassicApi.Actors.SystemConfig.json",
                 typeof(ActorSystemFacadeFactory).Assembly
             );
 
             return ActorSystem
                 .Create("ethereum-classic", systemConfig)
                 .WithContainer(container);
-        }
-
-        private static IContainer BuildContainer(IReloadingManager<AppSettings> settings)
-        {
-            var containerBuilder = new ContainerBuilder();
-
-            containerBuilder
-                .RegisterModule(new ActorsModule(settings));
-
-            return containerBuilder.Build();
         }
     }
 }

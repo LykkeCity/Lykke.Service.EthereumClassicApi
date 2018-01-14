@@ -1,7 +1,16 @@
 ﻿using System;
-using Lykke.Service.EthereumClassicApi.Actors.Extensions;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Common.Log;
+using Lykke.Service.EthereumClassicApi.Actors;
+using Lykke.Service.EthereumClassicApi.Blockchain;
 using Lykke.Service.EthereumClassicApi.Common.Settings;
+using Lykke.Service.EthereumClassicApi.Modules;
+using Lykke.Service.EthereumClassicApi.Repositories;
+using Lykke.Service.EthereumClassicApi.Services;
+using Lykke.Service.EthereumClassicApi.Utils;
 using Lykke.SettingsReader;
+using Lykke.SlackNotifications;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -15,46 +24,105 @@ namespace Lykke.Service.EthereumClassicApi
 {
     public class Startup
     {
+        private readonly IHostingEnvironment            _environment;
         private readonly IReloadingManager<AppSettings> _settings;
-        
+        private readonly ILog                           _log;
+        private readonly ISlackNotificationsSender      _notificationsSender;
 
-        public Startup(IHostingEnvironment env)
+
+        private IContainer _container;
+
+
+        public Startup(IHostingEnvironment environment)
         {
-            _settings = LoadSettings(env);
+            _environment = environment;
+            _settings    = LoadSettings();
+
+            (_log, _notificationsSender) = LykkeLoggerFactory.CreateLykkeLoggers(_settings);
         }
 
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime)
         {
-            app
-                .UseMvc()
-                .UseSwagger(SetupSwagger)
-                .UseSwaggerUI(SetupSwaggerUI)
-                .UseStaticFiles();
+            try
+            {
+                app
+                    .UseMvc()
+                    .UseSwagger(SetupSwagger)
+                    .UseSwaggerUI(SetupSwaggerUI)
+                    .UseStaticFiles();
+            }
+            catch (Exception e)
+            {
+                WriteFatalError(e, nameof(Configure));
+
+                throw;
+            }
         }
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            services
-                .AddMvc();
+            try
+            {
+                services
+                    .AddMvc();
+                
+                services
+                    .AddSwaggerGen(SetupSwaggerGen);
 
-            services
-                .AddActorSystem(_settings);
+                var builder = new ContainerBuilder();
+                
+                builder
+                    .RegisterModule(new SettingsModule(_settings))
+                    .RegisterModule(new LoggerModule(_log, _notificationsSender))
+                    .RegisterModule<ActorsModule>()
+                    .RegisterModule<BlockchainModule>()
+                    .RegisterModule<RepositoriesModule>()
+                    .RegisterModule<ServicesModule>();
 
-            services
-                .AddSwaggerGen(SetupSwaggerGen);
-            
-            return services.BuildServiceProvider();
+                builder
+                    .Register(ctx => ActorSystemFacadeFactory.Build(_container))
+                    .As<IActorSystemFacade>()
+                    .SingleInstance();
+
+                builder
+                    .Populate(services);
+                
+                _container = builder.Build();
+                
+                
+                _container
+                    .Resolve<IActorSystemFacade>();
+
+                return new AutofacServiceProvider(_container);
+            }
+            catch (Exception e)
+            {
+                WriteFatalError(e, nameof(ConfigureServices));
+                
+                throw;
+            }
         }
 
-        private static IReloadingManager<AppSettings> LoadSettings(IHostingEnvironment environment)
+        private IReloadingManager<AppSettings> LoadSettings()
         {
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(environment.ContentRootPath)
+                .SetBasePath(_environment.ContentRootPath)
                 .AddEnvironmentVariables()
                 .Build();
 
             return configuration.LoadSettings<AppSettings>();
+        }
+
+        private void WriteFatalError(Exception e, string process)
+        {
+            _log.WriteFatalErrorAsync
+            (
+                nameof(Startup),
+                process,
+                "",
+                e
+            ).GetAwaiter().GetResult();
         }
 
         private static void SetupSwagger(SwaggerOptions options)

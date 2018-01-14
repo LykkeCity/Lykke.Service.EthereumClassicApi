@@ -18,6 +18,7 @@
   <ItemGroup>
     <None Remove="Lykke.Service.EthereumClassic.Api.csproj.DotSettings" />
     <None Remove="Lykke.Service.EthereumClassic.csproj.DotSettings" />
+    <None Remove="Lykke.Service.EthereumClassicApi.csproj.DotSettings" />
   </ItemGroup>
 
   <ItemGroup>

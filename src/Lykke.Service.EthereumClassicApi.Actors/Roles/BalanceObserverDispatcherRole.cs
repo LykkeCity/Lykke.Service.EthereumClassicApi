@@ -13,9 +13,9 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 {
     public class BalanceObserverDispatcherRole : IBalanceObserverDispatcherRole
     {
-        private readonly IEthereum                   _ethereum;
+        private readonly IEthereum                    _ethereum;
         private readonly IObservableBalanceRepository _observableBalanceRepository;
-        private readonly EthereumClassicApiSettings  _settings;
+        private readonly EthereumClassicApiSettings   _settings;
 
 
         public BalanceObserverDispatcherRole(
