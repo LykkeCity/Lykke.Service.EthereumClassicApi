@@ -8,7 +8,6 @@ GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# only run this if you are pushing to master
 if [[ $current_branch -eq $master_branch || $current_branch -eq $candidate_branch || $current_branch -eq $develop_branch ]] ; then
     
     echo -e "${YELLOW}Running pre push to ${current_branch} check...${NC}"
