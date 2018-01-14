@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AzureStorage;
+using AzureStorage.Tables.Templates.Index;
 using Lykke.AzureStorage.Tables;
 using Lykke.Service.EthereumClassicApi.Repositories.Strategies.Interfaces;
 
@@ -20,16 +21,16 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Strategies
         }
 
 
+        public async Task ExecuteAsync(string partitionKey)
+        {
+            var entities = await _table.GetDataAsync(partitionKey, x => true);
+
+            await Task.WhenAll(entities.Select(x => _table.DeleteAsync(x)));
+        }
+
         public async Task ExecuteAsync(string partitionKey, string rowKey)
         {
             await _table.DeleteIfExistAsync(partitionKey, rowKey);
-        }
-
-        public async Task ExecuteAsync(string partitionKey, IEnumerable<string> rowKeys)
-        {
-            var tasks = rowKeys.Select(x => _table.DeleteIfExistAsync(partitionKey, x));
-
-            await Task.WhenAll(tasks);
         }
     }
 }

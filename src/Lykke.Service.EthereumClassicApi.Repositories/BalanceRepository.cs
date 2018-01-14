@@ -31,7 +31,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         public async Task AddOrReplaceAsync(BalanceDto dto)
         {
             var entity = dto.ToEntity();
-
+            
             entity.PartitionKey = GetPartitionKey();
             entity.RowKey       = GetRowKey(dto.Address);
 
@@ -43,13 +43,16 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             await _deleteStrategy.ExecuteAsync(GetPartitionKey(), GetRowKey(address));
         }
 
-        public async Task<IEnumerable<BalanceDto>> GetAsync(int take, string continuationToken)
+        public async Task<(IEnumerable<BalanceDto> Balances, string ContinuationToken)> GetAsync(int take, string continuationToken)
         {
-            return (await _getAllStrategy.ExecuteAsync(GetPartitionKey()))
+            var balances = (await _getAllStrategy.ExecuteAsync(GetPartitionKey()))
                 .Select(x => x.ToDto());
+
+            return (balances, null);
         }
 
 
+        // TODO: Add segmentation
         private static string GetPartitionKey()
             => "Balance";
 

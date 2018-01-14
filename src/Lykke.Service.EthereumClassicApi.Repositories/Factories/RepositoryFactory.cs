@@ -87,7 +87,12 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
         {
             var table = CreateTable<OperationStateEntity>(OperationStateTable);
 
-            return new OperationStateRepository(table);
+            return new OperationStateRepository
+            (
+                new AddOrReplaceStrategy<OperationStateEntity>(table),
+                new DeleteStrategy<OperationStateEntity>(table),
+                new GetStrategy<OperationStateEntity>(table)
+            );
         }
 
         public IOperationTransactionRepository BuildOperationTransactionRepository()

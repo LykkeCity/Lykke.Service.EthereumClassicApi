@@ -12,17 +12,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
                 .RegisterType<GasPriceOracleService>()
                 .As<IGasPriceOracleService>()
                 .SingleInstance();
-
-            builder
-                .RegisterType<BalanceQueryService>()
-                .As<IBalanceQueryService>()
-                .SingleInstance();
-
-            builder
-                .RegisterType<OperationStateQueryService>()
-                .As<IOperationStateQueryService>()
-                .SingleInstance();
-
+            
             builder
                 .RegisterType<TransactionStateService>()
                 .As<ITransactionStateService>()

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 using Akka.Actor;
@@ -24,7 +23,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
         Task<string> BuildTransactionAsync(BigInteger amount, string fromAddress, bool includeFee, Guid operationId, string toAddress);
 
-        Task DeleteOperationStates(IEnumerable<Guid> operationIds);
+        Task DeleteOperationStateAsync(Guid operationId);
 
         Task EndBalanceMonitoringAsync(string address);
 

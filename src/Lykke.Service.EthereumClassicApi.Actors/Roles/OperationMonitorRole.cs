@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lykke.Service.EthereumClassicApi.Actors.Exceptions;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
+using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;
@@ -57,24 +58,22 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             {
                 var completedTransaction = completedTransactionStates.Single(x => x.State.Completed);
                 var operationTransaction = completedTransaction.OperationTransaction;
-                var state                = completedTransaction.State;
+                var state                = completedTransaction.State.Failed ? OperationState.Failed : OperationState.Completed;
+
 
                 await _operationStateRepository.AddOrReplaceAsync(new OperationStateDto
                 {
                     Amount      = operationTransaction.Amount,
-                    Completed   = true,
                     Error       = "Transaction failed during execution.",
-                    Failed      = state.Failed,
                     Fee         = operationTransaction.Fee,
                     FromAddress = operationTransaction.FromAddress,
                     OperationId = operationId,
+                    State       = state,
                     Timestamp   = operationTransaction.CreatedOn,
                     ToAddress   = operationTransaction.ToAddress,
                     TxHash      = operationTransaction.TxHash
                 });
-
-                await _operationStateRepository.DeleteInProgressAsync(operationId);
-
+                
                 await _operationRepository.DeleteAsync(operationId);
 
                 await _operationTransactionRepository.DeleteAsync(operationId);
@@ -83,6 +82,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             }
             else
             {
+                // TODO: Use latest transaction only
+
                 foreach (var operationTransaction in operationTransactions)
                 {
                     await _operationStateRepository.AddOrReplaceAsync(new OperationStateDto
@@ -91,6 +92,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                         Fee         = operationTransaction.Fee,
                         FromAddress = operationTransaction.FromAddress,
                         OperationId = operationId,
+                        State       = OperationState.InProgress,
                         Timestamp   = operationTransaction.CreatedOn,
                         ToAddress   = operationTransaction.ToAddress,
                         TxHash      = operationTransaction.TxHash

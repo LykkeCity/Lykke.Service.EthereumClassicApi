@@ -1,59 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Threading.Tasks;
 using Lykke.Common.Api.Contract.Responses;
-using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
-using Lykke.Service.EthereumClassicApi.Services.Interfaces;
 using Lykke.Service.EthereumClassicApi.Actors;
 using Lykke.Service.EthereumClassicApi.Actors.Exceptions;
 using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Common.Utils;
+using Lykke.Service.EthereumClassicApi.Mappers;
+using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace Lykke.Service.EthereumClassicApi.Controllers
 {
     [Route("api/transactions")]
     public class TransactionsController : Controller
     {
-        private readonly IActorSystemFacade          _actorSystemFacade;
-        private readonly IOperationStateQueryService _operationStateQueryService;
+        private readonly IActorSystemFacade             _actorSystemFacade;
+        private readonly IOperationStateQueryRepository _operationStateQueryRepository;
 
 
         public TransactionsController(
             IActorSystemFacade actorSystemFacade,
-            IOperationStateQueryService operationStateQueryService)
+            IOperationStateQueryRepository operationStateQueryRepository)
         {
-            _actorSystemFacade          = actorSystemFacade;
-            _operationStateQueryService = operationStateQueryService;
+            _actorSystemFacade             = actorSystemFacade;
+            _operationStateQueryRepository = operationStateQueryRepository;
         }
 
-
-        [HttpPost("broadcast")]
-        public async Task<IActionResult> BroadcastSignedTransaction(BroadcastTransactionRequest request)
-        {
-            try
-            {
-                await _actorSystemFacade.BroadcastTransactionAsync
-                (
-                    operationId:  request.OperationId,
-                    signedTxData: request.SignedTransaction
-                );
-
-                return Ok();
-            }
-            catch (ConflictException e)
-            {
-                return StatusCode((int) HttpStatusCode.Conflict, e.Message);
-            }
-        }
 
         [HttpPost]
-        public async Task<IActionResult> BuildUnsignedTransaction(BuildTransactionRequest request)
+        public async Task<IActionResult> Build(BuildTransactionRequest request)
         {
             var errorResponse = new ErrorResponse();
 
@@ -100,88 +80,8 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             }
         }
 
-        [HttpDelete("observation")]
-        public async Task<IActionResult> DeleteTransactionsFromObservationList([FromBody] IEnumerable<Guid> operationIds)
-        {
-            await _actorSystemFacade.DeleteOperationStates(operationIds);
-
-            return Ok();
-        }
-
-        [HttpGet("completed")]
-        public async Task<IActionResult> GetCompletedTransactionList([FromQuery] int take = 1000, [FromQuery] string continuation = "")
-        {
-            // TODO: Add actual pagination
-
-            var transactions = (await _operationStateQueryService.GetCompletedOperationsAsync(take, continuation))
-                .Select(x => new CompletedTransactionContract
-                {
-                    Amount      = x.Amount.ToString(),
-                    AssetId     = Constants.EtcAsset.AssetId,
-                    FromAddress = x.FromAddress,
-                    Hash        = x.TxHash,
-                    OperationId = x.OperationId,
-                    Timestamp   = x.Timestamp.DateTime,
-                    ToAddress   = x.ToAddress
-                });
-
-            return Ok(new PaginationResponse<CompletedTransactionContract>
-            {
-                Continuation = null,
-                Items        = transactions.ToImmutableList()
-            });
-        }
-
-        [HttpGet("failed")]
-        public async Task<IActionResult> GetFailedTransactionList([FromQuery] int take = 1000, [FromQuery] string continuation = "")
-        {
-            // TODO: Add actual pagination
-
-            var transactions = (await _operationStateQueryService.GetFailedOperationsAsync(take, continuation))
-                .Select(x => new FailedTransactionContract
-                {
-                    Amount      = x.Amount.ToString(),
-                    AssetId     = Constants.EtcAsset.AssetId,
-                    Error       = x.Error,
-                    FromAddress = x.FromAddress,
-                    OperationId = x.OperationId,
-                    Timestamp   = x.Timestamp.DateTime,
-                    ToAddress   = x.ToAddress
-                });
-
-            return Ok(new PaginationResponse<FailedTransactionContract>
-            {
-                Continuation = null,
-                Items        = transactions.ToImmutableList()
-            });
-        }
-
-        [HttpGet("in-progress")]
-        public async Task<IActionResult> GetInProgressTransactionList([FromQuery] int take = 1000, [FromQuery] string continuation = "")
-        {
-            // TODO: Add actual pagination
-
-            var transactions = (await _operationStateQueryService.GetInProgressOperationsAsync(take, continuation))
-                .Select(x => new InProgressTransactionContract
-                {
-                    Amount      = x.Amount.ToString(),
-                    AssetId     = Constants.EtcAsset.AssetId,
-                    FromAddress = x.FromAddress,
-                    Hash        = x.TxHash,
-                    OperationId = x.OperationId,
-                    Timestamp   = x.Timestamp.DateTime,
-                    ToAddress   = x.ToAddress
-                });
-
-            return Ok(new PaginationResponse<InProgressTransactionContract>
-            {
-                Continuation = null,
-                Items        = transactions.ToImmutableList()
-            });
-        }
-
         [HttpPut]
-        public async Task<IActionResult> UpdateUnsignedTransaction(RebuildTransactionRequest request)
+        public async Task<IActionResult> Rebuild(RebuildTransactionRequest request)
         {
             var errorResponse = new ErrorResponse();
 
@@ -207,6 +107,55 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             else
             {
                 return BadRequest(errorResponse);
+            }
+        }
+
+        [HttpPost("broadcast")]
+        public async Task<IActionResult> Broadcast(BroadcastTransactionRequest request)
+        {
+            try
+            {
+                await _actorSystemFacade.BroadcastTransactionAsync
+                (
+                    operationId:  request.OperationId,
+                    signedTxData: request.SignedTransaction
+                );
+
+                return Ok();
+            }
+            catch (ConflictException e)
+            {
+                return StatusCode((int)HttpStatusCode.Conflict, e.Message);
+            }
+        }
+
+        [HttpGet("broadcast/{operationId}")]
+        public async Task<IActionResult> GetState(Guid operationId)
+        {
+            var state = await _operationStateQueryRepository.GetAsync(operationId);
+
+            if (state != null)
+            {
+                return Ok(state.ToBuildTransactionResponse());
+            }
+            else
+            {
+                return NoContent();
+            }
+        }
+
+        [HttpDelete("broadcast/{operationId}")]
+        public async Task<IActionResult> DeleteState(Guid operationId)
+        {
+            try
+            {
+                await _actorSystemFacade.DeleteOperationStateAsync(operationId);
+
+                return Ok();
+            }
+            catch (NotFoundException)
+            {
+                return NoContent();
             }
         }
     }

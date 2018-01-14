@@ -4,28 +4,29 @@ using System.Net;
 using System.Threading.Tasks;
 using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Balances;
-using Lykke.Service.EthereumClassicApi.Services.Interfaces;
 using Lykke.Service.EthereumClassicApi.Actors;
 using Lykke.Service.EthereumClassicApi.Actors.Exceptions;
 using Lykke.Service.EthereumClassicApi.Common;
+using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Utils;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace Lykke.Service.EthereumClassicApi.Controllers
 {
     [Route("api/balances")]
     public class BalancesController : Controller
     {
-        private readonly IActorSystemFacade   _actorSystemFacade;
-        private readonly IBalanceQueryService _balanceQueryService;
+        private readonly IActorSystemFacade      _actorSystemFacade;
+        private readonly IBalanceQueryRepository _balanceQueryRepository;
 
 
         public BalancesController(
             IActorSystemFacade actorSystemFacade,
-            IBalanceQueryService balanceQueryService)
+            IBalanceQueryRepository balanceQueryRepository)
         {
-            _actorSystemFacade   = actorSystemFacade;
-            _balanceQueryService = balanceQueryService;
+            _actorSystemFacade      = actorSystemFacade;
+            _balanceQueryRepository = balanceQueryRepository;
         }
 
 
@@ -62,7 +63,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBalanceList([FromQuery] int take, [FromQuery] string continuation = "")
         {
-            (var balances, var continuationToken) = await _balanceQueryService.GetBalancesAsync(take, continuation);
+            (var balances, var continuationToken) = await _balanceQueryRepository.GetAsync(take, continuation);
             
             var responseItems = balances
                 .Select(x => new WalletBalanceContract

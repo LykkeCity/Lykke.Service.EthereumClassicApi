@@ -80,11 +80,11 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             return txData;
         }
 
-        public async Task DeleteOperationStates(IEnumerable<Guid> operationIds)
+        public async Task DeleteOperationStateAsync(Guid operationId)
         {
             throw new NotImplementedException();
         }
-
+        
         public async Task EndBalanceMonitoringAsync(string address)
         {
             var response = await BalanceObserverManager.Ask(new EndBalanceMonitoring
