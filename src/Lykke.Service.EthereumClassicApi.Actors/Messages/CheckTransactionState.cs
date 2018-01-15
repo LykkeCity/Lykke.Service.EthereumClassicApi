@@ -4,9 +4,9 @@ using System.ComponentModel;
 namespace Lykke.Service.EthereumClassicApi.Actors.Messages
 {
     [ImmutableObject(true)]
-    public sealed class CheckOperationState
+    public sealed class CheckTransactionState
     {
-        public CheckOperationState(Guid operationId)
+        public CheckTransactionState(Guid operationId)
         {
             OperationId = operationId;
         }

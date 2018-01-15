@@ -1,25 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 
 namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 {
-    public class TransactionProcessorDispatcherRole : ITransactionProcessorDispatcherRole
+    public class TransactionMonitorDispatcherRole : ITransactionMonitorDispatcherRole
     {
         private readonly IBuiltTransactionRepository _builtTransactionRepository;
 
 
-        public TransactionProcessorDispatcherRole(
+        public TransactionMonitorDispatcherRole(
             IBuiltTransactionRepository builtTransactionRepository)
         {
             _builtTransactionRepository = builtTransactionRepository;
         }
 
 
-        public async Task<string> GetFromAddressAsync(Guid operationId)
+        public async Task<IEnumerable<Guid>> GetAllOperationIdsAsync()
         {
-            return (await _builtTransactionRepository.GetAsync(operationId)).FromAddress;
+            return await _builtTransactionRepository.GetAllOperationIdsAsync();
         }
     }
 }

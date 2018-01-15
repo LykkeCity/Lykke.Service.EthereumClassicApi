@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces
 {
-    public interface IOperationMonitorDispatcherRole : IActorRole
+    public interface ITransactionMonitorDispatcherRole : IActorRole
     {
         Task<IEnumerable<Guid>> GetAllOperationIdsAsync();
     }

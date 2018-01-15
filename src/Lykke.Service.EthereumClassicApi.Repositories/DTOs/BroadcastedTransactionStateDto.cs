@@ -4,7 +4,7 @@ using Lykke.Service.EthereumClassicApi.Common;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.DTOs
 {
-    public class OperationStateDto
+    public class BroadcastedTransactionStateDto
     {
         public BigInteger Amount { get; set; }
         
@@ -16,7 +16,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.DTOs
 
         public Guid OperationId { get; set; }
 
-        public OperationState State { get; set; }
+        public TransactionState State { get; set; }
 
         public DateTimeOffset Timestamp { get; set; }
         

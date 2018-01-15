@@ -1,6 +1,6 @@
 ﻿namespace Lykke.Service.EthereumClassicApi.Common
 {
-    public enum OperationState
+    public enum TransactionState
     {
         InProgress,
         Completed,

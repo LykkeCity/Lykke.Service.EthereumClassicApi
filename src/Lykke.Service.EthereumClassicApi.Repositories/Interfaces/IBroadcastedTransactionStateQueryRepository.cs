@@ -4,8 +4,8 @@ using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 {
-    public interface IOperationStateQueryRepository
+    public interface IBroadcastedTransactionStateQueryRepository
     {
-        Task<OperationStateDto> GetAsync(Guid operationId);
+        Task<BroadcastedTransactionStateDto> GetAsync(Guid operationId);
     }
 }

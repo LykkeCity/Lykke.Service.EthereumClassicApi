@@ -8,19 +8,19 @@ namespace Lykke.Service.EthereumClassicApi.Mappers
 {
     internal static class OperationStateDtoMappings
     {
-        public static BroadcastedTransactionResponse ToBuildTransactionResponse(this OperationStateDto dto)
+        public static BroadcastedTransactionResponse ToBuildTransactionResponse(this BroadcastedTransactionStateDto dto)
         {
             BroadcastedTransactionState state;
 
             switch (dto.State)
             {
-                case OperationState.InProgress:
+                case TransactionState.InProgress:
                     state = BroadcastedTransactionState.InProgress;
                     break;
-                case OperationState.Completed:
+                case TransactionState.Completed:
                     state = BroadcastedTransactionState.Completed;
                     break;
-                case OperationState.Failed:
+                case TransactionState.Failed:
                     state = BroadcastedTransactionState.Failed;
                     break;
                 default:

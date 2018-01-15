@@ -24,8 +24,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             BalanceObserverManager =
                 _rootActorFactory.Build<BalanceObserverManagerActor>("balances-observer-manager");
 
-            OperationMonitorDispatcher =
-                _rootActorFactory.Build<OperationMonitorDispatcherActor>("operation-monitor-dispatcher");
+            TransactionMonitorDispatcher =
+                _rootActorFactory.Build<TransactionMonitorDispatcherActor>("transaction-monitor-dispatcher");
 
             TransactionProcessorsDispatcher =
                 _rootActorFactory.Build<TransactionProcessorDispatcherActor>("transaction-procesor-dispatcher");
@@ -36,7 +36,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
         public IActorRef BalanceObserverManager { get; }
 
-        public IActorRef OperationMonitorDispatcher { get; }
+        public IActorRef TransactionMonitorDispatcher { get; }
 
         public IActorRef TransactionProcessorsDispatcher { get; }
 
@@ -82,7 +82,12 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
         public async Task DeleteOperationStateAsync(Guid operationId)
         {
-            throw new NotImplementedException();
+            var response = await TransactionMonitorDispatcher.Ask(new DeleteTransactionState
+            (
+                operationId: operationId
+            ));
+
+            CheckIfResponseIsSuccess(response);
         }
         
         public async Task EndBalanceMonitoringAsync(string address)

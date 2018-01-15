@@ -13,14 +13,14 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
 {
     public class RepositoryFactory : IRepositoryFactory
     {
-        private const string BalanceTable              = "Balances";
-        private const string DynamicSettingsTable      = "DynamicSettings";
-        private const string ObservableBalanceTable    = "ObservableBalances";
-        private const string OperationTable            = "Operations";
-        private const string OperationStateTable       = "OperationStates";
-        private const string OperationTransactionTable = "Operationtransactions";
-
-
+        private const string BalanceTable                     = "Balances";
+        private const string BroadcastedTransactionStateTable = "BroadcastedTransactionStates";
+        private const string BroadcastedTransactionTable      = "BroadcastedTransactions";
+        private const string BuiltTransactionTable            = "BuiltTransactions";
+        private const string DynamicSettingsTable             = "DynamicSettings";
+        private const string ObservableBalanceTable           = "ObservableBalances";
+        
+        
         private readonly IReloadingManager<string> _connectionString;
         private readonly ILog                      _log;
 
@@ -43,6 +43,43 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
                 new AddOrReplaceStrategy<BalanceEntity>(table),
                 new DeleteStrategy<BalanceEntity>(table),
                 new GetAllStrategy<BalanceEntity>(table)
+            );
+        }
+
+        public IBroadcastedTransactionStateRepository BuildBroadcastedTransactionStateRepository()
+        {
+            var table = CreateTable<BroadcastedTransactionStateEntity>(BroadcastedTransactionStateTable);
+
+            return new BroadcastedTransactionStateRepository
+            (
+                new AddOrReplaceStrategy<BroadcastedTransactionStateEntity>(table),
+                new DeleteStrategy<BroadcastedTransactionStateEntity>(table),
+                new GetStrategy<BroadcastedTransactionStateEntity>(table)
+            );
+        }
+
+        public IBroadcastedTransactionRepository BuildBroadcastedTransactionRepository()
+        {
+            //TODO: Add implementation
+
+            var table = CreateTable<BroadcastedTransactionEntity>(BroadcastedTransactionTable);
+
+            return new BroadcastedTransactionRepository
+            (
+
+            );
+        }
+
+        public IBuiltTransactionRepository BuildBuiltTransactionRepository()
+        {
+            var table = CreateTable<BuiltTransactionEntity>(BuiltTransactionTable);
+
+            return new BuiltTransactionRepository
+            (
+                new AddStrategy<BuiltTransactionEntity>(table),
+                new DeleteStrategy<BuiltTransactionEntity>(table),
+                new GetAllStrategy<BuiltTransactionEntity>(table),
+                new GetStrategy<BuiltTransactionEntity>(table)
             );
         }
 
@@ -69,42 +106,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
                 new GetAllStrategy<ObservableBalanceEntity>(table)
             );
         }
-
-        public IOperationRepository BuildOperationRepository()
-        {
-            var table = CreateTable<OperationEntity>(OperationTable);
-
-            return new OperationRepository
-            (
-                new AddStrategy<OperationEntity>(table),
-                new DeleteStrategy<OperationEntity>(table),
-                new GetAllStrategy<OperationEntity>(table),
-                new GetStrategy<OperationEntity>(table)
-            );
-        }
-
-        public IOperationStateRepository BuildOperationStateRepository()
-        {
-            var table = CreateTable<OperationStateEntity>(OperationStateTable);
-
-            return new OperationStateRepository
-            (
-                new AddOrReplaceStrategy<OperationStateEntity>(table),
-                new DeleteStrategy<OperationStateEntity>(table),
-                new GetStrategy<OperationStateEntity>(table)
-            );
-        }
-
-        public IOperationTransactionRepository BuildOperationTransactionRepository()
-        {
-            var table = CreateTable<OperationTransactionEntity>(OperationTransactionTable);
-
-            return new OperationTransactionRepository
-            (
-                
-            );
-        }
-
+        
         private INoSQLTableStorage<T> CreateTable<T>(string tableName)
             where T : AzureTableEntity, new()
         {

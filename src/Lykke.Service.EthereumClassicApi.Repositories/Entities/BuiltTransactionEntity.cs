@@ -3,7 +3,7 @@ using Lykke.AzureStorage.Tables;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Entities
 {
-    public class OperationEntity : AzureTableEntity
+    public class BuiltTransactionEntity : AzureTableEntity
     {
         public string Amount { get; set; }
 

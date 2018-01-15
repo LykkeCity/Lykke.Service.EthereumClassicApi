@@ -6,25 +6,25 @@ using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
 {
-    internal static class OperationStateMappings
+    internal static class BroadcastedTransactionStateMappings
     {
-        public static OperationStateDto ToDto(this OperationStateEntity entity)
+        public static BroadcastedTransactionStateDto ToDto(this BroadcastedTransactionStateEntity entity)
         {
-            return new OperationStateDto
+            return new BroadcastedTransactionStateDto
             {
                 Amount      = BigInteger.Parse(entity.Amount),
                 FromAddress = entity.FromAddress,
                 OperationId = entity.OperationId,
-                State       = EnumUtil.Parse<OperationState>(entity.State), 
+                State       = EnumUtil.Parse<TransactionState>(entity.State), 
                 Timestamp   = entity.Timestamp,
                 ToAddress   = entity.ToAddress,
                 TxHash      = entity.TxHash
             };
         }
 
-        public static OperationStateEntity ToEntity(this OperationStateDto dto)
+        public static BroadcastedTransactionStateEntity ToEntity(this BroadcastedTransactionStateDto dto)
         {
-            return new OperationStateEntity
+            return new BroadcastedTransactionStateEntity
             {
                 Amount      = dto.Amount.ToString(),
                 FromAddress = dto.FromAddress,

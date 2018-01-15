@@ -5,9 +5,9 @@ using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 {
-    public interface IOperationStateRepository : IOperationStateQueryRepository
+    public interface IBroadcastedTransactionStateRepository : IBroadcastedTransactionStateQueryRepository
     {
-        Task AddOrReplaceAsync(OperationStateDto dto);
+        Task AddOrReplaceAsync(BroadcastedTransactionStateDto dto);
 
         Task DeleteAsync(Guid operationId);
     }

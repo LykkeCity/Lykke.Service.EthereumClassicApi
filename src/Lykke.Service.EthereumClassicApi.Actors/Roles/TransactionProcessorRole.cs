@@ -14,42 +14,58 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 {
     public class TransactionProcessorRole : ITransactionProcessorRole
     {
-        private readonly IEthereum                       _ethereum;
-        private readonly IGasPriceOracleService          _gasPriceOracleService;
-        private readonly IOperationRepository            _operationRepository;
-        private readonly IOperationTransactionRepository _operationTransactionRepository;
+        private readonly IBroadcastedTransactionRepository      _broadcastedTransactionRepository;
+        private readonly IBroadcastedTransactionStateRepository _broadcastedTransactionStateRepository;
+        private readonly IBuiltTransactionRepository            _builtTransactionRepository;
+        private readonly IEthereum                              _ethereum;
+        private readonly IGasPriceOracleService                 _gasPriceOracleService;
 
 
         public TransactionProcessorRole(
+            IBroadcastedTransactionRepository broadcastedTransactionRepository,
+            IBroadcastedTransactionStateRepository broadcastedTransactionStateRepository,
+            IBuiltTransactionRepository builtTransactionRepository,
             IEthereum ethereum,
-            IGasPriceOracleService gasPriceOracleService,
-            IOperationRepository operationRepository,
-            IOperationTransactionRepository operationTransactionRepository)
+            IGasPriceOracleService gasPriceOracleService)
         {
-            _ethereum                       = ethereum;
-            _gasPriceOracleService          = gasPriceOracleService;
-            _operationRepository            = operationRepository;
-            _operationTransactionRepository = operationTransactionRepository;
+            _broadcastedTransactionStateRepository = broadcastedTransactionStateRepository;
+            _broadcastedTransactionRepository      = broadcastedTransactionRepository;
+            _builtTransactionRepository            = builtTransactionRepository;
+            _ethereum                              = ethereum;
+            _gasPriceOracleService                 = gasPriceOracleService;
         }
 
         /// <inheritdoc />
         public async Task<string> BroadcastTransaction(Guid operationId, string signedTxData)
         {
-            if (!await _operationTransactionRepository.ExistsAsync(operationId, signedTxData))
+            if (!await _broadcastedTransactionRepository.ExistsAsync(operationId, signedTxData))
             {
-                var operation = await _operationRepository.GetAsync(operationId);
+                var operation = await _builtTransactionRepository.GetAsync(operationId);
                 var txHash    = await _ethereum.SendRawTransactionAsync(signedTxData);
+                var now       = DateTimeOffset.UtcNow;
 
-                await _operationTransactionRepository.AddAsync(new OperationTransactionDto
+                await _broadcastedTransactionRepository.AddAsync(new BroadcastedTransactionDto
                 {
                     Amount       = operation.Amount,
                     Fee          = new BigInteger(), // TODO: Set fee
                     FromAddress  = operation.FromAddress,
                     OperationId  = operationId,
                     SignedTxData = signedTxData,
-                    CreatedOn    = DateTimeOffset.UtcNow,
+                    Timestamp    = now,
                     ToAddress    = operation.ToAddress,
                     TxHash       = txHash
+                });
+
+                await _broadcastedTransactionStateRepository.AddOrReplaceAsync(new BroadcastedTransactionStateDto
+                {
+                    Amount      = operation.Amount,
+                    Fee         = new BigInteger(), // TODO: Set fee,
+                    FromAddress = operation.FromAddress,
+                    OperationId = operationId,
+                    State       = TransactionState.InProgress,
+                    Timestamp   = now,
+                    ToAddress   = operation.ToAddress,
+                    TxHash      = txHash
                 });
 
                 return txHash;
@@ -60,9 +76,9 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             }
         }
 
-        public async Task<string> BuildOperationAsync(BigInteger amount, string fromAddress, bool includeFee, Guid operationId, string toAddress)
+        public async Task<string> BuildTransactionAsync(BigInteger amount, string fromAddress, bool includeFee, Guid operationId, string toAddress)
         {
-            var operation = await _operationRepository.GetAsync(operationId);
+            var operation = await _builtTransactionRepository.GetAsync(operationId);
 
             if (operation == null)
             {
@@ -76,7 +92,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                     actualAmount -= fee;
                 }
                 
-                await _operationRepository.AddAsync(new OperationDto
+                await _builtTransactionRepository.AddAsync(new BuiltTransactionDto
                 {
                     Amount      = actualAmount,
                     FromAddress = fromAddress,
@@ -111,7 +127,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         
         public async Task<string> RebuildTransactionAsync(decimal feeFactor, Guid operationId)
         {
-            var operation = await _operationRepository.GetAsync(operationId);
+            var operation = await _builtTransactionRepository.GetAsync(operationId);
             
             if (operation != null)
             {

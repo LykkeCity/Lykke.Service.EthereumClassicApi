@@ -63,7 +63,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             {
                 try
                 {
-                    var txData = await _transactionProcessorRole.BuildOperationAsync
+                    var txData = await _transactionProcessorRole.BuildTransactionAsync
                     (
                         amount:      message.Amount,
                         fromAddress: message.FromAddress,

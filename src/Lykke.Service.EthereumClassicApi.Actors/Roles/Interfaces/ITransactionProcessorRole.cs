@@ -20,7 +20,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces
         /// </exception>
         Task<string> BroadcastTransaction(Guid operationId, string signedTxData);
 
-        Task<string> BuildOperationAsync(BigInteger amount, string fromAddress, bool includeFee, Guid operationId, string toAddress);
+        Task<string> BuildTransactionAsync(BigInteger amount, string fromAddress, bool includeFee, Guid operationId, string toAddress);
 
         Task<string> RebuildTransactionAsync(decimal feeFactor, Guid operationId);
     }

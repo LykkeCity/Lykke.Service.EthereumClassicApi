@@ -12,7 +12,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
         IActorRef BalanceObserverManager { get; }
 
-        IActorRef OperationMonitorDispatcher { get; }
+        IActorRef TransactionMonitorDispatcher { get; }
 
         IActorRef TransactionProcessorsDispatcher { get; }
         

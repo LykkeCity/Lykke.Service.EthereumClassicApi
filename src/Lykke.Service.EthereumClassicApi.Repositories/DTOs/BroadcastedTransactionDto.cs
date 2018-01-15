@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.DTOs
 {
-    public class OperationTransactionDto
+    public class BroadcastedTransactionDto
     {
         public BigInteger Amount { get; set; }
 
@@ -15,7 +15,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.DTOs
 
         public string SignedTxData { get; set; }
 
-        public DateTimeOffset CreatedOn { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
 
         public string ToAddress { get; set; }
 

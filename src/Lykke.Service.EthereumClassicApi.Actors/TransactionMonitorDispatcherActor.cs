@@ -10,51 +10,59 @@ using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
     [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
-    public class OperationMonitorDispatcherActor : ReceiveActor
+    public class TransactionMonitorDispatcherActor : ReceiveActor
     {
-        private readonly IOperationMonitorDispatcherRole _operationMonitorDispatcherRole;
+        private readonly ITransactionMonitorDispatcherRole _transactionMonitorDispatcherRole;
         private readonly IActorRef                       _operationMonitors;
 
 
-        public OperationMonitorDispatcherActor(
-            IOperationMonitorDispatcherRole operationMonitorDispatcherRole,
+        public TransactionMonitorDispatcherActor(
+            ITransactionMonitorDispatcherRole transactionMonitorDispatcherRole,
             IOperationMonitorsFactory operationMonitorsFactory)
         {
-            _operationMonitorDispatcherRole = operationMonitorDispatcherRole;
+            _transactionMonitorDispatcherRole = transactionMonitorDispatcherRole;
             _operationMonitors              = operationMonitorsFactory.Build(Context, "operation-monitors");
 
 
-            Receive<CheckOperationState>(
+            Receive<CheckTransactionState>(
                 msg => ProcessMessage(msg));
 
-            ReceiveAsync<CheckOperationStates>(
+            Receive<DeleteTransactionState>(
+                msg => ProcessMessage(msg));
+
+            ReceiveAsync<CheckTransactionStates>(
                 ProcessMessageAsync);
 
 
             Self.Tell
             (
-                message: CheckOperationStates.Instance,
+                message: CheckTransactionStates.Instance,
                 sender:  Nobody.Instance
             );
         }
 
 
-        private void ProcessMessage(CheckOperationState message)
+        private void ProcessMessage(CheckTransactionState message)
         {
             _operationMonitors.Forward(message);
         }
 
-        private async Task ProcessMessageAsync(CheckOperationStates message)
+        private void ProcessMessage(DeleteTransactionState message)
+        {
+            _operationMonitors.Forward(message);
+        }
+
+        private async Task ProcessMessageAsync(CheckTransactionStates message)
         {
             using (var logger = Context.GetLogger(message))
             {
                 try
                 {
-                    var operationIds = await _operationMonitorDispatcherRole.GetAllOperationIdsAsync();
+                    var operationIds = await _transactionMonitorDispatcherRole.GetAllOperationIdsAsync();
 
                     foreach (var operationId in operationIds)
                     {
-                        _operationMonitors.Tell(new CheckOperationState
+                        _operationMonitors.Tell(new CheckTransactionState
                         (
                             operationId: operationId
                         ));

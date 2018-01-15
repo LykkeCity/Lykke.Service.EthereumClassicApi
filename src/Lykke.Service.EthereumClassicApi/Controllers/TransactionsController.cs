@@ -20,15 +20,15 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
     public class TransactionsController : Controller
     {
         private readonly IActorSystemFacade             _actorSystemFacade;
-        private readonly IOperationStateQueryRepository _operationStateQueryRepository;
+        private readonly IBroadcastedTransactionStateQueryRepository _broadcastedTransactionStateQueryRepository;
 
 
         public TransactionsController(
             IActorSystemFacade actorSystemFacade,
-            IOperationStateQueryRepository operationStateQueryRepository)
+            IBroadcastedTransactionStateQueryRepository broadcastedTransactionStateQueryRepository)
         {
             _actorSystemFacade             = actorSystemFacade;
-            _operationStateQueryRepository = operationStateQueryRepository;
+            _broadcastedTransactionStateQueryRepository = broadcastedTransactionStateQueryRepository;
         }
 
 
@@ -132,7 +132,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpGet("broadcast/{operationId}")]
         public async Task<IActionResult> GetState(Guid operationId)
         {
-            var state = await _operationStateQueryRepository.GetAsync(operationId);
+            var state = await _broadcastedTransactionStateQueryRepository.GetAsync(operationId);
 
             if (state != null)
             {

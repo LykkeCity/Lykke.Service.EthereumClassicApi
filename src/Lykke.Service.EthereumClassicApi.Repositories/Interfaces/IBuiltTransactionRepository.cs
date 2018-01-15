@@ -5,13 +5,13 @@ using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 {
-    public interface IOperationRepository
+    public interface IBuiltTransactionRepository
     {
-        Task AddAsync(OperationDto dto);
+        Task AddAsync(BuiltTransactionDto dto);
 
         Task DeleteAsync(Guid operationId);
 
-        Task<OperationDto> GetAsync(Guid operationId);
+        Task<BuiltTransactionDto> GetAsync(Guid operationId);
 
         Task<IEnumerable<Guid>> GetAllOperationIdsAsync();
     }

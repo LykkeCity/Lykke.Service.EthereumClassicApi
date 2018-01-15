@@ -4,11 +4,11 @@ using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
 {
-    internal static class OperationMappings
+    internal static class BuiltTransactionMappings
     {
-        public static OperationDto ToDto(this OperationEntity entity)
+        public static BuiltTransactionDto ToDto(this BuiltTransactionEntity entity)
         {
-            return new OperationDto
+            return new BuiltTransactionDto
             {
                 Amount      = BigInteger.Parse(entity.Amount),
                 FromAddress = entity.FromAddress,
@@ -20,9 +20,9 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
             };
         }
 
-        public static OperationEntity ToEntity(this OperationDto dto)
+        public static BuiltTransactionEntity ToEntity(this BuiltTransactionDto dto)
         {
-            return new OperationEntity
+            return new BuiltTransactionEntity
             {
                 Amount      = dto.Amount.ToString(),
                 FromAddress = dto.FromAddress,

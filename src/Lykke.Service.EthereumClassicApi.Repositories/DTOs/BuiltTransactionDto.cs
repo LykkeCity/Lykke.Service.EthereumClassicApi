@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.DTOs
 {
-    public class OperationDto
+    public class BuiltTransactionDto
     {
         public BigInteger Amount { get; set; }
         

@@ -14,7 +14,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
     [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
     public class BalanceObserverDispatcherActor : ReceiveActor
     { 
-        private readonly IActorRef            _balanceReaders;
+        private readonly IActorRef                      _balanceReaders;
         private readonly IBalanceObserverDispatcherRole _balanceObserverDispatcherRole;
 
         private int _numberOfRemainingBalances;

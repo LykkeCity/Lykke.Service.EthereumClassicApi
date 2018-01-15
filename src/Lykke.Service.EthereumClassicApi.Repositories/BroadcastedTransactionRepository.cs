@@ -6,9 +6,9 @@ using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories
 {
-    public class OperationTransactionRepository : IOperationTransactionRepository
+    public class BroadcastedTransactionRepository : IBroadcastedTransactionRepository
     {
-        public async Task AddAsync(OperationTransactionDto dto)
+        public async Task AddAsync(BroadcastedTransactionDto dto)
         {
             throw new NotImplementedException();
         }
@@ -23,7 +23,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<OperationTransactionDto>> GetAsync(Guid operationId)
+        public async Task<IEnumerable<BroadcastedTransactionDto>> GetAsync(Guid operationId)
         {
             throw new NotImplementedException();
         }

@@ -6,7 +6,7 @@ using Lykke.Service.EthereumClassicApi.Common.Settings;
 
 namespace Lykke.Service.EthereumClassicApi.Actors.Factories
 {
-    public class OperationMonitorsFactory : ChildActorFactory<OperationMonitorActor>, IOperationMonitorsFactory
+    public class OperationMonitorsFactory : ChildActorFactory<TransactionMonitorActor>, IOperationMonitorsFactory
     {
         private readonly EthereumClassicApiSettings _serviceSettings;
 
@@ -23,7 +23,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Factories
 
             return context.ActorOf
             (
-                props: context.DI().Props<OperationMonitorActor>().WithRouter(router),
+                props: context.DI().Props<TransactionMonitorActor>().WithRouter(router),
                 name:  name
             );
         }

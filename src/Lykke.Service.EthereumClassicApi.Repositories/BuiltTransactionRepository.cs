@@ -10,19 +10,19 @@ using Lykke.Service.EthereumClassicApi.Repositories.Strategies.Interfaces;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories
 {
-    public class OperationRepository : IOperationRepository
+    public class BuiltTransactionRepository : IBuiltTransactionRepository
     {
-        private readonly IAddStrategy<OperationEntity>    _addStrategy;
-        private readonly IDeleteStrategy<OperationEntity> _deleteStrategy;
-        private readonly IGetAllStrategy<OperationEntity> _getAllStrategy;
-        private readonly IGetStrategy<OperationEntity>    _getStrategy;
+        private readonly IAddStrategy<BuiltTransactionEntity>    _addStrategy;
+        private readonly IDeleteStrategy<BuiltTransactionEntity> _deleteStrategy;
+        private readonly IGetAllStrategy<BuiltTransactionEntity> _getAllStrategy;
+        private readonly IGetStrategy<BuiltTransactionEntity>    _getStrategy;
 
 
-        public OperationRepository(
-            IAddStrategy<OperationEntity> addStrategy,
-            IDeleteStrategy<OperationEntity> deleteStrategy,
-            IGetAllStrategy<OperationEntity> getAllStrategy,
-            IGetStrategy<OperationEntity> getStrategy)
+        public BuiltTransactionRepository(
+            IAddStrategy<BuiltTransactionEntity> addStrategy,
+            IDeleteStrategy<BuiltTransactionEntity> deleteStrategy,
+            IGetAllStrategy<BuiltTransactionEntity> getAllStrategy,
+            IGetStrategy<BuiltTransactionEntity> getStrategy)
         {
             _addStrategy    = addStrategy;
             _deleteStrategy = deleteStrategy;
@@ -31,7 +31,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         }
 
 
-        public async Task AddAsync(OperationDto dto)
+        public async Task AddAsync(BuiltTransactionDto dto)
         {
             var entity = dto.ToEntity();
 
@@ -46,7 +46,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             await _deleteStrategy.ExecuteAsync(GetPartitionKey(), GetRowKey(operationId));
         }
 
-        public async Task<OperationDto> GetAsync(Guid operationId)
+        public async Task<BuiltTransactionDto> GetAsync(Guid operationId)
         {
             return (await _getStrategy.ExecuteAsync(GetPartitionKey(), GetRowKey(operationId)))
                 .ToDto();
