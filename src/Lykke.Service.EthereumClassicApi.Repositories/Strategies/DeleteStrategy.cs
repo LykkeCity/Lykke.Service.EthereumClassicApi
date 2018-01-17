@@ -25,7 +25,10 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Strategies
         {
             var entities = await _table.GetDataAsync(partitionKey, x => true);
 
-            await Task.WhenAll(entities.Select(x => _table.DeleteAsync(x)));
+            await Task.WhenAll
+            (
+                entities.Select(x => _table.DeleteIfExistAsync(x.PartitionKey, x.RowKey))
+            );
         }
 
         public async Task ExecuteAsync(string partitionKey, string rowKey)

@@ -10,30 +10,35 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 {
     public class BalanceObserverRole : IBalanceObserverRole
     {
-        private readonly IBalanceRepository _balanceRepository;
-        private readonly IEthereum          _ethereum;
+        private readonly IObservableBalanceRepository _observableBalanceRepository;
+        private readonly IEthereum                    _ethereum;
 
 
         public BalanceObserverRole(
-            IBalanceRepository balanceRepository,
+            IObservableBalanceRepository observableBalanceRepository,
             IEthereum ethereum)
         {
-            _balanceRepository = balanceRepository;
-            _ethereum          = ethereum;
+            _observableBalanceRepository = observableBalanceRepository;
+            _ethereum                    = ethereum;
         }
 
 
         public async Task<BigInteger> GetBalanceAsync(string address, BigInteger blockNumber)
         {
-            var balanceDto = new BalanceDto
-            {
-                Address = address,
-                Balance = await _ethereum.GetBalanceAsync(address, blockNumber)
-            };
+            var amount = await _ethereum.GetBalanceAsync(address, blockNumber);
             
-            await _balanceRepository.AddOrReplaceAsync(balanceDto);
+            if (await _observableBalanceRepository.ExistsAsync(address))
+            {
+                var observableBalanceDto = new ObservableBalanceDto
+                {
+                    Address = address,
+                    Amount  = amount
+                };
 
-            return balanceDto.Balance;
+                await _observableBalanceRepository.ReplaceAsync(observableBalanceDto);
+            }
+
+            return amount;
         }
     }
 }

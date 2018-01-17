@@ -71,15 +71,11 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 
         //private async Task<bool> CheckEthereumRpcNodeStatusAsync()
         //{
-        //    //TODO: Add implementation
-        //
         //    return true;
         //}
 
         //private async Task<bool> CheckSignServiceStatusAsync()
         //{
-        //    //TODO: Add implementation
-        //
         //    return true;
         //}
 

@@ -4,8 +4,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories.Interfaces
 {
     public interface IRepositoryFactory
     {
-        IBalanceRepository BuildBalanceRepository();
-
         IBuiltTransactionRepository BuildBuiltTransactionRepository();
 
         IGasPriceRepository BuildGasPriceRepository();

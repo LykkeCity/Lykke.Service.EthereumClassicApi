@@ -5,9 +5,9 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Extensions
 {
     public static class ContextExtensions
     {
-        public static LykkeLoggerAdapter<T> GetLogger<T>(this IUntypedActorContext context, T message, string process = "")
+        public static LykkeLogBuilder<T> GetLogger<T>(this IUntypedActorContext context, T message, string process = "")
         {
-            return new LykkeLoggerAdapter<T>(context, process, message);
+            return new LykkeLogBuilder<T>(context, process, message);
         }
     }
 }

@@ -6,9 +6,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.DTOs
     public class BroadcastedTransactionDto
     {
         public BigInteger Amount { get; set; }
-
-        public BigInteger Fee { get; set; }
-
+        
         public string FromAddress { get; set; }
         
         public Guid OperationId { get; set; }

@@ -13,7 +13,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
 {
     public class RepositoryFactory : IRepositoryFactory
     {
-        private const string BalanceTable                     = "Balances";
         private const string BroadcastedTransactionStateTable = "BroadcastedTransactionStates";
         private const string BroadcastedTransactionTable      = "BroadcastedTransactions";
         private const string BuiltTransactionTable            = "BuiltTransactions";
@@ -34,18 +33,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
         }
 
 
-        public IBalanceRepository BuildBalanceRepository()
-        {
-            var table = CreateTable<BalanceEntity>(BalanceTable);
-
-            return new BalanceRepository
-            (
-                new AddOrReplaceStrategy<BalanceEntity>(table),
-                new DeleteStrategy<BalanceEntity>(table),
-                new GetAllStrategy<BalanceEntity>(table)
-            );
-        }
-
         public IBroadcastedTransactionStateRepository BuildBroadcastedTransactionStateRepository()
         {
             var table = CreateTable<BroadcastedTransactionStateEntity>(BroadcastedTransactionStateTable);
@@ -60,13 +47,14 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
 
         public IBroadcastedTransactionRepository BuildBroadcastedTransactionRepository()
         {
-            //TODO: Add implementation
-
             var table = CreateTable<BroadcastedTransactionEntity>(BroadcastedTransactionTable);
 
             return new BroadcastedTransactionRepository
             (
-
+                new AddStrategy<BroadcastedTransactionEntity>(table),
+                new DeleteStrategy<BroadcastedTransactionEntity>(table),
+                new ExistsStrategy<BroadcastedTransactionEntity>(table),
+                new GetAllStrategy<BroadcastedTransactionEntity>(table)
             );
         }
 
@@ -103,7 +91,8 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
                 new AddStrategy<ObservableBalanceEntity>(table),
                 new DeleteStrategy<ObservableBalanceEntity>(table),
                 new ExistsStrategy<ObservableBalanceEntity>(table),
-                new GetAllStrategy<ObservableBalanceEntity>(table)
+                new GetAllStrategy<ObservableBalanceEntity>(table),
+                new ReplaceStrategy<ObservableBalanceEntity>(table)
             );
         }
         

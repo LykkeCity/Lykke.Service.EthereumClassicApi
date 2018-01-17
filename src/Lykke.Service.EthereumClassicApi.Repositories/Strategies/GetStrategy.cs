@@ -25,12 +25,5 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Strategies
         {
             return await _table.GetDataAsync(partitionKey, rowKey);
         }
-
-        public async Task<IEnumerable<T>> ExecuteAsync(string partitionKey, int take, int skip)
-        {
-            return (await _table.GetTopRecordsAsync(partitionKey, skip + take))
-                .Skip(skip)
-                .Take(take);
-        }
     }
 }

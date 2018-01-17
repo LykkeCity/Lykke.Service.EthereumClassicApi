@@ -1,4 +1,5 @@
-﻿using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
+﻿using System.Numerics;
+using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
@@ -9,7 +10,8 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
         {
             return new ObservableBalanceDto
             {
-                Address = entity.Address
+                Address = entity.Address,
+                Amount  = BigInteger.Parse(entity.Amount)
             };
         }
 
@@ -17,7 +19,8 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
         {
             return new ObservableBalanceEntity
             {
-                Address = dto.Address
+                Address = dto.Address,
+                Amount  = dto.Amount.ToString()
             };
         }
     }

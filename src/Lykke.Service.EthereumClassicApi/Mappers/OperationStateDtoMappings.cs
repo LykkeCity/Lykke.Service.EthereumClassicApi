@@ -31,7 +31,7 @@ namespace Lykke.Service.EthereumClassicApi.Mappers
             {
                 Amount      = dto.Amount.ToString(),
                 Error       = dto.Error,
-                Fee         = dto.Fee.ToString(),
+                Fee         = dto.Fee.HasValue ? dto.Fee.ToString() : null,
                 Hash        = dto.TxHash,
                 OperationId = dto.OperationId,
                 State       = state,

@@ -1,5 +1,4 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Lykke.Service.EthereumClassicApi.Repositories.Factories;
 using Lykke.Service.EthereumClassicApi.Repositories.Factories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
@@ -14,13 +13,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
                 .RegisterType<RepositoryFactory>()
                 .As<IRepositoryFactory>()
                 .SingleInstance();
-
-            builder
-                .Register(c => c.Resolve<IRepositoryFactory>().BuildBalanceRepository())
-                .AsSelf()
-                .As<IBalanceQueryRepository>()
-                .SingleInstance();
-
+            
             builder
                 .Register(c => c.Resolve<IRepositoryFactory>().BuildGasPriceRepository())
                 .AsSelf()
@@ -29,6 +22,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             builder
                 .Register(c => c.Resolve<IRepositoryFactory>().BuildObservableBalanceRepository())
                 .AsSelf()
+                .As<IObservableBalanceQueryRepository>()
                 .SingleInstance();
 
             builder

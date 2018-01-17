@@ -33,7 +33,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
                     if (balance > 0)
                     {
-                        // TODO: Add balance to the log message
+                        logger.Info($"{message.Address} balance amount is {balance}");
                     }
                     else
                     {

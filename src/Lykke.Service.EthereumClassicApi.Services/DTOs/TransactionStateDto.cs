@@ -1,9 +1,14 @@
-﻿namespace Lykke.Service.EthereumClassicApi.Services.DTOs
+﻿using System.Numerics;
+using Lykke.Service.EthereumClassicApi.Common;
+
+namespace Lykke.Service.EthereumClassicApi.Services.DTOs
 {
     public class TransactionStateDto
     {
-        public bool Completed { get; set; }
+        public string Error { get; set; }
 
-        public bool Failed { get; set; }
+        public BigInteger Fee { get; set; }
+
+        public TransactionState State { get; set; }
     }
 }

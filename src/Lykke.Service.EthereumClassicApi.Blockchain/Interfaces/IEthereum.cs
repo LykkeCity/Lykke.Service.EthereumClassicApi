@@ -9,10 +9,41 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
     /// </summary>
     public interface IEthereum
     {
-        // TODO: Add documentation
+        /// <summary>
+        ///    Builds unsigned transaction.
+        /// </summary>
+        /// <param name="to">
+        /// 
+        /// </param>
+        /// <param name="amount">
+        /// 
+        /// </param>
+        /// <param name="nonce">
+        /// 
+        /// </param>
+        /// <param name="gasPrice">
+        /// 
+        /// </param>
+        /// <param name="gasAmount">
+        /// 
+        /// </param>
+        /// <returns>
+        ///    RLP-encoded transaction data in hex format.
+        /// </returns>
         string BuildTransaction(string to, BigInteger amount, BigInteger nonce, BigInteger gasPrice, BigInteger gasAmount);
 
-        // TODO: Add documentation
+        /// <summary>
+        ///    Estimates gas price for simple transfer transaction.
+        /// </summary>
+        /// <param name="to">
+        ///    Destination address.
+        /// </param>
+        /// <param name="amount">
+        ///    Transfer amount.
+        /// </param>
+        /// <returns>
+        ///    A BigInteger instance of the estimated gas price.
+        /// </returns>
         Task<BigInteger> EstimateGasPriceAsync(string to, BigInteger amount);
 
         /// <summary>
@@ -59,9 +90,17 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         /// </returns>
         Task<BigInteger> GetPendingBalanceAsync(string address);
 
-        // TODO: Add documentation
+        /// <summary>
+        ///    Get next nonce for spwecified address.
+        /// </summary>
+        /// <param name="address">
+        ///    The address to get next nonce of.
+        /// </param>
+        /// <returns>
+        ///    A BigInteger instance of the next nonce for the given address.
+        /// </returns>
         Task<BigInteger> GetNextNonceAsync(string address);
-
+        
         /// <summary>
         ///    Get the receipt of a specified transaction.
         /// </summary>
@@ -71,7 +110,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         /// <returns>
         ///    A transaction receipt object, or null when no receipt was found.
         /// </returns>
-        Task<TransactionReceiptEntity> GetTransactionReceipt(string txHash);
+        Task<TransactionReceiptEntity> GetTransactionReceiptAsync(string txHash);
 
         /// <summary>
         ///    Sends an already signed transaction.

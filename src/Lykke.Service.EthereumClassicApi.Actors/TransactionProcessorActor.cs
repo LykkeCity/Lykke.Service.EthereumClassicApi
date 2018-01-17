@@ -41,7 +41,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                         signedTxData: message.SignedTxData
                     );
 
-                    // TODO: Add txHash to log
+                    logger.Info($"Transaction [{txHash}] has been broadcasted");
 
                     Sender.Tell(new Status.Success(null));
                 }

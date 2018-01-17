@@ -73,7 +73,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
         }
 
         public abstract Task<BigInteger> GetNextNonceAsync(string address);
-
+        
         public async Task<BigInteger> GetPendingBalanceAsync(string address)
         {
             var block = BlockParameter.CreatePending();
@@ -81,7 +81,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             return await GetBalanceAsync(address, block);
         }
 
-        public async Task<TransactionReceiptEntity> GetTransactionReceipt(string txHash)
+        public async Task<TransactionReceiptEntity> GetTransactionReceiptAsync(string txHash)
         {
             // _web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(txHash) fails with exception
             // using workaround

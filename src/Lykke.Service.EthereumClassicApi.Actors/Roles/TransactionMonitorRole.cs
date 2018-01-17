@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using Lykke.Service.EthereumClassicApi.Actors.Exceptions;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
@@ -47,31 +48,30 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                     };
                 }));
             
-            var completedTransactionStates = transactionStates.Where(x => x.State.Completed).ToList();
+            var finishedTransactionStates = transactionStates.Where(x => x.State.State != TransactionState.InProgress).ToList();
 
-            if (completedTransactionStates.Count > 1)
+            if (finishedTransactionStates.Count > 1)
             {
-                throw new UnsupportedEdgeCaseException($"More than one transaction completed for operation [{operationId:N}].");
+                throw new UnsupportedEdgeCaseException($"More than one transaction finished for operation [{operationId:N}].");
             }
 
-            if (completedTransactionStates.Count == 1)
+            if (finishedTransactionStates.Count == 1)
             {
-                var completedTransaction = completedTransactionStates.Single(x => x.State.Completed);
-                var operationTransaction = completedTransaction.Transaction;
-                var state                = completedTransaction.State.Failed ? TransactionState.Failed : TransactionState.Completed;
-
-
+                var completedTransactionState = finishedTransactionStates.Single(x => x.State.State != TransactionState.InProgress);
+                var completedTransaction      = completedTransactionState.Transaction;
+                var state                     = completedTransactionState.State;
+                
                 await _broadcastedTransactionStateRepository.AddOrReplaceAsync(new BroadcastedTransactionStateDto
                 {
-                    Amount      = operationTransaction.Amount,
-                    Error       = state == TransactionState.Completed ? "" : "Transaction failed during execution.", // TODO: Add better failure explanation
-                    Fee         = operationTransaction.Fee,
-                    FromAddress = operationTransaction.FromAddress,
+                    Amount      = completedTransaction.Amount,
+                    Error       = state.Error,
+                    Fee         = state.Fee,
+                    FromAddress = completedTransaction.FromAddress,
                     OperationId = operationId,
-                    State       = state,
+                    State       = state.State,
                     Timestamp   = DateTimeOffset.UtcNow,
-                    ToAddress   = operationTransaction.ToAddress,
-                    TxHash      = operationTransaction.TxHash
+                    ToAddress   = completedTransaction.ToAddress,
+                    TxHash      = completedTransaction.TxHash
                 });
                 
                 await _builtTransactionRepository.DeleteAsync(operationId);
@@ -89,7 +89,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                     await _broadcastedTransactionStateRepository.AddOrReplaceAsync(new BroadcastedTransactionStateDto
                     {
                         Amount      = latestTransaction.Amount,
-                        Fee         = latestTransaction.Fee,
+                        Fee         = null,
                         FromAddress = latestTransaction.FromAddress,
                         OperationId = operationId,
                         State       = TransactionState.InProgress,

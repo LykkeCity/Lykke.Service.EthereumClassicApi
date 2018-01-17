@@ -4,9 +4,8 @@ using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 {
-    public interface IObservableBalanceRepository
+    public interface IObservableBalanceRepository : IObservableBalanceQueryRepository
     {
-
         Task AddAsync(ObservableBalanceDto dto);
 
         Task DeleteAsync(string address);
@@ -14,5 +13,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
         Task<bool> ExistsAsync(string address);
 
         Task<IEnumerable<ObservableBalanceDto>> GetAllAsync();
+        
+        Task ReplaceAsync(ObservableBalanceDto dto);
     }
 }

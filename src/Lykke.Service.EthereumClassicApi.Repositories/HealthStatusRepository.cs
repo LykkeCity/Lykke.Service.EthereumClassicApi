@@ -18,7 +18,8 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
                 ApplicationName    = Constants.ApplicationName,
                 ApplicationVersion = PlatformServices.Default.Application.ApplicationVersion,
                 EnvironmentInfo    = Environment.GetEnvironmentVariable("ENV_INFO"),
-                IsDebug            = Constants.IsDebug
+                IsDebug            = Constants.IsDebug,
+                IsHealthy          = true
             };
         }
 

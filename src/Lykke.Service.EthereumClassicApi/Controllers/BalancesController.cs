@@ -17,16 +17,16 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
     [Route("api/balances")]
     public class BalancesController : Controller
     {
-        private readonly IActorSystemFacade      _actorSystemFacade;
-        private readonly IBalanceQueryRepository _balanceQueryRepository;
+        private readonly IActorSystemFacade                _actorSystemFacade;
+        private readonly IObservableBalanceQueryRepository _observableBalanceQueryRepository;
 
 
         public BalancesController(
             IActorSystemFacade actorSystemFacade,
-            IBalanceQueryRepository balanceQueryRepository)
+            IObservableBalanceQueryRepository observableBalanceQueryRepository)
         {
-            _actorSystemFacade      = actorSystemFacade;
-            _balanceQueryRepository = balanceQueryRepository;
+            _actorSystemFacade                = actorSystemFacade;
+            _observableBalanceQueryRepository = observableBalanceQueryRepository;
         }
 
 
@@ -63,14 +63,14 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBalanceList([FromQuery] int take, [FromQuery] string continuation = "")
         {
-            (var balances, var continuationToken) = await _balanceQueryRepository.GetAsync(take, continuation);
+            (var balances, var continuationToken) = await _observableBalanceQueryRepository.GetAllWithNonZeroAmountAsync(take, continuation);
             
             var responseItems = balances
                 .Select(x => new WalletBalanceContract
                 {
                     Address = x.Address,
                     AssetId = Constants.EtcAsset.AssetId,
-                    Balance = x.Balance.ToString()
+                    Balance = x.Amount.ToString()
                 })
                 .ToImmutableList();
 

@@ -10,7 +10,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.DTOs
         
         public string Error { get; set; }
         
-        public BigInteger Fee { get; set; }
+        public BigInteger? Fee { get; set; }
 
         public string FromAddress { get; set; }
 

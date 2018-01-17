@@ -71,8 +71,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
         private void ScheduleRetry(CheckTransactionState message)
         {
-            // TODO: Load delay from config
-
             Context.System.Scheduler.ScheduleTellOnce
             (
                 delay:    TimeSpan.FromSeconds(30),

@@ -13,7 +13,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
     public class TransactionMonitorDispatcherActor : ReceiveActor
     {
         private readonly ITransactionMonitorDispatcherRole _transactionMonitorDispatcherRole;
-        private readonly IActorRef                       _operationMonitors;
+        private readonly IActorRef                         _transactionMonitors;
 
 
         public TransactionMonitorDispatcherActor(
@@ -21,7 +21,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             IOperationMonitorsFactory operationMonitorsFactory)
         {
             _transactionMonitorDispatcherRole = transactionMonitorDispatcherRole;
-            _operationMonitors              = operationMonitorsFactory.Build(Context, "operation-monitors");
+            _transactionMonitors              = operationMonitorsFactory.Build(Context, "transation-monitors");
 
 
             Receive<CheckTransactionState>(
@@ -44,12 +44,12 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
         private void ProcessMessage(CheckTransactionState message)
         {
-            _operationMonitors.Forward(message);
+            _transactionMonitors.Forward(message);
         }
 
         private void ProcessMessage(DeleteTransactionState message)
         {
-            _operationMonitors.Forward(message);
+            _transactionMonitors.Forward(message);
         }
 
         private async Task ProcessMessageAsync(CheckTransactionStates message)
@@ -62,7 +62,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
                     foreach (var operationId in operationIds)
                     {
-                        _operationMonitors.Tell(new CheckTransactionState
+                        _transactionMonitors.Tell(new CheckTransactionState
                         (
                             operationId: operationId
                         ));

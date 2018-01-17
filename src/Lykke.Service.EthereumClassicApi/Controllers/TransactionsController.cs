@@ -19,7 +19,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
     [Route("api/transactions")]
     public class TransactionsController : Controller
     {
-        private readonly IActorSystemFacade             _actorSystemFacade;
+        private readonly IActorSystemFacade                          _actorSystemFacade;
         private readonly IBroadcastedTransactionStateQueryRepository _broadcastedTransactionStateQueryRepository;
 
 

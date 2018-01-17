@@ -12,7 +12,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
             {
                 Amount       = BigInteger.Parse(entity.Amount),
                 Timestamp    = entity.CreatedOn,
-                Fee          = BigInteger.Parse(entity.Fee),
                 FromAddress  = entity.FromAddress,
                 OperationId  = entity.OperationId,
                 SignedTxData = entity.SignedTxData,
@@ -27,7 +26,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
             {
                 Amount       = dto.Amount.ToString(),
                 CreatedOn    = dto.Timestamp,
-                Fee          = dto.Fee.ToString(),
                 FromAddress  = dto.FromAddress,
                 OperationId  = dto.OperationId,
                 SignedTxData = dto.SignedTxData,

@@ -33,7 +33,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Factories
 
         private IEthereum BuildGeth()
         {
-            throw new NotImplementedException("Geth is not supported yet");
+            throw new NotSupportedException("Geth is not supported yet");
         }
 
         private IEthereum BuildParity()

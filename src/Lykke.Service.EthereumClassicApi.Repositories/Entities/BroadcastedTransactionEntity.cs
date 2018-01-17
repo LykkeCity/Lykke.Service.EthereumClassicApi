@@ -8,9 +8,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Entities
         public string Amount { get; set; }
 
         public DateTimeOffset CreatedOn { get; set; }
-
-        public string Fee { get; set; }
-
+        
         public string FromAddress { get; set; }
 
         public Guid OperationId { get; set; }

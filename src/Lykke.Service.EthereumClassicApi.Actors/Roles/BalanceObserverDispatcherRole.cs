@@ -23,9 +23,9 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             IObservableBalanceRepository observableBalanceRepository,
             EthereumClassicApiSettings settings)
         {
-            _ethereum                   = ethereum;
+            _ethereum                    = ethereum;
             _observableBalanceRepository = observableBalanceRepository;
-            _settings                   = settings;
+            _settings                    = settings;
         }
 
         [Pure]

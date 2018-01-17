@@ -25,7 +25,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             IBalanceObserversFactory balanceObserversFactory)
         {
             _balanceObserverDispatcherRole = balanceObserverDispatcherRole;
-            _balanceReaders      = balanceObserversFactory.Build(Context, "balance-readers");
+            _balanceReaders                = balanceObserversFactory.Build(Context, "balance-readers");
 
 
             Become(Idle);
@@ -75,9 +75,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                             blockNumbber: latestConfirmedBlockNumber
                         ));
                     }
-
-                    // TODO: Cleanup balances, that are not in observable adresses list anymore
-
+                    
                     if (observableAddresses.Count > 0)
                     {
                         _numberOfRemainingBalances = observableAddresses.Count;

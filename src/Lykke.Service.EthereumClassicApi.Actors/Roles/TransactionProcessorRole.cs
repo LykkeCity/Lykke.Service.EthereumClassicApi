@@ -47,7 +47,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                 await _broadcastedTransactionRepository.AddAsync(new BroadcastedTransactionDto
                 {
                     Amount       = operation.Amount,
-                    Fee          = new BigInteger(), // TODO: Set fee
                     FromAddress  = operation.FromAddress,
                     OperationId  = operationId,
                     SignedTxData = signedTxData,
@@ -59,7 +58,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                 await _broadcastedTransactionStateRepository.AddOrReplaceAsync(new BroadcastedTransactionStateDto
                 {
                     Amount      = operation.Amount,
-                    Fee         = new BigInteger(), // TODO: Set fee,
+                    Fee         = new BigInteger(0),
                     FromAddress = operation.FromAddress,
                     OperationId = operationId,
                     State       = TransactionState.InProgress,
