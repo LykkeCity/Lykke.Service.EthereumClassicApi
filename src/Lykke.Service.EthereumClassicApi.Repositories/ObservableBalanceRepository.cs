@@ -83,6 +83,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
 
             entity.PartitionKey = GetPartitionKey(dto.Address);
             entity.RowKey       = GetRowKey(dto.Address);
+            entity.ETag         = "*";
 
             await _replaceStrategy.ExecuteAsync(entity);
         }
