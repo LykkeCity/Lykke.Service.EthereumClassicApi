@@ -58,7 +58,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             }
 
 
-            if (!errorResponse.ModelErrors.Any())
+            if (errorResponse.ModelErrors != null && !errorResponse.ModelErrors.Any())
             {
                 var txData = await _actorSystemFacade.BuildTransactionAsync
                 (
