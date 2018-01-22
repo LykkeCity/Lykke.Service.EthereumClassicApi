@@ -33,7 +33,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Build(BuildTransactionRequest request)
+        public async Task<IActionResult> Build([FromBody] BuildTransactionRequest request)
         {
             var errorResponse = new ErrorResponse();
 
@@ -81,7 +81,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Rebuild(RebuildTransactionRequest request)
+        public async Task<IActionResult> Rebuild([FromBody] RebuildTransactionRequest request)
         {
             var errorResponse = new ErrorResponse();
 
@@ -111,7 +111,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         }
 
         [HttpPost("broadcast")]
-        public async Task<IActionResult> Broadcast(BroadcastTransactionRequest request)
+        public async Task<IActionResult> Broadcast([FromBody] BroadcastTransactionRequest request)
         {
             try
             {
