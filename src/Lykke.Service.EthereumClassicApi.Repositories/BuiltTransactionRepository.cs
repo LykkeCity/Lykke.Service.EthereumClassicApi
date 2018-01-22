@@ -48,7 +48,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
 
         public async Task<BuiltTransactionDto> GetAsync(Guid operationId)
         {
-            return (await _getStrategy.ExecuteAsync(GetPartitionKey(), GetRowKey(operationId)))
+            return (await _getStrategy.ExecuteAsync(GetPartitionKey(), GetRowKey(operationId)))?
                 .ToDto();
         }
 

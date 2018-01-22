@@ -75,7 +75,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 toAddress:   toAddress
             ));
 
-            var txData = CheckIfResponseIs<string>(response);
+            var txData = CheckIfResponseIs<TransactionBuilt>(response).TxData;
 
             return txData;
         }
@@ -108,7 +108,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 operationId: operationId
             ));
 
-            var txData = CheckIfResponseIs<string>(response);
+            var txData = CheckIfResponseIs<TransactionBuilt>(response).TxData;
 
             return txData;
         }

@@ -78,9 +78,9 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                         toAddress:   message.ToAddress
                     );
 
-                    Sender.Tell(new Status.Success
+                    Sender.Tell(new TransactionBuilt
                     (
-                        status: txData
+                        txData: txData
                     ));
                 }
                 catch (Exception e)
@@ -107,9 +107,9 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                         operationId: message.OperationId
                     );
 
-                    Sender.Tell(new Status.Success
+                    Sender.Tell(new TransactionBuilt
                     (
-                        status: txData
+                        txData: txData
                     ));
                 }
                 catch (Exception e)
