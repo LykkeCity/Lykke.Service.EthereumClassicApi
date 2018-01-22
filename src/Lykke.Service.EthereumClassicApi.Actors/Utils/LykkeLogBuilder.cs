@@ -71,7 +71,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Utils
         public void Info(string message = "")
         {
             _customMessage = message;
-            _logLevel      = LogLevel.Error;
+            _logLevel      = LogLevel.Info;
         }
 
         public void SetMessage(string message)
