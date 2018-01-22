@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
@@ -61,6 +62,15 @@ namespace Lykke.Service.EthereumClassicApi
                     .UseSwagger(SetupSwagger)
                     .UseSwaggerUI(SetupSwaggerUI)
                     .UseStaticFiles();
+
+                appLifetime
+                    .ApplicationStarted.Register(() => StartApplication().GetAwaiter().GetResult());
+
+                appLifetime
+                    .ApplicationStopping.Register(() => StopApplication().GetAwaiter().GetResult());
+
+                appLifetime
+                    .ApplicationStopped.Register(() => CleanUp().GetAwaiter().GetResult());
             }
             catch (Exception e)
             {
@@ -103,7 +113,7 @@ namespace Lykke.Service.EthereumClassicApi
                 
                 _container
                     .Resolve<IActorSystemFacade>();
-
+                
                 return new AutofacServiceProvider(_container);
             }
             catch (Exception e)
@@ -122,6 +132,50 @@ namespace Lykke.Service.EthereumClassicApi
                 .Build();
 
             return configuration.LoadSettings<AppSettings>();
+        }
+
+        private async Task StartApplication()
+        {
+            try
+            {
+                await _log.WriteMonitorAsync("", $"Env: {Program.EnvInfo}", "Started");
+            }
+            catch (Exception ex)
+            {
+                WriteFatalError(ex, nameof(StartApplication));
+
+                throw;
+            }
+        }
+
+        private async Task StopApplication()
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                WriteFatalError(ex, nameof(StopApplication));
+
+                throw;
+            }
+        }
+
+        private async Task CleanUp()
+        {
+            try
+            {
+                await _log.WriteMonitorAsync("", $"Env: {Program.EnvInfo}", "Terminating");
+
+                _container.Dispose();
+            }
+            catch (Exception ex)
+            {
+                WriteFatalError(ex, nameof(CleanUp));
+
+                throw;
+            }
         }
 
         private void WriteFatalError(Exception e, string process)
