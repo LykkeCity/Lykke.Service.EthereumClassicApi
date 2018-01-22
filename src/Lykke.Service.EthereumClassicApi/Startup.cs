@@ -2,6 +2,7 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
+using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Service.EthereumClassicApi.Actors;
 using Lykke.Service.EthereumClassicApi.Blockchain;
 using Lykke.Service.EthereumClassicApi.Common.Settings;
@@ -46,6 +47,15 @@ namespace Lykke.Service.EthereumClassicApi
         {
             try
             {
+                if (env.IsDevelopment())
+                {
+                    app
+                        .UseDeveloperExceptionPage();
+                }
+
+                app
+                    .UseLykkeMiddleware("EthereumClassicApi", ex => new {Message = ex.ToString()});
+
                 app
                     .UseMvc()
                     .UseSwagger(SetupSwagger)
