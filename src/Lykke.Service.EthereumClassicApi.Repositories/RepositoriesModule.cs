@@ -26,6 +26,11 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
                 .SingleInstance();
 
             builder
+                .Register(c => c.Resolve<IRepositoryFactory>().BuildObservableBalanceLockRepository())
+                .AsSelf()
+                .SingleInstance();
+
+            builder
                 .Register(c => c.Resolve<IRepositoryFactory>().BuildBuiltTransactionRepository())
                 .AsSelf()
                 .SingleInstance();

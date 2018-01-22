@@ -35,7 +35,7 @@ namespace Lykke.Service.EthereumClassicApi.Mappers
                 Hash        = dto.TxHash,
                 OperationId = dto.OperationId,
                 State       = state,
-                Timestamp   = dto.Timestamp.DateTime
+                Timestamp   = dto.Timestamp
             };
         }
     }

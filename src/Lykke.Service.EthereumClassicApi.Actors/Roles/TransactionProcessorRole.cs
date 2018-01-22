@@ -19,6 +19,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         private readonly IBuiltTransactionRepository            _builtTransactionRepository;
         private readonly IEthereum                              _ethereum;
         private readonly IGasPriceOracleService                 _gasPriceOracleService;
+        private readonly IObservableBalanceLockRepository       _observableBalanceLockRepository;
 
 
         public TransactionProcessorRole(
@@ -26,13 +27,15 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             IBroadcastedTransactionStateRepository broadcastedTransactionStateRepository,
             IBuiltTransactionRepository builtTransactionRepository,
             IEthereum ethereum,
-            IGasPriceOracleService gasPriceOracleService)
+            IGasPriceOracleService gasPriceOracleService,
+            IObservableBalanceLockRepository observableBalanceLockRepository)
         {
             _broadcastedTransactionStateRepository = broadcastedTransactionStateRepository;
             _broadcastedTransactionRepository      = broadcastedTransactionRepository;
             _builtTransactionRepository            = builtTransactionRepository;
             _ethereum                              = ethereum;
             _gasPriceOracleService                 = gasPriceOracleService;
+            _observableBalanceLockRepository       = observableBalanceLockRepository;
         }
 
         /// <inheritdoc />
@@ -42,7 +45,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             {
                 var operation = await _builtTransactionRepository.GetAsync(operationId);
                 var txHash    = await _ethereum.SendRawTransactionAsync(signedTxData);
-                var now       = DateTimeOffset.UtcNow;
+                var now       = DateTime.UtcNow;
 
                 await _broadcastedTransactionRepository.AddAsync(new BroadcastedTransactionDto
                 {
@@ -65,6 +68,11 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                     Timestamp   = now,
                     ToAddress   = operation.ToAddress,
                     TxHash      = txHash
+                });
+
+                await _observableBalanceLockRepository.AddAsync(new ObservableBalanceLockDto
+                {
+                    Address = operation.FromAddress
                 });
 
                 return txHash;

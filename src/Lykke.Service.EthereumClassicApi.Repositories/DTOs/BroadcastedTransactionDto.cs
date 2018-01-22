@@ -13,7 +13,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.DTOs
 
         public string SignedTxData { get; set; }
 
-        public DateTimeOffset Timestamp { get; set; }
+        public DateTime Timestamp { get; set; }
 
         public string ToAddress { get; set; }
 

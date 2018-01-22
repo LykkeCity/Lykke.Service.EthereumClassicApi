@@ -17,6 +17,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         private readonly IBroadcastedTransactionRepository      _broadcastedTransactionRepository;
         private readonly IBroadcastedTransactionStateRepository _broadcastedTransactionStateRepository;
         private readonly IBuiltTransactionRepository            _builtTransactionRepository;
+        private readonly IObservableBalanceLockRepository       _observableBalanceLockRepository;
         private readonly ITransactionStateService               _transactionStateService;
 
 
@@ -24,11 +25,13 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             IBroadcastedTransactionRepository broadcastedTransactionRepository,
             IBroadcastedTransactionStateRepository broadcastedTransactionStateRepository,
             IBuiltTransactionRepository builtTransactionRepository,
+            IObservableBalanceLockRepository observableBalanceLockRepository,
             ITransactionStateService transactionStateService)
         {
             _broadcastedTransactionRepository      = broadcastedTransactionRepository;
             _broadcastedTransactionStateRepository = broadcastedTransactionStateRepository;
             _builtTransactionRepository            = builtTransactionRepository;
+            _observableBalanceLockRepository       = observableBalanceLockRepository;
             _transactionStateService               = transactionStateService;
         }
 
@@ -69,11 +72,13 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                     FromAddress = completedTransaction.FromAddress,
                     OperationId = operationId,
                     State       = state.State,
-                    Timestamp   = DateTimeOffset.UtcNow,
+                    Timestamp   = DateTime.UtcNow,
                     ToAddress   = completedTransaction.ToAddress,
                     TxHash      = completedTransaction.TxHash
                 });
-                
+
+                await _observableBalanceLockRepository.DeleteAsync(completedTransaction.FromAddress);
+
                 await _builtTransactionRepository.DeleteAsync(operationId);
 
                 await _broadcastedTransactionRepository.DeleteAsync(operationId);

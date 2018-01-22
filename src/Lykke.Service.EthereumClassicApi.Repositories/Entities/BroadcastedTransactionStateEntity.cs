@@ -21,6 +21,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Entities
 
         public string TxHash { get; set; }
 
-        public DateTimeOffset TxTimestamp { get; set; }
+        public DateTime TxTimestamp { get; set; }
     }
 }

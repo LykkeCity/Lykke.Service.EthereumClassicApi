@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
 using Lykke.Service.EthereumClassicApi.Repositories.Mappins;
@@ -42,13 +43,13 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         {
             await _deleteStrategy.ExecuteAsync(GetPartitionKey(operationId));
         }
-
+        
         public async Task<BroadcastedTransactionStateDto> GetAsync(Guid operationId)
         {
             return (await _getStrategy.ExecuteAsync(GetPartitionKey(operationId), GetRowKey(operationId)))?
                 .ToDto();
         }
-        
+
 
         private static string GetPartitionKey(Guid operationId)
             => operationId.ToString().CalculateHexHash32(3);

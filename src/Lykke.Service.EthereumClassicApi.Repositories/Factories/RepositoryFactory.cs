@@ -17,9 +17,10 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
         private const string BroadcastedTransactionTable      = "BroadcastedTransactions";
         private const string BuiltTransactionTable            = "BuiltTransactions";
         private const string DynamicSettingsTable             = "DynamicSettings";
+        private const string ObservableBalanceLockTable       = "ObservableBalanceLocks";
         private const string ObservableBalanceTable           = "ObservableBalances";
-        
-        
+
+
         private readonly IReloadingManager<string> _connectionString;
         private readonly ILog                      _log;
 
@@ -95,7 +96,19 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
                 new ReplaceStrategy<ObservableBalanceEntity>(table)
             );
         }
-        
+
+        public IObservableBalanceLockRepository BuildObservableBalanceLockRepository()
+        {
+            var table = CreateTable<ObservableBalanceLockEntity>(ObservableBalanceLockTable);
+
+            return new ObservableBalanceLockRepository
+            (
+                new AddOrReplaceStrategy<ObservableBalanceLockEntity>(table),
+                new DeleteStrategy<ObservableBalanceLockEntity>(table),
+                new ExistsStrategy<ObservableBalanceLockEntity>(table)
+            );
+        }
+
         private INoSQLTableStorage<T> CreateTable<T>(string tableName)
             where T : AzureTableEntity, new()
         {
