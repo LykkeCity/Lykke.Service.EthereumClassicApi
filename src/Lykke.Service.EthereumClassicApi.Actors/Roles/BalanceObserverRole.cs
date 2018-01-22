@@ -28,7 +28,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 
         public async Task<BigInteger> GetBalanceAsync(string address, BigInteger blockNumber)
         {
-            var amount = await _observableBalanceLockRepository.ExistsAsync(address)
+            var amount = !await _observableBalanceLockRepository.ExistsAsync(address)
                 ? await _ethereum.GetBalanceAsync(address, blockNumber)
                 : new BigInteger(0);
             
