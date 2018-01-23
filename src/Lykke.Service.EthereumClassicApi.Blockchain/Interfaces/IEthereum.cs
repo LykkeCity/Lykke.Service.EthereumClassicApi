@@ -115,6 +115,8 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         /// </returns>
         Task<TransactionReceiptEntity> GetTransactionReceiptAsync(string txHash);
 
+        Task<string> GetTransactionErrorAsync(string txHash);
+
         /// <summary>
         ///    Sends an already signed transaction.
         /// </summary>

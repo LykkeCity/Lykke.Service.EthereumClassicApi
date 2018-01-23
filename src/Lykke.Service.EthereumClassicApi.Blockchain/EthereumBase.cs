@@ -115,6 +115,8 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             }
         }
 
+        public abstract Task<string> GetTransactionErrorAsync(string txHash);
+
         public async Task<string> SendRawTransactionAsync(string signedTxData)
         {
             return await _web3.Eth.Transactions.SendRawTransaction.SendRequestAsync(signedTxData);
