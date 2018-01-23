@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Common;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
@@ -65,6 +66,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             => $"{operationId:N}";
 
         private static string GetRowKey(string signedTxData)
-            => signedTxData;
+            => signedTxData.CalculateHexHash64();
     }
 }
