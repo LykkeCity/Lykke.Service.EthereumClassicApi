@@ -73,7 +73,13 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
         }
 
         public abstract Task<BigInteger> GetNextNonceAsync(string address);
-        
+
+        public async Task<BigInteger> GetTransactionGasPriceAsync(string txHash)
+        {
+            return (await _web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(txHash))
+                .GasPrice.Value;
+        }
+
         public async Task<BigInteger> GetPendingBalanceAsync(string address)
         {
             var block = BlockParameter.CreatePending();

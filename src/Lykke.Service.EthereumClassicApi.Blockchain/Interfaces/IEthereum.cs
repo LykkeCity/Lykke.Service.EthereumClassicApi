@@ -100,7 +100,10 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         ///    A BigInteger instance of the next nonce for the given address.
         /// </returns>
         Task<BigInteger> GetNextNonceAsync(string address);
-        
+
+
+        Task<BigInteger> GetTransactionGasPriceAsync(string txHash);
+
         /// <summary>
         ///    Get the receipt of a specified transaction.
         /// </summary>
