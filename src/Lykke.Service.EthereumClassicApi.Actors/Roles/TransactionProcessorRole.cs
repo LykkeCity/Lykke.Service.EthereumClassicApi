@@ -113,7 +113,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                 return _ethereum.BuildTransaction
                 (
                     to:        toAddress,
-                    amount:    amount,
+                    amount:    actualAmount,
                     nonce:     nonce,
                     gasPrice:  gasPrice,
                     gasAmount: Constants.EtcTransferGasAmount
