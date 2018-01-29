@@ -56,7 +56,8 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         /// </returns>
         Task<BigInteger> GetBalanceAsync(string address, BigInteger blockNumber);
 
-        /// <summary>
+        Task<string> GetCodeAsync(string address);
+            /// <summary>
         ///     Get the balance of a public address at a latest block.
         /// </summary>
         /// <param name="address">

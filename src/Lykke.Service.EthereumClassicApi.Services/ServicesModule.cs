@@ -14,6 +14,11 @@ namespace Lykke.Service.EthereumClassicApi.Services
                 .SingleInstance();
 
             builder
+                .RegisterType<AddressValidationService>()
+                .As<IAddressValidationService>()
+                .SingleInstance();
+
+            builder
                 .RegisterType<TransactionStateService>()
                 .As<ITransactionStateService>()
                 .SingleInstance();

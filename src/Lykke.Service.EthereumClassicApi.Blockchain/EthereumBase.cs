@@ -62,6 +62,11 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             return await GetBalanceAsync(address, block);
         }
 
+        public async Task<string> GetCodeAsync(string address)
+        {
+            return await _web3.Eth.GetCode.SendRequestAsync(address);
+        }
+
         public async Task<BigInteger> GetLatestBalanceAsync(string address)
         {
             var block = BlockParameter.CreateLatest();
