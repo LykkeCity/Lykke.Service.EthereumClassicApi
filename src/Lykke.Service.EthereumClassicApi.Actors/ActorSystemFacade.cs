@@ -2,9 +2,9 @@
 using System.Numerics;
 using System.Threading.Tasks;
 using Akka.Actor;
-using Lykke.Service.EthereumClassicApi.Actors.Exceptions;
 using Lykke.Service.EthereumClassicApi.Actors.Factories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Actors.Messages;
+using Lykke.Service.EthereumClassicApi.Common.Exceptions;
 
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
@@ -71,23 +71,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             CheckIfResponseIsSuccess(response);
         }
 
-        public async Task<string> BuildTransactionAsync(BigInteger amount, string fromAddress, bool includeFee,
-            Guid operationId, string toAddress)
-        {
-            var response = await TransactionProcessorsDispatcher.Ask(new BuildTransaction
-            (
-                amount,
-                fromAddress,
-                includeFee,
-                operationId,
-                toAddress
-            ));
-
-            var txData = CheckIfResponseIs<TransactionBuilt>(response).TxData;
-
-            return txData;
-        }
-
         public async Task DeleteOperationStateAsync(Guid operationId)
         {
             var response = await TransactionMonitorDispatcher.Ask(new DeleteTransactionState
@@ -96,19 +79,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             ));
 
             CheckIfResponseIsSuccess(response);
-        }
-        
-        public async Task<string> RebuildTransactionAsync(decimal feeFactor, Guid operationId)
-        {
-            var response = await TransactionProcessorsDispatcher.Ask(new RebuildTransaction
-            (
-                feeFactor,
-                operationId
-            ));
-
-            var txData = CheckIfResponseIs<TransactionBuilt>(response).TxData;
-
-            return txData;
         }
 
         public async Task ShutdownAsync()

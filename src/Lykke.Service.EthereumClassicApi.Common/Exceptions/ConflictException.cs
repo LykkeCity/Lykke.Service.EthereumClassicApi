@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Lykke.Service.EthereumClassicApi.Actors.Exceptions
+namespace Lykke.Service.EthereumClassicApi.Common.Exceptions
 {
     public class ConflictException : Exception
     {

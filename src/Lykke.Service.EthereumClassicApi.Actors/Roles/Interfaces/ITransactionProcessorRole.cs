@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Numerics;
 using System.Threading.Tasks;
+using Lykke.Service.EthereumClassicApi.Common.Exceptions;
 
 namespace Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces
 {
@@ -15,14 +15,9 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces
         /// <param name="signedTxData">
         ///     Signed transaction data.
         /// </param>
-        /// <exception cref="Exceptions.ConflictException">
+        /// <exception cref="ConflictException">
         ///     Thrown when specified signed transaction fro specified operation id has already bbeen bbroadcasted.
         /// </exception>
         Task<string> BroadcastTransaction(Guid operationId, string signedTxData);
-
-        Task<string> BuildTransactionAsync(BigInteger amount, string fromAddress, bool includeFee, Guid operationId,
-            string toAddress);
-
-        Task<string> RebuildTransactionAsync(decimal feeFactor, Guid operationId);
     }
 }

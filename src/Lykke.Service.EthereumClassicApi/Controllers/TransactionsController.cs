@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
 using Lykke.Service.EthereumClassicApi.Actors;
-using Lykke.Service.EthereumClassicApi.Actors.Exceptions;
 using Lykke.Service.EthereumClassicApi.Common;
+using Lykke.Service.EthereumClassicApi.Common.Exceptions;
 using Lykke.Service.EthereumClassicApi.Common.Utils;
 using Lykke.Service.EthereumClassicApi.Mappers;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
+using Lykke.Service.EthereumClassicApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lykke.Service.EthereumClassicApi.Controllers
@@ -20,14 +21,17 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
     {
         private readonly IActorSystemFacade _actorSystemFacade;
         private readonly IBroadcastedTransactionStateQueryRepository _broadcastedTransactionStateQueryRepository;
+        private readonly ITransactionBuilderService _transactionBuilderService;
 
 
         public TransactionsController(
             IActorSystemFacade actorSystemFacade,
-            IBroadcastedTransactionStateQueryRepository broadcastedTransactionStateQueryRepository)
+            IBroadcastedTransactionStateQueryRepository broadcastedTransactionStateQueryRepository,
+            ITransactionBuilderService transactionBuilderService)
         {
             _actorSystemFacade = actorSystemFacade;
             _broadcastedTransactionStateQueryRepository = broadcastedTransactionStateQueryRepository;
+            _transactionBuilderService = transactionBuilderService;
         }
 
         [HttpPost("broadcast")]
@@ -79,7 +83,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
 
             if (errorResponse.ModelErrors == null || !errorResponse.ModelErrors.Any())
             {
-                var txData = await _actorSystemFacade.BuildTransactionAsync
+                var txData = await _transactionBuilderService.BuildTransactionAsync
                 (
                     BigInteger.Parse(request.Amount),
                     request.FromAddress,
@@ -138,7 +142,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
 
             if (errorResponse.ModelErrors == null || !errorResponse.ModelErrors.Any())
             {
-                var txData = await _actorSystemFacade.RebuildTransactionAsync
+                var txData = await _transactionBuilderService.RebuildTransactionAsync
                 (
                     request.FeeFactor,
                     request.OperationId

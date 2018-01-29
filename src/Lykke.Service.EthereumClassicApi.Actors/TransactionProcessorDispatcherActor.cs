@@ -29,42 +29,15 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             _transactionProcessorFactory = transactionProcessorFactory;
             _transactionProcessors = new Dictionary<string, TransactionProcessorRef>();
 
-
-            Receive<BuildTransaction>(
-                msg => ProcessMessage(msg));
-
+            
             Receive<CleanupExpiredTransactionProcessors>(
                 msg => ProcessMessage(msg));
 
             ReceiveAsync<BroadcastTransaction>(
                 ProcessMessageAsync);
-
-            ReceiveAsync<RebuildTransaction>(
-                ProcessMessageAsync);
+            
         }
 
-
-        private void ProcessMessage(BuildTransaction message)
-        {
-            using (var logger = Context.GetLogger(message))
-            {
-                try
-                {
-                    var processor = GetOrCreateTransactionProcessor(message.FromAddress);
-
-                    processor.Forward(message);
-                }
-                catch (Exception e)
-                {
-                    Sender.Tell(new Status.Failure
-                    (
-                        e
-                    ));
-
-                    logger.Error(e);
-                }
-            }
-        }
 
         private void ProcessMessage(CleanupExpiredTransactionProcessors message)
         {
@@ -92,30 +65,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors
         }
 
         private async Task ProcessMessageAsync(BroadcastTransaction message)
-        {
-            using (var logger = Context.GetLogger(message))
-            {
-                try
-                {
-                    var fromAddress =
-                        await _transactionProcessorDispatcherRole.GetFromAddressAsync(message.OperationId);
-                    var processor = GetOrCreateTransactionProcessor(fromAddress);
-
-                    processor.Forward(message);
-                }
-                catch (Exception e)
-                {
-                    Sender.Tell(new Status.Failure
-                    (
-                        e
-                    ));
-
-                    logger.Error(e);
-                }
-            }
-        }
-
-        private async Task ProcessMessageAsync(RebuildTransaction message)
         {
             using (var logger = Context.GetLogger(message))
             {

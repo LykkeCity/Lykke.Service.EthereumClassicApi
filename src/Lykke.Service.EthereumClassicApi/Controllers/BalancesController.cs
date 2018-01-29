@@ -4,28 +4,24 @@ using System.Net;
 using System.Threading.Tasks;
 using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Balances;
-using Lykke.Service.EthereumClassicApi.Actors;
-using Lykke.Service.EthereumClassicApi.Actors.Exceptions;
 using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Utils;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace Lykke.Service.EthereumClassicApi.Controllers
 {
     [Route("api/balances")]
     public class BalancesController : Controller
     {
-        private readonly IActorSystemFacade _actorSystemFacade;
         private readonly IObservableBalanceRepository _observableBalanceRepository;
 
 
         public BalancesController(
-            IActorSystemFacade actorSystemFacade,
             IObservableBalanceRepository observableBalanceRepository)
         {
-            _actorSystemFacade = actorSystemFacade;
             _observableBalanceRepository = observableBalanceRepository;
         }
 

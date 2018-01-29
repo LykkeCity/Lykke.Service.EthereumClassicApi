@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Lykke.Service.EthereumClassicApi.Actors.Exceptions;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
 using Lykke.Service.EthereumClassicApi.Common;
+using Lykke.Service.EthereumClassicApi.Common.Exceptions;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;

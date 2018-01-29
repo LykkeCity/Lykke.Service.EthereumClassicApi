@@ -20,12 +20,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
             ReceiveAsync<BroadcastTransaction>(
                 ProcessMessageAsync);
-
-            ReceiveAsync<BuildTransaction>(
-                ProcessMessageAsync);
-
-            ReceiveAsync<RebuildTransaction>(
-                ProcessMessageAsync);
         }
 
 
@@ -50,67 +44,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                     logger.Info($"Transaction [{txHash}] has been broadcasted");
 
                     Sender.Tell(new Status.Success(null));
-                }
-                catch (Exception e)
-                {
-                    Sender.Tell(new Status.Failure
-                    (
-                        e
-                    ));
-
-                    logger.Error(e);
-                }
-            }
-        }
-
-        private async Task ProcessMessageAsync(BuildTransaction message)
-        {
-            using (var logger = Context.GetLogger(message))
-            {
-                try
-                {
-                    var txData = await _transactionProcessorRole.BuildTransactionAsync
-                    (
-                        message.Amount,
-                        message.FromAddress,
-                        message.IncludeFee,
-                        message.OperationId,
-                        message.ToAddress
-                    );
-
-                    Sender.Tell(new TransactionBuilt
-                    (
-                        txData
-                    ));
-                }
-                catch (Exception e)
-                {
-                    Sender.Tell(new Status.Failure
-                    (
-                        e
-                    ));
-
-                    logger.Error(e);
-                }
-            }
-        }
-
-        private async Task ProcessMessageAsync(RebuildTransaction message)
-        {
-            using (var logger = Context.GetLogger(message))
-            {
-                try
-                {
-                    var txData = await _transactionProcessorRole.RebuildTransactionAsync
-                    (
-                        message.FeeFactor,
-                        message.OperationId
-                    );
-
-                    Sender.Tell(new TransactionBuilt
-                    (
-                        txData
-                    ));
                 }
                 catch (Exception e)
                 {
