@@ -49,7 +49,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             var facade = new ActorSystemFacade
             (
                 rootActorFactory: _rootActorFactory,
-                shutdownCallback: async () => await CoordinatedShutdown.Get(_actorSystem).Run());
+                shutdownCallback: async () => await CoordinatedShutdown.Get(_actorSystem).Run()
+            );
 
             _scheduler.ScheduleTellRepeatedly
             (

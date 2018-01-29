@@ -7,6 +7,7 @@ using Lykke.Service.BlockchainApi.Contract.Balances;
 using Lykke.Service.EthereumClassicApi.Actors;
 using Lykke.Service.EthereumClassicApi.Actors.Exceptions;
 using Lykke.Service.EthereumClassicApi.Common;
+using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Utils;
 using Microsoft.AspNetCore.Mvc;
@@ -17,43 +18,50 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
     public class BalancesController : Controller
     {
         private readonly IActorSystemFacade _actorSystemFacade;
-        private readonly IObservableBalanceQueryRepository _observableBalanceQueryRepository;
+        private readonly IObservableBalanceRepository _observableBalanceRepository;
 
 
         public BalancesController(
             IActorSystemFacade actorSystemFacade,
-            IObservableBalanceQueryRepository observableBalanceQueryRepository)
+            IObservableBalanceRepository observableBalanceRepository)
         {
             _actorSystemFacade = actorSystemFacade;
-            _observableBalanceQueryRepository = observableBalanceQueryRepository;
+            _observableBalanceRepository = observableBalanceRepository;
         }
 
 
         [HttpPost("{address}/observation")]
         public async Task<IActionResult> AddAddressToObservationList([Address] string address)
         {
-            try
+            if (!await _observableBalanceRepository.ExistsAsync(address))
             {
-                await _actorSystemFacade.BeginBalanceMonitoringAsync(address);
+                await _observableBalanceRepository.AddAsync(new ObservableBalanceDto
+                {
+                    Address = address
+                });
 
                 return Ok();
             }
-            catch (ConflictException e)
+            else
             {
-                return StatusCode((int) HttpStatusCode.Conflict, e.Message);
+                return StatusCode
+                (
+                    (int)HttpStatusCode.Conflict,
+                    $"Specified address [{address}] is already observed."
+                );
             }
         }
 
         [HttpDelete("{address}/observation")]
         public async Task<IActionResult> DeleteAddressFromObservationList([Address] string address)
         {
-            try
+            if (await _observableBalanceRepository.ExistsAsync(address))
             {
-                await _actorSystemFacade.EndBalanceMonitoringAsync(address);
+                await _observableBalanceRepository.DeleteAsync(address);
 
                 return Ok();
             }
-            catch (NotFoundException)
+            else
             {
                 return NoContent();
             }
@@ -62,8 +70,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBalanceList([FromQuery] int take, [FromQuery] string continuation = "")
         {
-            (var balances, var continuationToken) =
-                await _observableBalanceQueryRepository.GetAllWithNonZeroAmountAsync(take, continuation);
+            (var balances, var continuationToken) = await _observableBalanceRepository.GetAllWithNonZeroAmountAsync(take, continuation);
 
             var responseItems = balances
                 .Select(x => new WalletBalanceContract

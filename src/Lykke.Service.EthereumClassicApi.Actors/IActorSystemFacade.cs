@@ -8,15 +8,11 @@ namespace Lykke.Service.EthereumClassicApi.Actors
     public interface IActorSystemFacade
     {
         IActorRef BalanceObserverDispatcher { get; }
-
-        IActorRef BalanceObserverManager { get; }
-
+        
         IActorRef TransactionMonitorDispatcher { get; }
 
         IActorRef TransactionProcessorsDispatcher { get; }
-
-
-        Task BeginBalanceMonitoringAsync(string address);
+        
 
         Task BroadcastTransactionAsync(Guid operationId, string signedTxData);
 
@@ -24,9 +20,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             string toAddress);
 
         Task DeleteOperationStateAsync(Guid operationId);
-
-        Task EndBalanceMonitoringAsync(string address);
-
+        
         Task<string> RebuildTransactionAsync(decimal feeFactor, Guid operationId);
 
         Task ShutdownAsync();

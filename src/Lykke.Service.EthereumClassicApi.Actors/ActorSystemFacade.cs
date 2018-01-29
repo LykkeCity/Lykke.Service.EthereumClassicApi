@@ -25,10 +25,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
             BalanceObserverDispatcher =
                 _rootActorFactory.Build<BalanceObserverDispatcherActor>("balances-observer-dispatcher");
-
-            BalanceObserverManager =
-                _rootActorFactory.Build<BalanceObserverManagerActor>("balances-observer-manager");
-
+            
             TransactionMonitorDispatcher =
                 _rootActorFactory.Build<TransactionMonitorDispatcherActor>("transaction-monitor-dispatcher");
 
@@ -56,24 +53,13 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
 
         public IActorRef BalanceObserverDispatcher { get; }
-
-        public IActorRef BalanceObserverManager { get; }
-
+        
         public IActorRef TransactionMonitorDispatcher { get; }
 
         public IActorRef TransactionProcessorsDispatcher { get; }
 
 
-        public async Task BeginBalanceMonitoringAsync(string address)
-        {
-            var response = await BalanceObserverManager.Ask(new BeginBalanceMonitoring
-            (
-                address
-            ));
-
-            CheckIfResponseIsSuccess(response);
-        }
-
+        
         public async Task BroadcastTransactionAsync(Guid operationId, string signedTxData)
         {
             var response = await TransactionProcessorsDispatcher.Ask(new BroadcastTransaction
@@ -111,17 +97,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
             CheckIfResponseIsSuccess(response);
         }
-
-        public async Task EndBalanceMonitoringAsync(string address)
-        {
-            var response = await BalanceObserverManager.Ask(new EndBalanceMonitoring
-            (
-                address
-            ));
-
-            CheckIfResponseIsSuccess(response);
-        }
-
+        
         public async Task<string> RebuildTransactionAsync(decimal feeFactor, Guid operationId)
         {
             var response = await TransactionProcessorsDispatcher.Ask(new RebuildTransaction
@@ -142,7 +118,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             await Task.WhenAll
             (
                 BalanceObserverDispatcher.GracefulStop(gracefulStutdownPeriod),
-                BalanceObserverManager.GracefulStop(gracefulStutdownPeriod),
                 TransactionMonitorDispatcher.GracefulStop(gracefulStutdownPeriod),
                 TransactionProcessorsDispatcher.GracefulStop(gracefulStutdownPeriod)
             );

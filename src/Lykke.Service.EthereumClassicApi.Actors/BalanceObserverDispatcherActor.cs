@@ -63,10 +63,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             {
                 try
                 {
-                    var observableAddresses =
-                        (await _balanceObserverDispatcherRole.GetObservableAddressesAsync()).ToList();
-                    var latestConfirmedBlockNumber =
-                        await _balanceObserverDispatcherRole.GetLatestConfirmedBlockNumber();
+                    var observableAddresses = (await _balanceObserverDispatcherRole.GetObservableAddressesAsync()).ToList();
+                    var latestConfirmedBlockNumber = await _balanceObserverDispatcherRole.GetLatestConfirmedBlockNumber();
 
                     foreach (var address in observableAddresses)
                     {
