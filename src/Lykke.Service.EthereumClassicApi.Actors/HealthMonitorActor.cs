@@ -5,7 +5,6 @@ using Lykke.Service.EthereumClassicApi.Actors.Extensions;
 using Lykke.Service.EthereumClassicApi.Actors.Messages;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
 
-
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
     public class HealthMonitorActor : ReceiveActor

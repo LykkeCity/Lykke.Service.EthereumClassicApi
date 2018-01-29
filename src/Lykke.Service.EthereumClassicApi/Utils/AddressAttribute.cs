@@ -8,7 +8,7 @@ namespace Lykke.Service.EthereumClassicApi.Utils
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             return AddressValidator.ValidateAsync(value.ToString()).Result
-                ? ValidationResult.Success 
+                ? ValidationResult.Success
                 : new ValidationResult("Address is invalid.");
         }
     }

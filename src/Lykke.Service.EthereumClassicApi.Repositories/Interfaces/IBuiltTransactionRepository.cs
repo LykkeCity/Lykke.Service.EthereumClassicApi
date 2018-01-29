@@ -11,8 +11,8 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 
         Task DeleteAsync(Guid operationId);
 
-        Task<BuiltTransactionDto> GetAsync(Guid operationId);
-
         Task<IEnumerable<Guid>> GetAllOperationIdsAsync();
+
+        Task<BuiltTransactionDto> GetAsync(Guid operationId);
     }
 }

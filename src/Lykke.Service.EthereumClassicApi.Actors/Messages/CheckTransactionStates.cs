@@ -7,11 +7,10 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Messages
     {
         private CheckTransactionStates()
         {
-
         }
 
         /// <summary>
-        ///    The singleton instance of CheckTransactionStates.
+        ///     The singleton instance of CheckTransactionStates.
         /// </summary>
         public static CheckTransactionStates Instance { get; }
             = new CheckTransactionStates();

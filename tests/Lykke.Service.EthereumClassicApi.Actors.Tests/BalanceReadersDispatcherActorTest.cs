@@ -33,7 +33,7 @@
 //            #region Arrange
 
 //            var balanceHolderPublicAddress = "0xD143cB0C11fAA3447d0bbe8A49c22853260B406A";
-            
+
 
 //            var mockedBalanceReadersDispatcherRole = new Mock<IBalanceReadersDispatcherRole>();
 //            var mockedBalanceReadersFactory = new Mock<IBalanceReadersFactory>();
@@ -86,3 +86,5 @@
 //        }
 //    }
 //}
+
+

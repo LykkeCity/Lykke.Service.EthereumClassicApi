@@ -6,6 +6,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 {
     public interface IObservableBalanceQueryRepository
     {
-        Task<(IEnumerable<ObservableBalanceDto> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(int take, string continuationToken);
+        Task<(IEnumerable<ObservableBalanceDto> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(
+            int take, string continuationToken);
     }
 }

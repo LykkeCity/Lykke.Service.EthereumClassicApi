@@ -25,20 +25,18 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             {
                 return Ok(new IsAliveResponse
                 {
-                    Env     = healthStatus.EnvironmentInfo,
+                    Env = healthStatus.EnvironmentInfo,
                     IsDebug = healthStatus.IsDebug,
-                    Name    = healthStatus.ApplicationName,
+                    Name = healthStatus.ApplicationName,
                     Version = healthStatus.ApplicationVersion
                 });
             }
-            else
-            {
-                return StatusCode
-                (
-                    (int) HttpStatusCode.InternalServerError,
-                    ErrorResponse.Create($"Service is unhealthy: {healthStatus.StatusMessage}")
-                );
-            }
+
+            return StatusCode
+            (
+                (int) HttpStatusCode.InternalServerError,
+                ErrorResponse.Create($"Service is unhealthy: {healthStatus.StatusMessage}")
+            );
         }
     }
 }

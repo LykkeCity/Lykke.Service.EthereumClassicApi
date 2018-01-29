@@ -9,7 +9,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
 {
     public class TransactionStateService : ITransactionStateService
     {
-        private readonly IEthereum                  _ethereum;
+        private readonly IEthereum _ethereum;
         private readonly EthereumClassicApiSettings _settings;
 
 
@@ -24,31 +24,31 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
         public async Task<TransactionStateDto> GetTransactionStateAsync(string txHash)
         {
-            var latestBlockNumber          = await _ethereum.GetLatestBlockNumberAsync();
+            var latestBlockNumber = await _ethereum.GetLatestBlockNumberAsync();
             var latestConfirmedBlockNumber = latestBlockNumber - _settings.TransactionConfirmationLevel;
-            var receipt                    = await _ethereum.GetTransactionReceiptAsync(txHash);
+            var receipt = await _ethereum.GetTransactionReceiptAsync(txHash);
 
             if (receipt?.BlockHash != null && receipt.BlockNumber <= latestConfirmedBlockNumber)
             {
-                var gasPrice         = await _ethereum.GetTransactionGasPriceAsync(txHash);
+                var gasPrice = await _ethereum.GetTransactionGasPriceAsync(txHash);
                 var transactionError = await _ethereum.GetTransactionErrorAsync(txHash);
 
                 return new TransactionStateDto
                 {
                     Error = transactionError,
-                    Fee   = receipt.GasUsed * gasPrice,
-                    State = string.IsNullOrEmpty(transactionError) ? TransactionState.Completed : TransactionState.Failed
+                    Fee = receipt.GasUsed * gasPrice,
+                    State = string.IsNullOrEmpty(transactionError)
+                        ? TransactionState.Completed
+                        : TransactionState.Failed
                 };
             }
-            else
+
+            return new TransactionStateDto
             {
-                return new TransactionStateDto
-                {
-                    Error = string.Empty,
-                    Fee   = null,
-                    State = TransactionState.InProgress
-                };
-            }
+                Error = string.Empty,
+                Fee = null,
+                State = TransactionState.InProgress
+            };
         }
     }
 }

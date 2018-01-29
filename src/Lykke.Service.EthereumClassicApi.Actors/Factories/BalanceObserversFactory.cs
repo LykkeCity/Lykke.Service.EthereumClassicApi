@@ -16,15 +16,15 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Factories
             _serviceSettings = serviceSettings;
         }
 
-        
+
         public override IActorRef Build(IUntypedActorContext context, string name)
         {
             var router = new SmallestMailboxPool(_serviceSettings.NrOfBalanceReaders);
 
             return context.ActorOf
             (
-                props: context.DI().Props<BalanceObserverActor>().WithRouter(router),
-                name:  name
+                context.DI().Props<BalanceObserverActor>().WithRouter(router),
+                name
             );
         }
     }

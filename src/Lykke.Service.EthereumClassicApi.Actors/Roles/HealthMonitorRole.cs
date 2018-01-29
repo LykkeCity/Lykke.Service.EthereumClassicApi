@@ -12,18 +12,28 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
     {
         private readonly List<(DateTime MeasurementTime, bool Failed)> _cashins;
         private readonly List<(DateTime MeasurementTime, bool Failed)> _cashouts;
-        private readonly IHealthStatusRepository                       _healthStatusRepository;
-        private readonly EthereumClassicApiSettings                    _settings;
+        private readonly IHealthStatusRepository _healthStatusRepository;
+        private readonly EthereumClassicApiSettings _settings;
 
 
         public HealthMonitorRole(
             IHealthStatusRepository healthStatusRepository,
             EthereumClassicApiSettings settings)
         {
-            _cashins                = new List<(DateTime MeasurementTime, bool Failed)>();
-            _cashouts               = new List<(DateTime MeasurementTime, bool Failed)>();
+            _cashins = new List<(DateTime MeasurementTime, bool Failed)>();
+            _cashouts = new List<(DateTime MeasurementTime, bool Failed)>();
             _healthStatusRepository = healthStatusRepository;
-            _settings               = settings;
+            _settings = settings;
+        }
+
+        public void RegisterCashin(bool failed)
+        {
+            _cashins.Add((UtcNow.Get(), failed));
+        }
+
+        public void RegisterCashout(bool failed)
+        {
+            _cashouts.Add((UtcNow.Get(), failed));
         }
 
 
@@ -41,16 +51,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             _healthStatusRepository.Update(healthStatus);
         }
 
-        public void RegisterCashin(bool failed)
-        {
-            _cashins.Add((UtcNow.Get(), failed));
-        }
-
-        public void RegisterCashout(bool failed)
-        {
-            _cashouts.Add((UtcNow.Get(), failed));
-        }
-        
         //private double CalculateCashinApdex()
         //{
         //    var satisfiedCount  = _cashins.Count(x => !x.Failed);

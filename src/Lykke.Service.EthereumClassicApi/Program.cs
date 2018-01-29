@@ -9,21 +9,22 @@ namespace Lykke.Service.EthereumClassicApi
 {
     internal sealed class Program
     {
-        public static string EnvInfo 
+        public static string EnvInfo
             => Environment.GetEnvironmentVariable("ENV_INFO");
 
         public static async Task Main(string[] args)
         {
-            Console.WriteLine($"{Constants.ApplicationName} version {PlatformServices.Default.Application.ApplicationVersion}");
+            Console.WriteLine(
+                $"{Constants.ApplicationName} version {PlatformServices.Default.Application.ApplicationVersion}");
             Console.WriteLine($"Is {(Constants.IsDebug ? "DEBUG" : "RELEASE")}");
-            
+
             var environmentInfo = Environment.GetEnvironmentVariable("ENV_INFO");
 
             if (!string.IsNullOrEmpty(environmentInfo))
             {
                 Console.WriteLine($"ENV_INFO: {environmentInfo}");
             }
-            
+
             try
             {
                 var host = new WebHostBuilder()
@@ -39,7 +40,7 @@ namespace Lykke.Service.EthereumClassicApi
             catch (Exception ex)
             {
                 var delay = TimeSpan.FromMinutes(1);
-                
+
                 Console.WriteLine("Fatal error:");
                 Console.WriteLine();
                 Console.WriteLine(ex);

@@ -15,11 +15,11 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         {
             _healthStatus = new HealthStatusDto
             {
-                ApplicationName    = Constants.ApplicationName,
+                ApplicationName = Constants.ApplicationName,
                 ApplicationVersion = PlatformServices.Default.Application.ApplicationVersion,
-                EnvironmentInfo    = Environment.GetEnvironmentVariable("ENV_INFO"),
-                IsDebug            = Constants.IsDebug,
-                IsHealthy          = true
+                EnvironmentInfo = Environment.GetEnvironmentVariable("ENV_INFO"),
+                IsDebug = Constants.IsDebug,
+                IsHealthy = true
             };
         }
 

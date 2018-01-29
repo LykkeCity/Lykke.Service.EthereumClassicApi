@@ -9,7 +9,7 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Serialization
 
         [JsonProperty(Order = 3)]
         public LykkeLogContext Context { get; set; }
-        
+
         [JsonProperty(Order = 0)]
         public string Info { get; set; }
 

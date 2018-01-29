@@ -8,14 +8,13 @@ using Lykke.Service.EthereumClassicApi.Actors.Factories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Actors.Messages;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
 
-
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
     [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
     public class BalanceObserverDispatcherActor : ReceiveActor
-    { 
-        private readonly IActorRef                      _balanceReaders;
+    {
         private readonly IBalanceObserverDispatcherRole _balanceObserverDispatcherRole;
+        private readonly IActorRef _balanceReaders;
 
         private int _numberOfRemainingBalances;
 
@@ -25,7 +24,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             IBalanceObserversFactory balanceObserversFactory)
         {
             _balanceObserverDispatcherRole = balanceObserverDispatcherRole;
-            _balanceReaders                = balanceObserversFactory.Build(Context, "balance-readers");
+            _balanceReaders = balanceObserversFactory.Build(Context, "balance-readers");
 
 
             Become(Idle);
@@ -64,18 +63,20 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             {
                 try
                 {
-                    var observableAddresses        = (await _balanceObserverDispatcherRole.GetObservableAddressesAsync()).ToList();
-                    var latestConfirmedBlockNumber = await _balanceObserverDispatcherRole.GetLatestConfirmedBlockNumber();
+                    var observableAddresses =
+                        (await _balanceObserverDispatcherRole.GetObservableAddressesAsync()).ToList();
+                    var latestConfirmedBlockNumber =
+                        await _balanceObserverDispatcherRole.GetLatestConfirmedBlockNumber();
 
                     foreach (var address in observableAddresses)
                     {
                         _balanceReaders.Tell(new CheckBalance
                         (
-                            address:      address,
-                            blockNumbber: latestConfirmedBlockNumber
+                            address,
+                            latestConfirmedBlockNumber
                         ));
                     }
-                    
+
                     if (observableAddresses.Count > 0)
                     {
                         _numberOfRemainingBalances = observableAddresses.Count;

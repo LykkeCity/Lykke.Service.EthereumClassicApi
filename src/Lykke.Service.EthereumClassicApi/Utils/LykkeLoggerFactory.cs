@@ -4,7 +4,6 @@ using Common.Log;
 using Lykke.AzureQueueIntegration;
 using Lykke.AzureQueueIntegration.Publisher;
 using Lykke.Logs;
-using Lykke.Service.EthereumClassicApi.Actors;
 using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Common.Settings;
 using Lykke.Service.EthereumClassicApi.Logger;
@@ -16,16 +15,17 @@ namespace Lykke.Service.EthereumClassicApi.Utils
 {
     internal class LykkeLoggerFactory
     {
-        public static (ILog Log, ISlackNotificationsSender NotificationsSender) CreateLykkeLoggers(IReloadingManager<AppSettings> settings)
+        public static (ILog Log, ISlackNotificationsSender NotificationsSender) CreateLykkeLoggers(
+            IReloadingManager<AppSettings> settings)
         {
             var connectionString = settings.Nested(x => x.EthereumClassicApi.Db.LogsConnectionString);
-            var slackSettings    = settings.CurrentValue?.SlackNotifications?.AzureQueue;
-            var consoleLogger    = new LogToConsole();
+            var slackSettings = settings.CurrentValue?.SlackNotifications?.AzureQueue;
+            var consoleLogger = new LogToConsole();
 
 
             ILog log;
             ISlackNotificationsSender notificationSender;
-            
+
             try
             {
                 log = new AggregateLogger
@@ -40,12 +40,12 @@ namespace Lykke.Service.EthereumClassicApi.Utils
 
                 log.WriteWarningAsync
                 (
-                    component: nameof(LykkeLoggerFactory),
-                    process:   nameof(CreatePersistenceLogger),
-                    context:   "",
-                    info:      e.Message,
-                    ex:        e,
-                    dateTime:  DateTime.UtcNow
+                    nameof(LykkeLoggerFactory),
+                    nameof(CreatePersistenceLogger),
+                    "",
+                    e.Message,
+                    e,
+                    DateTime.UtcNow
                 );
             }
 
@@ -59,12 +59,12 @@ namespace Lykke.Service.EthereumClassicApi.Utils
 
                 log.WriteWarningAsync
                 (
-                    component: nameof(LykkeLoggerFactory),
-                    process:   nameof(CreateNotificationSender),
-                    context:   "",
-                    info:      e.Message,
-                    ex:        e,
-                    dateTime:  DateTime.UtcNow
+                    nameof(LykkeLoggerFactory),
+                    nameof(CreateNotificationSender),
+                    "",
+                    e.Message,
+                    e,
+                    DateTime.UtcNow
                 );
             }
 
@@ -72,16 +72,60 @@ namespace Lykke.Service.EthereumClassicApi.Utils
             return (log, notificationSender);
         }
 
+        private static ISlackNotificationsSender CreateNotificationSender(AzureQueuePublicationSettings slackSettings,
+            ILog log)
+        {
+            var connectionString = slackSettings?.ConnectionString;
+            var queueName = slackSettings?.QueueName;
+
+
+            if (string.IsNullOrEmpty(connectionString) || string.IsNullOrEmpty(queueName))
+            {
+                throw new InvalidOperationException("Slack notifications settings are not specified in settings file.");
+            }
+
+            if (IsSettingPlaceholder(connectionString))
+            {
+                throw new InvalidOperationException(
+                    $"Slack notifications connection string [{connectionString}] is not specified in key-value pairs.");
+            }
+
+            if (IsSettingPlaceholder(queueName))
+            {
+                throw new InvalidOperationException(
+                    $"Slack notifications queue name [{queueName}] is not specified in key-value pairs.");
+            }
+
+            var azureQueuePublisher = new AzureQueuePublisher<SlackMessageQueueEntity>
+            (
+                Constants.ApplicationName,
+                new AzureQueueSettings
+                {
+                    ConnectionString = connectionString,
+                    QueueName = queueName
+                }
+            );
+
+            azureQueuePublisher
+                .SetSerializer(new SlackNotificationsSerializer())
+                .SetLogger(log)
+                .Start();
+
+            return new SlackNotificationsSender(azureQueuePublisher);
+        }
+
         private static ILog CreatePersistenceLogger(IReloadingManager<string> connectionString, ILog consoleLogger)
         {
             if (string.IsNullOrEmpty(connectionString.CurrentValue))
             {
-                throw new InvalidOperationException("Persistence logger connection string is not specified in settings file.");
+                throw new InvalidOperationException(
+                    "Persistence logger connection string is not specified in settings file.");
             }
 
             if (IsSettingPlaceholder(connectionString.CurrentValue))
             {
-                throw new InvalidOperationException($"Persistence logger connection string [{connectionString}] is not specified in key-value pairs.");
+                throw new InvalidOperationException(
+                    $"Persistence logger connection string [{connectionString}] is not specified in key-value pairs.");
             }
 
             var persistenceManager = new LykkeLogToAzureStoragePersistenceManager
@@ -95,45 +139,6 @@ namespace Lykke.Service.EthereumClassicApi.Utils
             persistenceLogger.Start();
 
             return persistenceLogger;
-        }
-
-        private static ISlackNotificationsSender CreateNotificationSender(AzureQueuePublicationSettings slackSettings, ILog log)
-        {
-            var connectionString = slackSettings?.ConnectionString;
-            var queueName        = slackSettings?.QueueName;
-
-
-            if (string.IsNullOrEmpty(connectionString) || string.IsNullOrEmpty(queueName))
-            {
-                throw new InvalidOperationException("Slack notifications settings are not specified in settings file.");
-            }
-
-            if (IsSettingPlaceholder(connectionString))
-            {
-                throw new InvalidOperationException($"Slack notifications connection string [{connectionString}] is not specified in key-value pairs.");
-            }
-
-            if (IsSettingPlaceholder(queueName))
-            {
-                throw new InvalidOperationException($"Slack notifications queue name [{queueName}] is not specified in key-value pairs.");
-            }
-
-            var azureQueuePublisher = new AzureQueuePublisher<SlackMessageQueueEntity>
-            (
-                Constants.ApplicationName,
-                new AzureQueueSettings
-                {
-                    ConnectionString = connectionString,
-                    QueueName        = queueName
-                }
-            );
-
-            azureQueuePublisher
-                .SetSerializer(new SlackNotificationsSerializer())
-                .SetLogger(log)
-                .Start();
-
-            return new SlackNotificationsSender(azureQueuePublisher);
         }
 
         private static bool IsSettingPlaceholder(string settingValue)

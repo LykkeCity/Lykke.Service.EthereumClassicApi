@@ -13,7 +13,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
 {
     public class BroadcastedTransactionRepository : IBroadcastedTransactionRepository
     {
-        private readonly IAddStrategy<BroadcastedTransactionEntity>    _addStrategy;
+        private readonly IAddStrategy<BroadcastedTransactionEntity> _addStrategy;
         private readonly IDeleteStrategy<BroadcastedTransactionEntity> _deleteStrategy;
         private readonly IExistsStrategy<BroadcastedTransactionEntity> _existsStrategy;
         private readonly IGetAllStrategy<BroadcastedTransactionEntity> _getAllStrategy;
@@ -24,10 +24,21 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             IExistsStrategy<BroadcastedTransactionEntity> existsStrategy,
             IGetAllStrategy<BroadcastedTransactionEntity> getAllStrategy)
         {
-            _addStrategy    = addStrategy;
+            _addStrategy = addStrategy;
             _deleteStrategy = deleteStrategy;
             _existsStrategy = existsStrategy;
             _getAllStrategy = getAllStrategy;
+        }
+
+
+        private static string GetPartitionKey(Guid operationId)
+        {
+            return $"{operationId:N}";
+        }
+
+        private static string GetRowKey(string signedTxData)
+        {
+            return signedTxData.CalculateHexHash64();
         }
 
 
@@ -36,7 +47,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             var entity = dto.ToEntity();
 
             entity.PartitionKey = GetPartitionKey(dto.OperationId);
-            entity.RowKey       = GetRowKey(dto.SignedTxData);
+            entity.RowKey = GetRowKey(dto.SignedTxData);
 
             await _addStrategy.ExecuteAsync(entity);
         }
@@ -60,12 +71,5 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             return (await _getAllStrategy.ExecuteAsync(GetPartitionKey(operationId)))
                 .Select(x => x.ToDto());
         }
-
-
-        private static string GetPartitionKey(Guid operationId)
-            => $"{operationId:N}";
-
-        private static string GetRowKey(string signedTxData)
-            => signedTxData.CalculateHexHash64();
     }
 }

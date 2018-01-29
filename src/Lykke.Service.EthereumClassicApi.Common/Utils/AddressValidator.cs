@@ -10,20 +10,20 @@ namespace Lykke.Service.EthereumClassicApi.Common.Utils
     public static class AddressValidator
     {
         [Pure]
-        public static async Task <bool> ValidateAsync(string address)
+        public static async Task<bool> ValidateAsync(string address)
         {
             // Check basic requirements of an address
             if (!Regex.IsMatch(address, @"^0x[0-9a-f]{40}$", RegexOptions.IgnoreCase))
             {
                 return false;
             }
-            
+
             // Check if all letters are either in lower case, or in upper case
             if (Regex.IsMatch(address, @"^0x(?:[0-9a-f]{40}|[0-9A-F]{40})$"))
             {
                 return true;
             }
-            
+
             return await ValidateChecksumAsync(address);
         }
 
@@ -33,7 +33,7 @@ namespace Lykke.Service.EthereumClassicApi.Common.Utils
 
             var addressBytes = Encoding.UTF8.GetBytes(address.ToLowerInvariant());
             var caseMapBytes = (await Multihash.SumAsync<KECCAK_256>(addressBytes)).Digest;
-            
+
             for (var i = 0; i < 40; i++)
             {
                 var addressChar = address[i];
@@ -42,8 +42,8 @@ namespace Lykke.Service.EthereumClassicApi.Common.Utils
                 {
                     continue;
                 }
-                
-                var leftShift     = i % 2 == 0 ? 7 : 3;
+
+                var leftShift = i % 2 == 0 ? 7 : 3;
                 var shouldBeUpper = (caseMapBytes[i / 2] & (1 << leftShift)) != 0;
                 var shouldBeLower = !shouldBeUpper;
 

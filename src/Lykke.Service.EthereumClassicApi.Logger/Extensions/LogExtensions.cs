@@ -12,42 +12,42 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
         public static async Task LogEventAsync(this ILog log, LogEvent logEvent)
         {
             var component = logEvent.LogSource;
-            var dateTime  = logEvent.Timestamp;
-            var info      = logEvent.Message.ToString();
+            var dateTime = logEvent.Timestamp;
+            var info = logEvent.Message.ToString();
 
             switch (logEvent)
             {
                 case Debug _:
-                case Info  _:
+                case Info _:
                     await log.WriteInfoAsync
                     (
-                        component: component,
-                        process:   "",
-                        context:   "",
-                        info:      info,
-                        dateTime:  dateTime
+                        component,
+                        "",
+                        "",
+                        info,
+                        dateTime
                     );
 
                     break;
                 case Warning _:
                     await log.WriteWarningAsync
                     (
-                        component: component,
-                        process:   "",
-                        context:   "",
-                        info:      info,
-                        dateTime:  dateTime
+                        component,
+                        "",
+                        "",
+                        info,
+                        dateTime
                     );
 
                     break;
                 case Error error:
                     await log.WriteErrorAsync
                     (
-                        component: component,
-                        process:   "",
-                        context:   "",
-                        exception: new Exception(info, error.Cause),
-                        dateTime:  dateTime
+                        component,
+                        "",
+                        "",
+                        new Exception(info, error.Cause),
+                        dateTime
                     );
 
                     break;
@@ -57,10 +57,10 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
         public static async Task LogEventAsync(this ILog log, LykkeLogEvent logEvent)
         {
             var component = logEvent.LogSource;
-            var context   = BuildContext(logEvent);
-            var dateTime  = logEvent.Timestamp;
-            var info      = logEvent.Message;
-            var process   = logEvent.Process;
+            var context = BuildContext(logEvent);
+            var dateTime = logEvent.Timestamp;
+            var info = logEvent.Message;
+            var process = logEvent.Process;
 
 
             switch (logEvent)
@@ -68,45 +68,45 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
                 case LykkeInfo _:
                     await log.WriteInfoAsync
                     (
-                        component: component,
-                        process:   process,
-                        context:   context,
-                        info:      info,
-                        dateTime:  dateTime
+                        component,
+                        process,
+                        context,
+                        info,
+                        dateTime
                     );
 
                     break;
                 case LykkeWarning warning:
                     await log.WriteWarningAsync
                     (
-                        component: component,
-                        process:   process,
-                        context:   context,
-                        info:      info,
-                        ex:        warning.Cause,
-                        dateTime:  dateTime
+                        component,
+                        process,
+                        context,
+                        info,
+                        warning.Cause,
+                        dateTime
                     );
 
                     break;
                 case LykkeError error:
                     await log.WriteErrorAsync
                     (
-                        component: component,
-                        process:   process,
-                        context:   context,
-                        exception: WrapException(info, error.Cause),
-                        dateTime:  dateTime
+                        component,
+                        process,
+                        context,
+                        WrapException(info, error.Cause),
+                        dateTime
                     );
 
                     break;
                 case LykkeFatalError fatalError:
                     await log.WriteFatalErrorAsync
                     (
-                        component: component,
-                        process:   process,
-                        context:   context,
-                        exception: WrapException(info, fatalError.Cause),
-                        dateTime:  dateTime
+                        component,
+                        process,
+                        context,
+                        WrapException(info, fatalError.Cause),
+                        dateTime
                     );
 
                     break;
@@ -120,8 +120,8 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
             var context = new LykkeLogContext
             {
                 Duration = logEvent.Duration,
-                Thread   = logEvent.Thread.ManagedThreadId.ToString().PadLeft(4, '0'),
-                Trigger  = logEvent.Trigger
+                Thread = logEvent.Thread.ManagedThreadId.ToString().PadLeft(4, '0'),
+                Trigger = logEvent.Trigger
             };
 
             return JsonConvert.SerializeObject(context, Formatting.None, new ActorRefConverter());
@@ -130,8 +130,8 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
         private static Exception WrapException(string info, Exception cause)
         {
             return string.IsNullOrEmpty(info)
-                 ? cause
-                 : new Exception(info, cause);
+                ? cause
+                : new Exception(info, cause);
         }
     }
 }

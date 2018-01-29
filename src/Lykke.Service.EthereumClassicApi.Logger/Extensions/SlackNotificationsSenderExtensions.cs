@@ -38,7 +38,7 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
                 case LykkeWarning _:
                     await sender.SendWarningAsync(message);
                     break;
-                case LykkeError      _:
+                case LykkeError _:
                 case LykkeFatalError _:
                     await sender.SendErrorAsync(message);
                     break;
@@ -53,12 +53,12 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
             var notification = new LykkeNotification
             {
                 Component = logEvent.LogSource,
-                Context   = new LykkeLogContext
+                Context = new LykkeLogContext
                 {
-                    Thread  = logEvent.Thread.ManagedThreadId.ToString().PadLeft(4, '0'),
+                    Thread = logEvent.Thread.ManagedThreadId.ToString().PadLeft(4, '0'),
                     Trigger = logEvent.Trigger
                 },
-                Info    = logEvent.Message,
+                Info = logEvent.Message,
                 Process = logEvent.Process
             };
 

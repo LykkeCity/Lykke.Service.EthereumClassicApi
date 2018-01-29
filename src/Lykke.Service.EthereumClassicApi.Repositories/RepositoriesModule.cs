@@ -13,7 +13,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
                 .RegisterType<RepositoryFactory>()
                 .As<IRepositoryFactory>()
                 .SingleInstance();
-            
+
             builder
                 .Register(c => c.Resolve<IRepositoryFactory>().BuildGasPriceRepository())
                 .AsSelf()

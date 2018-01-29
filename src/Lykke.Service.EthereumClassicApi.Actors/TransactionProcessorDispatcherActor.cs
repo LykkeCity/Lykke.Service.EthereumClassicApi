@@ -11,14 +11,13 @@ using Lykke.Service.EthereumClassicApi.Actors.Messages;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
 using Lykke.Service.EthereumClassicApi.Common.Utils;
 
-
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
     [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
     public class TransactionProcessorDispatcherActor : ReceiveActor
     {
-        private readonly ITransactionProcessorDispatcherRole         _transactionProcessorDispatcherRole;
-        private readonly ITransactionProcessorFactory                _transactionProcessorFactory;
+        private readonly ITransactionProcessorDispatcherRole _transactionProcessorDispatcherRole;
+        private readonly ITransactionProcessorFactory _transactionProcessorFactory;
         private readonly Dictionary<string, TransactionProcessorRef> _transactionProcessors;
 
 
@@ -27,8 +26,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             ITransactionProcessorFactory transactionProcessorFactory)
         {
             _transactionProcessorDispatcherRole = transactionProcessorDispatcherRole;
-            _transactionProcessorFactory        = transactionProcessorFactory;
-            _transactionProcessors              = new Dictionary<string, TransactionProcessorRef>();
+            _transactionProcessorFactory = transactionProcessorFactory;
+            _transactionProcessors = new Dictionary<string, TransactionProcessorRef>();
 
 
             Receive<BuildTransaction>(
@@ -39,7 +38,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
             ReceiveAsync<BroadcastTransaction>(
                 ProcessMessageAsync);
-            
+
             ReceiveAsync<RebuildTransaction>(
                 ProcessMessageAsync);
         }
@@ -59,7 +58,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 {
                     Sender.Tell(new Status.Failure
                     (
-                        cause: e
+                        e
                     ));
 
                     logger.Error(e);
@@ -91,15 +90,16 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 }
             }
         }
-        
+
         private async Task ProcessMessageAsync(BroadcastTransaction message)
         {
             using (var logger = Context.GetLogger(message))
             {
                 try
                 {
-                    var fromAddress = await _transactionProcessorDispatcherRole.GetFromAddressAsync(message.OperationId);
-                    var processor   = GetOrCreateTransactionProcessor(fromAddress);
+                    var fromAddress =
+                        await _transactionProcessorDispatcherRole.GetFromAddressAsync(message.OperationId);
+                    var processor = GetOrCreateTransactionProcessor(fromAddress);
 
                     processor.Forward(message);
                 }
@@ -107,22 +107,23 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 {
                     Sender.Tell(new Status.Failure
                     (
-                        cause: e
+                        e
                     ));
 
                     logger.Error(e);
                 }
             }
         }
-        
+
         private async Task ProcessMessageAsync(RebuildTransaction message)
         {
             using (var logger = Context.GetLogger(message))
             {
                 try
                 {
-                    var fromAddress = await _transactionProcessorDispatcherRole.GetFromAddressAsync(message.OperationId);
-                    var processor   = GetOrCreateTransactionProcessor(fromAddress);
+                    var fromAddress =
+                        await _transactionProcessorDispatcherRole.GetFromAddressAsync(message.OperationId);
+                    var processor = GetOrCreateTransactionProcessor(fromAddress);
 
                     processor.Forward(message);
                 }
@@ -130,7 +131,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 {
                     Sender.Tell(new Status.Failure
                     (
-                        cause: e
+                        e
                     ));
 
                     logger.Error(e);
@@ -163,6 +164,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 _actorRef = actorRef;
             }
 
+            public DateTime LastTalkTime { get; private set; }
+
             public void Tell(object message, IActorRef sender)
             {
                 LastTalkTime = UtcNow.Get();
@@ -171,21 +174,27 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             }
 
             public int CompareTo(IActorRef other)
-                => _actorRef.CompareTo(other);
+            {
+                return _actorRef.CompareTo(other);
+            }
 
             public int CompareTo(object obj)
-                => _actorRef.CompareTo(obj);
+            {
+                return _actorRef.CompareTo(obj);
+            }
 
             public bool Equals(IActorRef other)
-                => _actorRef.Equals(other);
-
-            public DateTime LastTalkTime { get; private set; }
+            {
+                return _actorRef.Equals(other);
+            }
 
             public ActorPath Path
                 => _actorRef.Path;
 
             public ISurrogate ToSurrogate(ActorSystem system)
-                => _actorRef.ToSurrogate(system);
+            {
+                return _actorRef.ToSurrogate(system);
+            }
         }
 
         #endregion

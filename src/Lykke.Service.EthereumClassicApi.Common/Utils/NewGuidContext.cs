@@ -11,12 +11,6 @@ namespace Lykke.Service.EthereumClassicApi.Common.Utils
             ThreadScopeStack = new ThreadLocal<Stack<NewGuidContext>>(() => new Stack<NewGuidContext>());
         }
 
-        public static NewGuidContext Current => 
-            ThreadScopeStack.Value.Count == 0 ? null : ThreadScopeStack.Value.Peek();
-
-        private static ThreadLocal<Stack<NewGuidContext>> ThreadScopeStack { get; }
-
-
 
         public NewGuidContext(Guid newGuid)
         {
@@ -24,9 +18,14 @@ namespace Lykke.Service.EthereumClassicApi.Common.Utils
 
             ThreadScopeStack.Value.Push(this);
         }
-        
+
         public Guid ContextNewGuid { get; }
-        
+
+        public static NewGuidContext Current =>
+            ThreadScopeStack.Value.Count == 0 ? null : ThreadScopeStack.Value.Peek();
+
+        private static ThreadLocal<Stack<NewGuidContext>> ThreadScopeStack { get; }
+
         public void Dispose()
         {
             ThreadScopeStack.Value.Pop();

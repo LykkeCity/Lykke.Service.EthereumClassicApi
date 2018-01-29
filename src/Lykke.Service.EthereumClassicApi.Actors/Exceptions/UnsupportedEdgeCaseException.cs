@@ -6,19 +6,16 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Exceptions
     {
         public UnsupportedEdgeCaseException()
         {
-
         }
 
         public UnsupportedEdgeCaseException(string message)
             : base(message)
         {
-
         }
 
         public UnsupportedEdgeCaseException(string message, Exception inner)
             : base(message, inner)
         {
-
         }
     }
 }

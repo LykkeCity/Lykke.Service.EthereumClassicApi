@@ -20,15 +20,15 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             AssetResponse = new AssetResponse
             {
                 Accuracy = Constants.EtcAsset.Accuracy,
-                AssetId  = Constants.EtcAsset.AssetId,
-                Name     = Constants.EtcAsset.Name
+                AssetId = Constants.EtcAsset.AssetId,
+                Name = Constants.EtcAsset.Name
             };
 
-            AssetsResponse = (new[] { AssetResponse })
+            AssetsResponse = new[] {AssetResponse}
                 .ToImmutableList();
         }
 
-        
+
         [HttpGet("{assetId}")]
         public IActionResult GetAsset(string assetId)
         {
@@ -36,10 +36,8 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             {
                 return Ok(AssetResponse);
             }
-            else
-            {
-                return NoContent();
-            }
+
+            return NoContent();
         }
 
         [HttpGet]
@@ -48,7 +46,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             return Ok(new PaginationResponse<AssetResponse>
             {
                 Continuation = null,
-                Items        = AssetsResponse
+                Items = AssetsResponse
             });
         }
     }

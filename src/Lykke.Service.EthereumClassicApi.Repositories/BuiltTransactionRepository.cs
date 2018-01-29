@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Lykke.Service.EthereumClassicApi.Repositories.Mappins;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
+using Lykke.Service.EthereumClassicApi.Repositories.Mappins;
 using Lykke.Service.EthereumClassicApi.Repositories.Strategies.Interfaces;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories
 {
     public class BuiltTransactionRepository : IBuiltTransactionRepository
     {
-        private readonly IAddStrategy<BuiltTransactionEntity>    _addStrategy;
+        private readonly IAddStrategy<BuiltTransactionEntity> _addStrategy;
         private readonly IDeleteStrategy<BuiltTransactionEntity> _deleteStrategy;
         private readonly IGetAllStrategy<BuiltTransactionEntity> _getAllStrategy;
-        private readonly IGetStrategy<BuiltTransactionEntity>    _getStrategy;
+        private readonly IGetStrategy<BuiltTransactionEntity> _getStrategy;
 
 
         public BuiltTransactionRepository(
@@ -24,10 +24,20 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             IGetAllStrategy<BuiltTransactionEntity> getAllStrategy,
             IGetStrategy<BuiltTransactionEntity> getStrategy)
         {
-            _addStrategy    = addStrategy;
+            _addStrategy = addStrategy;
             _deleteStrategy = deleteStrategy;
             _getAllStrategy = getAllStrategy;
-            _getStrategy    = getStrategy;
+            _getStrategy = getStrategy;
+        }
+
+        private static string GetPartitionKey()
+        {
+            return "Operation";
+        }
+
+        private static string GetRowKey(Guid operationId)
+        {
+            return $"{operationId:N}";
         }
 
 
@@ -36,7 +46,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             var entity = dto.ToEntity();
 
             entity.PartitionKey = GetPartitionKey();
-            entity.RowKey       = GetRowKey(dto.OperationId);
+            entity.RowKey = GetRowKey(dto.OperationId);
 
             await _addStrategy.ExecuteAsync(entity);
         }
@@ -57,11 +67,5 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             return (await _getAllStrategy.ExecuteAsync(GetPartitionKey()))
                 .Select(x => x.OperationId);
         }
-
-        private static string GetPartitionKey()
-            => "Operation";
-
-        private static string GetRowKey(Guid operationId)
-            => $"{operationId:N}";
     }
 }

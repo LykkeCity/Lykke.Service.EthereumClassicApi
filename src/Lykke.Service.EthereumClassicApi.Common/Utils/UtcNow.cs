@@ -7,8 +7,8 @@ namespace Lykke.Service.EthereumClassicApi.Common.Utils
         public static DateTime Get()
         {
             return UtcNowContext.Current == null
-                 ? DateTime.UtcNow
-                 : UtcNowContext.Current.ContextUtcNow;
+                ? DateTime.UtcNow
+                : UtcNowContext.Current.ContextUtcNow;
         }
     }
 }

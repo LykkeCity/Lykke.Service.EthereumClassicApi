@@ -12,7 +12,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
                 .RegisterType<GasPriceOracleService>()
                 .As<IGasPriceOracleService>()
                 .SingleInstance();
-            
+
             builder
                 .RegisterType<TransactionStateService>()
                 .As<ITransactionStateService>()

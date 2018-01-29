@@ -7,26 +7,20 @@ using Common.Log;
 using Lykke.Service.EthereumClassicApi.Logger.Extensions;
 using Lykke.SlackNotifications;
 
-
 namespace Lykke.Service.EthereumClassicApi.Logger
 {
     public class LykkeLogger : ReceiveActor, IRequiresMessageQueue<ILoggerMessageQueueSemantics>
     {
-        private static ILog                      _lykkeLog;
+        private static ILog _lykkeLog;
         private static ISlackNotificationsSender _lykkeNotificationsSender;
-
-        public static void Configure(ILog log, ISlackNotificationsSender notificationsSender)
-        {
-            _lykkeLog                 = log;
-            _lykkeNotificationsSender = notificationsSender;
-        }
 
 
         public LykkeLogger()
         {
             if (_lykkeLog == null || _lykkeNotificationsSender == null)
             {
-                throw new InvalidOperationException($"{nameof(LykkeLogger)} {nameof(Configure)} method should be called before actor system will be created.");
+                throw new InvalidOperationException(
+                    $"{nameof(LykkeLogger)} {nameof(Configure)} method should be called before actor system will be created.");
             }
 
 
@@ -35,9 +29,15 @@ namespace Lykke.Service.EthereumClassicApi.Logger
 
             ReceiveAsync<LogEvent>(
                 ProcessMessageAsync);
-            
+
             SubscribeAndReceiveAsync<LykkeLogEvent>(
                 ProcessMessageAsync);
+        }
+
+        public static void Configure(ILog log, ISlackNotificationsSender notificationsSender)
+        {
+            _lykkeLog = log;
+            _lykkeNotificationsSender = notificationsSender;
         }
 
 
@@ -45,7 +45,7 @@ namespace Lykke.Service.EthereumClassicApi.Logger
         {
             Sender.Tell(new LoggerInitialized());
         }
-        
+
         private async Task ProcessMessageAsync(LogEvent message)
         {
             await Task.WhenAll

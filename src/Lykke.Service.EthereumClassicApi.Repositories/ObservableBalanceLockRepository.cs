@@ -21,8 +21,19 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             IExistsStrategy<ObservableBalanceLockEntity> existsStrategy)
         {
             _addOrReplaceStrategy = addOrReplaceStrategy;
-            _deleteStrategy       = deleteStrategy;
-            _existsStrategy       = existsStrategy;
+            _deleteStrategy = deleteStrategy;
+            _existsStrategy = existsStrategy;
+        }
+
+
+        private static string GetPartitionKey(string address)
+        {
+            return address.CalculateHexHash32(3);
+        }
+
+        private static string GetRowKey(string address)
+        {
+            return address;
         }
 
 
@@ -31,7 +42,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             var entity = dto.ToEntity();
 
             entity.PartitionKey = GetPartitionKey(dto.Address);
-            entity.RowKey       = GetRowKey(dto.Address);
+            entity.RowKey = GetRowKey(dto.Address);
 
             await _addOrReplaceStrategy.ExecuteAsync(entity);
         }
@@ -40,8 +51,8 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         {
             await _deleteStrategy.ExecuteAsync
             (
-                partitionKey: GetPartitionKey(address),
-                rowKey:       GetRowKey(address)
+                GetPartitionKey(address),
+                GetRowKey(address)
             );
         }
 
@@ -49,16 +60,9 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         {
             return await _existsStrategy.ExecuteAsync
             (
-                partitionKey: GetPartitionKey(address),
-                rowKey:       GetRowKey(address)
+                GetPartitionKey(address),
+                GetRowKey(address)
             );
         }
-
-
-        private static string GetPartitionKey(string address)
-            => address.CalculateHexHash32(3);
-
-        private static string GetRowKey(string address)
-            => address;
     }
 }

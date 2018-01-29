@@ -19,7 +19,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Strategies
 
         public async Task<bool> ExecuteAsync(string partitionKey, string rowKey)
         {
-            return (await _table.GetDataAsync(partitionKey, rowKey)) != null;
+            return await _table.GetDataAsync(partitionKey, rowKey) != null;
         }
     }
 }

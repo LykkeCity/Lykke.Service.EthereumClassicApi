@@ -8,10 +8,8 @@
             {
                 return 0;
             }
-            else
-            {
-                return (satisfiedCount + ((double) toleratingCount / 2)) / totalSamplesCount;
-            }
+
+            return (satisfiedCount + (double) toleratingCount / 2) / totalSamplesCount;
         }
     }
 }

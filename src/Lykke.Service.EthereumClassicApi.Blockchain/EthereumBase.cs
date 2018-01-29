@@ -5,31 +5,39 @@ using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
+using Nethereum.Web3;
 using Newtonsoft.Json.Linq;
-
+using Transaction = Nethereum.Signer.Transaction;
 
 namespace Lykke.Service.EthereumClassicApi.Blockchain
 {
     public abstract class EthereumBase : IEthereum
     {
-        private readonly Nethereum.Web3.Web3 _web3;
+        private readonly Web3 _web3;
 
 
         protected EthereumBase(
-            Nethereum.Web3.Web3 web3)
+            Web3 web3)
         {
             _web3 = web3;
         }
 
-        public string BuildTransaction(string to, BigInteger amount, BigInteger nonce, BigInteger gasPrice, BigInteger gasAmount)
+        private async Task<BigInteger> GetBalanceAsync(string address, BlockParameter blockParameter)
         {
-            var transaction = new Nethereum.Signer.Transaction
+            return (await _web3.Eth.GetBalance.SendRequestAsync(address, blockParameter))
+                .Value;
+        }
+
+        public string BuildTransaction(string to, BigInteger amount, BigInteger nonce, BigInteger gasPrice,
+            BigInteger gasAmount)
+        {
+            var transaction = new Transaction
             (
-                to:       to,
-                amount:   amount,
-                nonce:    nonce,
-                gasPrice: gasPrice,
-                gasLimit: gasAmount
+                to,
+                amount,
+                nonce,
+                gasPrice,
+                gasAmount
             );
 
             return transaction.GetRLPEncoded().ToHex();
@@ -39,17 +47,11 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
         {
             var input = new TransactionInput
             {
-                To    = to,
+                To = to,
                 Value = new HexBigInteger(amount)
             };
 
             return (await _web3.Eth.Transactions.EstimateGas.SendRequestAsync(input))
-                .Value;
-        }
-
-        private async Task<BigInteger> GetBalanceAsync(string address, BlockParameter blockParameter)
-        {
-            return (await _web3.Eth.GetBalance.SendRequestAsync(address, blockParameter))
                 .Value;
         }
 
@@ -94,25 +96,23 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
 
             var request = _web3.Eth.Transactions.GetTransactionReceipt.BuildRequest(txHash);
             var receipt = await _web3.Client.SendRequestAsync<JObject>(request);
-            
+
             if (receipt != null)
             {
                 return new TransactionReceiptEntity
                 {
-                    BlockHash         = receipt["blockHash"].Value<string>(),
-                    BlockNumber       = new HexBigInteger(receipt["blockNumber"].Value<string>()).Value,
-                    ContractAddress   = receipt["contractAddress"].Value<string>(),
+                    BlockHash = receipt["blockHash"].Value<string>(),
+                    BlockNumber = new HexBigInteger(receipt["blockNumber"].Value<string>()).Value,
+                    ContractAddress = receipt["contractAddress"].Value<string>(),
                     CumulativeGasUsed = new HexBigInteger(receipt["cumulativeGasUsed"].Value<string>()).Value,
-                    GasUsed           = new HexBigInteger(receipt["gasUsed"].Value<string>()).Value,
-                    Status            = new HexBigInteger(receipt["status"].Value<string>()).Value,
-                    TransactionHash   = receipt["transactionHash"].Value<string>(),
-                    TransactionIndex  = new HexBigInteger(receipt["transactionIndex"].Value<string>()).Value
+                    GasUsed = new HexBigInteger(receipt["gasUsed"].Value<string>()).Value,
+                    Status = new HexBigInteger(receipt["status"].Value<string>()).Value,
+                    TransactionHash = receipt["transactionHash"].Value<string>(),
+                    TransactionIndex = new HexBigInteger(receipt["transactionIndex"].Value<string>()).Value
                 };
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public abstract Task<string> GetTransactionErrorAsync(string txHash);

@@ -7,13 +7,12 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Messages
     {
         private BalanceChecked()
         {
-
         }
 
         /// <summary>
-        ///    The singleton instance of BalanceChecked.
+        ///     The singleton instance of BalanceChecked.
         /// </summary>
-        public static BalanceChecked Instance { get; } 
+        public static BalanceChecked Instance { get; }
             = new BalanceChecked();
     }
 }

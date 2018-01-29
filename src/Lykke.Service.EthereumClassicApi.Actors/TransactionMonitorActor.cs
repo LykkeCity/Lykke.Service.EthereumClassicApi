@@ -29,7 +29,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             {
                 try
                 {
-                    var operationCompleted = await _transactionMonitorRole.CheckTransactionStateAsync(message.OperationId);
+                    var operationCompleted =
+                        await _transactionMonitorRole.CheckTransactionStateAsync(message.OperationId);
 
                     if (!operationCompleted)
                     {
@@ -61,7 +62,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 {
                     Sender.Tell(new Status.Failure
                     (
-                        cause: e
+                        e
                     ));
 
                     logger.Error(e);
@@ -73,10 +74,10 @@ namespace Lykke.Service.EthereumClassicApi.Actors
         {
             Context.System.Scheduler.ScheduleTellOnce
             (
-                delay:    TimeSpan.FromSeconds(30),
-                receiver: Self,
-                message:  message,
-                sender:   Sender
+                TimeSpan.FromSeconds(30),
+                Self,
+                message,
+                Sender
             );
         }
     }

@@ -14,10 +14,12 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Strategies.Interfaces
 
         Task<IEnumerable<T>> ExecuteAsync(Func<T, bool> filter);
 
-        Task<(IEnumerable<T> Entities, string ContinuationToken)> ExecuteAsync(Func<T, bool> filter, int task, string continuationToken);
-        
+        Task<(IEnumerable<T> Entities, string ContinuationToken)> ExecuteAsync(Func<T, bool> filter, int task,
+            string continuationToken);
+
         Task<IEnumerable<T>> ExecuteAsync(string partitionKey);
 
-        Task<(IEnumerable<T> Entities, string ContinuationToken)> ExecuteAsync(string partitionKey, int task, string continuationToken);
+        Task<(IEnumerable<T> Entities, string ContinuationToken)> ExecuteAsync(string partitionKey, int task,
+            string continuationToken);
     }
 }

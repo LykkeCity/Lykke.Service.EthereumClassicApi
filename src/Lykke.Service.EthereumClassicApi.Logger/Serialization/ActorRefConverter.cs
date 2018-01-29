@@ -18,7 +18,8 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Serialization
             return typeof(IActorRef).IsAssignableFrom(objectType);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
+            JsonSerializer serializer)
         {
             throw new NotSupportedException();
         }

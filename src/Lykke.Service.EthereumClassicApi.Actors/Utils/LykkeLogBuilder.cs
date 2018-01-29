@@ -9,69 +9,38 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Utils
     public class LykkeLogBuilder<T> : IDisposable
     {
         private readonly IUntypedActorContext _context;
-        private readonly T                    _trigger;
-        private readonly string               _process;
-        private readonly Stopwatch            _stopwatch;
+        private readonly string _process;
+        private readonly Stopwatch _stopwatch;
+        private readonly T _trigger;
 
 
-        private string    _customMessage;
+        private string _customMessage;
         private Exception _exception;
-        private LogLevel  _logLevel;
-        private bool      _supressed;
+        private LogLevel _logLevel;
+        private bool _supressed;
 
         public LykkeLogBuilder(IUntypedActorContext context, string process, T trigger)
         {
-            _context   = context;
-            _logLevel  = LogLevel.Info;
-            _process   = string.IsNullOrEmpty(process) ? typeof(T).Name : process;
+            _context = context;
+            _logLevel = LogLevel.Info;
+            _process = string.IsNullOrEmpty(process) ? typeof(T).Name : process;
             _stopwatch = new Stopwatch();
-            _trigger   = trigger;
+            _trigger = trigger;
 
             _stopwatch.Start();
-        }
-
-        public void Dispose()
-        {
-            _stopwatch.Stop();
-
-            if (!_supressed)
-            {
-                var duration    = _stopwatch.ElapsedMilliseconds;
-                var lykkeLogger = _context.GetLykkeLogger();
-                var message     = GetMessage();
-                
-                switch (_logLevel)
-                {
-                    case LogLevel.Info:
-                        lykkeLogger.Info(message, duration, _process, _trigger);
-                        break;
-                    case LogLevel.Warning:
-                        lykkeLogger.Warning(message, duration, _process, _trigger, _exception);
-                        break;
-                    case LogLevel.Error:
-                        lykkeLogger.Error(message, duration, _process, _trigger, _exception);
-                        break;
-                    case LogLevel.FatalError:
-                        lykkeLogger.FatalError(message, duration, _process, _trigger, _exception);
-                        break;
-                    case LogLevel.Monitoring:
-                        lykkeLogger.Monitoring(message, duration, _process, _trigger);
-                        break;
-                }
-            }
         }
 
         public void Error(Exception cause, string message = "")
         {
             _customMessage = message;
-            _exception     = cause;
-            _logLevel      = LogLevel.Error;
+            _exception = cause;
+            _logLevel = LogLevel.Error;
         }
 
         public void Info(string message = "")
         {
             _customMessage = message;
-            _logLevel      = LogLevel.Info;
+            _logLevel = LogLevel.Info;
         }
 
         public void SetMessage(string message)
@@ -86,8 +55,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Utils
 
         public void Warning(Exception cause = null, string message = "")
         {
-            _exception     = cause;
-            _logLevel      = LogLevel.Warning;
+            _exception = cause;
+            _logLevel = LogLevel.Warning;
             _customMessage = message;
         }
 
@@ -112,6 +81,37 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Utils
                     return "Operation completed";
                 default:
                     return string.Empty;
+            }
+        }
+
+        public void Dispose()
+        {
+            _stopwatch.Stop();
+
+            if (!_supressed)
+            {
+                var duration = _stopwatch.ElapsedMilliseconds;
+                var lykkeLogger = _context.GetLykkeLogger();
+                var message = GetMessage();
+
+                switch (_logLevel)
+                {
+                    case LogLevel.Info:
+                        lykkeLogger.Info(message, duration, _process, _trigger);
+                        break;
+                    case LogLevel.Warning:
+                        lykkeLogger.Warning(message, duration, _process, _trigger, _exception);
+                        break;
+                    case LogLevel.Error:
+                        lykkeLogger.Error(message, duration, _process, _trigger, _exception);
+                        break;
+                    case LogLevel.FatalError:
+                        lykkeLogger.FatalError(message, duration, _process, _trigger, _exception);
+                        break;
+                    case LogLevel.Monitoring:
+                        lykkeLogger.Monitoring(message, duration, _process, _trigger);
+                        break;
+                }
             }
         }
     }

@@ -64,7 +64,7 @@
 //            #endregion Arrange
 
 //            #region Act
-        
+
 //            var cashinProcessorsDispatcherActor =
 //                ActorOfAsTestActorRef<CashinProcessorsDispatcherActor>(_actorSystem.DI().Props<CashinProcessorsDispatcherActor>());
 
@@ -131,3 +131,5 @@
 //        }
 //    }
 //}
+
+

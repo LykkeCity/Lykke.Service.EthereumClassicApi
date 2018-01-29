@@ -23,8 +23,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Factories
 
             return context.ActorOf
             (
-                props: context.DI().Props<TransactionMonitorActor>().WithRouter(router),
-                name:  name
+                context.DI().Props<TransactionMonitorActor>().WithRouter(router),
+                name
             );
         }
     }

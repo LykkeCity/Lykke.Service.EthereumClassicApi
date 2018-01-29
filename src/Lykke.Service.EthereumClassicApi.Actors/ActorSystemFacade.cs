@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 using Akka.Actor;
@@ -15,7 +14,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
         public ActorSystemFacade(IRootActorFactory rootActorFactory)
         {
-            _rootActorFactory 
+            _rootActorFactory
                 = rootActorFactory;
 
             BalanceObserverDispatcher =
@@ -29,88 +28,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
             TransactionProcessorsDispatcher =
                 _rootActorFactory.Build<TransactionProcessorDispatcherActor>("transaction-procesor-dispatcher");
-        }
-
-
-        public IActorRef BalanceObserverDispatcher { get; }
-
-        public IActorRef BalanceObserverManager { get; }
-
-        public IActorRef TransactionMonitorDispatcher { get; }
-
-        public IActorRef TransactionProcessorsDispatcher { get; }
-
-
-
-
-        public async Task BeginBalanceMonitoringAsync(string address)
-        {
-            var response = await BalanceObserverManager.Ask(new BeginBalanceMonitoring
-            (
-                address: address
-            ));
-
-            CheckIfResponseIsSuccess(response);
-        }
-
-        public async Task BroadcastTransactionAsync(Guid operationId, string signedTxData)
-        {
-            var response = await TransactionProcessorsDispatcher.Ask(new BroadcastTransaction
-            (
-                operationId:  operationId,
-                signedTxData: signedTxData
-            ));
-
-            CheckIfResponseIsSuccess(response);
-        }
-
-        public async Task<string> BuildTransactionAsync(BigInteger amount, string fromAddress, bool includeFee, Guid operationId, string toAddress)
-        {
-            var response = await TransactionProcessorsDispatcher.Ask(new BuildTransaction
-            (
-                amount:      amount,
-                fromAddress: fromAddress,
-                includeFee:  includeFee,
-                operationId: operationId,
-                toAddress:   toAddress
-            ));
-
-            var txData = CheckIfResponseIs<TransactionBuilt>(response).TxData;
-
-            return txData;
-        }
-
-        public async Task DeleteOperationStateAsync(Guid operationId)
-        {
-            var response = await TransactionMonitorDispatcher.Ask(new DeleteTransactionState
-            (
-                operationId: operationId
-            ));
-
-            CheckIfResponseIsSuccess(response);
-        }
-        
-        public async Task EndBalanceMonitoringAsync(string address)
-        {
-            var response = await BalanceObserverManager.Ask(new EndBalanceMonitoring
-            (
-                address: address
-            ));
-
-            CheckIfResponseIsSuccess(response);
-        }
-
-        public async Task<string> RebuildTransactionAsync(decimal feeFactor, Guid operationId)
-        {
-            var response = await TransactionProcessorsDispatcher.Ask(new RebuildTransaction
-            (
-                feeFactor:   feeFactor,
-                operationId: operationId
-            ));
-
-            var txData = CheckIfResponseIs<TransactionBuilt>(response).TxData;
-
-            return txData;
         }
 
         private static T CheckIfResponseIs<T>(object response)
@@ -129,6 +46,87 @@ namespace Lykke.Service.EthereumClassicApi.Actors
         private static void CheckIfResponseIsSuccess(object response)
         {
             CheckIfResponseIs<Status.Success>(response);
+        }
+
+
+        public IActorRef BalanceObserverDispatcher { get; }
+
+        public IActorRef BalanceObserverManager { get; }
+
+        public IActorRef TransactionMonitorDispatcher { get; }
+
+        public IActorRef TransactionProcessorsDispatcher { get; }
+
+
+        public async Task BeginBalanceMonitoringAsync(string address)
+        {
+            var response = await BalanceObserverManager.Ask(new BeginBalanceMonitoring
+            (
+                address
+            ));
+
+            CheckIfResponseIsSuccess(response);
+        }
+
+        public async Task BroadcastTransactionAsync(Guid operationId, string signedTxData)
+        {
+            var response = await TransactionProcessorsDispatcher.Ask(new BroadcastTransaction
+            (
+                operationId,
+                signedTxData
+            ));
+
+            CheckIfResponseIsSuccess(response);
+        }
+
+        public async Task<string> BuildTransactionAsync(BigInteger amount, string fromAddress, bool includeFee,
+            Guid operationId, string toAddress)
+        {
+            var response = await TransactionProcessorsDispatcher.Ask(new BuildTransaction
+            (
+                amount,
+                fromAddress,
+                includeFee,
+                operationId,
+                toAddress
+            ));
+
+            var txData = CheckIfResponseIs<TransactionBuilt>(response).TxData;
+
+            return txData;
+        }
+
+        public async Task DeleteOperationStateAsync(Guid operationId)
+        {
+            var response = await TransactionMonitorDispatcher.Ask(new DeleteTransactionState
+            (
+                operationId
+            ));
+
+            CheckIfResponseIsSuccess(response);
+        }
+
+        public async Task EndBalanceMonitoringAsync(string address)
+        {
+            var response = await BalanceObserverManager.Ask(new EndBalanceMonitoring
+            (
+                address
+            ));
+
+            CheckIfResponseIsSuccess(response);
+        }
+
+        public async Task<string> RebuildTransactionAsync(decimal feeFactor, Guid operationId)
+        {
+            var response = await TransactionProcessorsDispatcher.Ask(new RebuildTransaction
+            (
+                feeFactor,
+                operationId
+            ));
+
+            var txData = CheckIfResponseIs<TransactionBuilt>(response).TxData;
+
+            return txData;
         }
     }
 }

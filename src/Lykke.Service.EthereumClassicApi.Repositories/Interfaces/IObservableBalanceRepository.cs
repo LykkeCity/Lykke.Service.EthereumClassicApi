@@ -13,7 +13,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
         Task<bool> ExistsAsync(string address);
 
         Task<IEnumerable<ObservableBalanceDto>> GetAllAsync();
-        
+
         Task ReplaceAsync(ObservableBalanceDto dto);
     }
 }

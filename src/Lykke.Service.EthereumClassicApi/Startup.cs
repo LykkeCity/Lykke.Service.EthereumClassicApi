@@ -21,15 +21,14 @@ using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
-
 namespace Lykke.Service.EthereumClassicApi
 {
     public class Startup
     {
-        private readonly IHostingEnvironment            _environment;
+        private readonly IHostingEnvironment _environment;
+        private readonly ILog _log;
+        private readonly ISlackNotificationsSender _notificationsSender;
         private readonly IReloadingManager<AppSettings> _settings;
-        private readonly ILog                           _log;
-        private readonly ISlackNotificationsSender      _notificationsSender;
 
 
         private IContainer _container;
@@ -38,7 +37,7 @@ namespace Lykke.Service.EthereumClassicApi
         public Startup(IHostingEnvironment environment)
         {
             _environment = environment;
-            _settings    = LoadSettings();
+            _settings = LoadSettings();
 
             (_log, _notificationsSender) = LykkeLoggerFactory.CreateLykkeLoggers(_settings);
         }
@@ -86,12 +85,12 @@ namespace Lykke.Service.EthereumClassicApi
             {
                 services
                     .AddMvc();
-                
+
                 services
                     .AddSwaggerGen(SetupSwaggerGen);
 
                 var builder = new ContainerBuilder();
-                
+
                 builder
                     .RegisterModule(new SettingsModule(_settings))
                     .RegisterModule(new LoggerModule(_log, _notificationsSender))
@@ -107,56 +106,18 @@ namespace Lykke.Service.EthereumClassicApi
 
                 builder
                     .Populate(services);
-                
+
                 _container = builder.Build();
-                
-                
+
+
                 _container
                     .Resolve<IActorSystemFacade>();
-                
+
                 return new AutofacServiceProvider(_container);
             }
             catch (Exception e)
             {
                 WriteFatalError(e, nameof(ConfigureServices));
-                
-                throw;
-            }
-        }
-
-        private IReloadingManager<AppSettings> LoadSettings()
-        {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(_environment.ContentRootPath)
-                .AddEnvironmentVariables()
-                .Build();
-
-            return configuration.LoadSettings<AppSettings>();
-        }
-
-        private async Task StartApplication()
-        {
-            try
-            {
-                await _log.WriteMonitorAsync("", $"Env: {Program.EnvInfo}", "Started");
-            }
-            catch (Exception ex)
-            {
-                WriteFatalError(ex, nameof(StartApplication));
-
-                throw;
-            }
-        }
-
-        private async Task StopApplication()
-        {
-            try
-            {
-
-            }
-            catch (Exception ex)
-            {
-                WriteFatalError(ex, nameof(StopApplication));
 
                 throw;
             }
@@ -178,15 +139,14 @@ namespace Lykke.Service.EthereumClassicApi
             }
         }
 
-        private void WriteFatalError(Exception e, string process)
+        private IReloadingManager<AppSettings> LoadSettings()
         {
-            _log.WriteFatalErrorAsync
-            (
-                nameof(Startup),
-                process,
-                "",
-                e
-            ).GetAwaiter().GetResult();
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(_environment.ContentRootPath)
+                .AddEnvironmentVariables()
+                .Build();
+
+            return configuration.LoadSettings<AppSettings>();
         }
 
         private static void SetupSwagger(SwaggerOptions options)
@@ -199,7 +159,11 @@ namespace Lykke.Service.EthereumClassicApi
 
         private static void SetupSwaggerGen(SwaggerGenOptions options)
         {
-            options.SwaggerDoc("v1", new Info { Title = "Ethereum Classic API", Version = "v1" });
+            options.SwaggerDoc("v1", new Info
+            {
+                Title = "Ethereum Classic API",
+                Version = "v1"
+            });
         }
 
         private static void SetupSwaggerUI(SwaggerUIOptions options)
@@ -207,6 +171,44 @@ namespace Lykke.Service.EthereumClassicApi
             options.RoutePrefix = "swagger/ui";
 
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+        }
+
+        private async Task StartApplication()
+        {
+            try
+            {
+                await _log.WriteMonitorAsync("", $"Env: {Program.EnvInfo}", "Started");
+            }
+            catch (Exception ex)
+            {
+                WriteFatalError(ex, nameof(StartApplication));
+
+                throw;
+            }
+        }
+
+        private async Task StopApplication()
+        {
+            try
+            {
+            }
+            catch (Exception ex)
+            {
+                WriteFatalError(ex, nameof(StopApplication));
+
+                throw;
+            }
+        }
+
+        private void WriteFatalError(Exception e, string process)
+        {
+            _log.WriteFatalErrorAsync
+            (
+                nameof(Startup),
+                process,
+                "",
+                e
+            ).GetAwaiter().GetResult();
         }
     }
 }

@@ -6,8 +6,8 @@ namespace Lykke.Service.EthereumClassicApi.Logger
     public class LykkeBusLogging : ILykkeLoggingAdapter
     {
         private readonly LoggingBus _bus;
-        private readonly Type       _logClass;
-        private readonly string     _logSource;
+        private readonly Type _logClass;
+        private readonly string _logSource;
 
 
         public LykkeBusLogging(
@@ -15,9 +15,9 @@ namespace Lykke.Service.EthereumClassicApi.Logger
             string logSource,
             Type logClass)
         {
-            _bus       = bus;
+            _bus = bus;
             _logSource = logSource;
-            _logClass  = logClass;
+            _logClass = logClass;
         }
 
 
@@ -25,54 +25,57 @@ namespace Lykke.Service.EthereumClassicApi.Logger
         {
             _bus.Publish(new LykkeInfo
             (
-                logSource: _logSource,
-                logClass:  _logClass,
-                message:   message,
-                duration:  duration,
-                process:   process,
-                trigger:   trigger
+                _logSource,
+                _logClass,
+                message,
+                duration,
+                process,
+                trigger
             ));
         }
 
-        public void Warning(string message, long? duration = null, string process = "", object trigger = null, Exception cause = null)
+        public void Warning(string message, long? duration = null, string process = "", object trigger = null,
+            Exception cause = null)
         {
             _bus.Publish(new LykkeWarning
             (
-                logSource: _logSource,
-                logClass:  _logClass,
-                message:   message,
-                duration:  duration,
-                process:   process,
-                trigger:   trigger,
-                cause:     cause
+                _logSource,
+                _logClass,
+                message,
+                duration,
+                process,
+                trigger,
+                cause
             ));
         }
 
-        public void Error(string message, long? duration = null, string process = "", object trigger = null, Exception cause = null)
+        public void Error(string message, long? duration = null, string process = "", object trigger = null,
+            Exception cause = null)
         {
             _bus.Publish(new LykkeError
             (
-                logSource: _logSource,
-                logClass:  _logClass,
-                message:   message,
-                duration:  duration,
-                process:   process,
-                trigger:   trigger,
-                cause:     cause
+                _logSource,
+                _logClass,
+                message,
+                duration,
+                process,
+                trigger,
+                cause
             ));
         }
 
-        public void FatalError(string message, long? duration = null, string process = "", object trigger = null, Exception cause = null)
+        public void FatalError(string message, long? duration = null, string process = "", object trigger = null,
+            Exception cause = null)
         {
             _bus.Publish(new LykkeFatalError
             (
-                logSource: _logSource,
-                logClass:  _logClass,
-                message:   message,
-                duration:  duration,
-                process:   process,
-                trigger:   trigger,
-                cause:     cause
+                _logSource,
+                _logClass,
+                message,
+                duration,
+                process,
+                trigger,
+                cause
             ));
         }
 
@@ -80,12 +83,12 @@ namespace Lykke.Service.EthereumClassicApi.Logger
         {
             _bus.Publish(new LykkeMonitoring
             (
-                logSource: _logSource,
-                logClass:  _logClass,
-                message:   message,
-                duration:  duration,
-                process:   process,
-                trigger:   trigger
+                _logSource,
+                _logClass,
+                message,
+                duration,
+                process,
+                trigger
             ));
         }
     }

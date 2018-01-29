@@ -10,13 +10,13 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
         {
             return new BroadcastedTransactionDto
             {
-                Amount       = BigInteger.Parse(entity.Amount),
-                Timestamp    = entity.CreatedOn,
-                FromAddress  = entity.FromAddress,
-                OperationId  = entity.OperationId,
+                Amount = BigInteger.Parse(entity.Amount),
+                Timestamp = entity.CreatedOn,
+                FromAddress = entity.FromAddress,
+                OperationId = entity.OperationId,
                 SignedTxData = entity.SignedTxData,
-                ToAddress    = entity.ToAddress,
-                TxHash       = entity.TxHash
+                ToAddress = entity.ToAddress,
+                TxHash = entity.TxHash
             };
         }
 
@@ -24,13 +24,13 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
         {
             return new BroadcastedTransactionEntity
             {
-                Amount       = dto.Amount.ToString(),
-                CreatedOn    = dto.Timestamp,
-                FromAddress  = dto.FromAddress,
-                OperationId  = dto.OperationId,
+                Amount = dto.Amount.ToString(),
+                CreatedOn = dto.Timestamp,
+                FromAddress = dto.FromAddress,
+                OperationId = dto.OperationId,
                 SignedTxData = dto.SignedTxData,
-                ToAddress    = dto.ToAddress,
-                TxHash       = dto.TxHash
+                ToAddress = dto.ToAddress,
+                TxHash = dto.TxHash
             };
         }
     }

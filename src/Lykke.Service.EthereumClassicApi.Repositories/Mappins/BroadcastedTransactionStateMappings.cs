@@ -12,15 +12,15 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
         {
             return new BroadcastedTransactionStateDto
             {
-                Amount      = BigInteger.Parse(entity.Amount),
-                Error       = entity.Error,
-                Fee         = string.IsNullOrEmpty(entity.Fee) ? default(BigInteger?) : BigInteger.Parse(entity.Fee),
+                Amount = BigInteger.Parse(entity.Amount),
+                Error = entity.Error,
+                Fee = string.IsNullOrEmpty(entity.Fee) ? default(BigInteger?) : BigInteger.Parse(entity.Fee),
                 FromAddress = entity.FromAddress,
                 OperationId = entity.OperationId,
-                State       = EnumUtil.Parse<TransactionState>(entity.State), 
-                Timestamp   = entity.TxTimestamp,
-                ToAddress   = entity.ToAddress,
-                TxHash      = entity.TxHash
+                State = EnumUtil.Parse<TransactionState>(entity.State),
+                Timestamp = entity.TxTimestamp,
+                ToAddress = entity.ToAddress,
+                TxHash = entity.TxHash
             };
         }
 
@@ -28,14 +28,14 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
         {
             return new BroadcastedTransactionStateEntity
             {
-                Amount      = dto.Amount.ToString(),
-                Error       = dto.Error,
-                Fee         = dto.Fee.HasValue ? dto.Fee.ToString() : string.Empty,
+                Amount = dto.Amount.ToString(),
+                Error = dto.Error,
+                Fee = dto.Fee.HasValue ? dto.Fee.ToString() : string.Empty,
                 FromAddress = dto.FromAddress,
                 OperationId = dto.OperationId,
-                State       = dto.State.ToString(),
-                ToAddress   = dto.ToAddress,
-                TxHash      = dto.TxHash,
+                State = dto.State.ToString(),
+                ToAddress = dto.ToAddress,
+                TxHash = dto.TxHash,
                 TxTimestamp = dto.Timestamp
             };
         }

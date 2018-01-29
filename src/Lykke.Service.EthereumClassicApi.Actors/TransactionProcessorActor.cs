@@ -37,13 +37,13 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 {
                     var txHash = await _transactionProcessorRole.BroadcastTransaction
                     (
-                        operationId:  message.OperationId,
-                        signedTxData: message.SignedTxData
+                        message.OperationId,
+                        message.SignedTxData
                     );
 
                     Context.System.EventStream.Publish(new TransactionBroadcasted
                     (
-                        operationId: message.OperationId
+                        message.OperationId
                     ));
 
 
@@ -55,7 +55,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 {
                     Sender.Tell(new Status.Failure
                     (
-                        cause: e
+                        e
                     ));
 
                     logger.Error(e);
@@ -71,23 +71,23 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 {
                     var txData = await _transactionProcessorRole.BuildTransactionAsync
                     (
-                        amount:      message.Amount,
-                        fromAddress: message.FromAddress,
-                        includeFee:  message.IncludeFee,
-                        operationId: message.OperationId,
-                        toAddress:   message.ToAddress
+                        message.Amount,
+                        message.FromAddress,
+                        message.IncludeFee,
+                        message.OperationId,
+                        message.ToAddress
                     );
 
                     Sender.Tell(new TransactionBuilt
                     (
-                        txData: txData
+                        txData
                     ));
                 }
                 catch (Exception e)
                 {
                     Sender.Tell(new Status.Failure
                     (
-                        cause: e
+                        e
                     ));
 
                     logger.Error(e);
@@ -103,20 +103,20 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 {
                     var txData = await _transactionProcessorRole.RebuildTransactionAsync
                     (
-                        feeFactor:   message.FeeFactor,
-                        operationId: message.OperationId
+                        message.FeeFactor,
+                        message.OperationId
                     );
 
                     Sender.Tell(new TransactionBuilt
                     (
-                        txData: txData
+                        txData
                     ));
                 }
                 catch (Exception e)
                 {
                     Sender.Tell(new Status.Failure
                     (
-                        cause: e
+                        e
                     ));
 
                     logger.Error(e);

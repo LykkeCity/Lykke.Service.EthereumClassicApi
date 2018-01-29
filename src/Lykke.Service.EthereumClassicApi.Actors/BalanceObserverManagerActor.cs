@@ -40,7 +40,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 {
                     Sender.Tell(new Status.Failure
                     (
-                        cause: e
+                        e
                     ));
 
                     logger.Error(e);
@@ -62,7 +62,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 {
                     Sender.Tell(new Status.Failure
                     (
-                        cause: e
+                        e
                     ));
 
                     logger.Error(e);

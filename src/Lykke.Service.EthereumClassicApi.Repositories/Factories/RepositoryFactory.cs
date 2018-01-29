@@ -14,23 +14,29 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
     public class RepositoryFactory : IRepositoryFactory
     {
         private const string BroadcastedTransactionStateTable = "BroadcastedTransactionStates";
-        private const string BroadcastedTransactionTable      = "BroadcastedTransactions";
-        private const string BuiltTransactionTable            = "BuiltTransactions";
-        private const string DynamicSettingsTable             = "DynamicSettings";
-        private const string ObservableBalanceLockTable       = "ObservableBalanceLocks";
-        private const string ObservableBalanceTable           = "ObservableBalances";
+        private const string BroadcastedTransactionTable = "BroadcastedTransactions";
+        private const string BuiltTransactionTable = "BuiltTransactions";
+        private const string DynamicSettingsTable = "DynamicSettings";
+        private const string ObservableBalanceLockTable = "ObservableBalanceLocks";
+        private const string ObservableBalanceTable = "ObservableBalances";
 
 
         private readonly IReloadingManager<string> _connectionString;
-        private readonly ILog                      _log;
+        private readonly ILog _log;
 
 
         public RepositoryFactory(
             ILog log,
             IReloadingManager<DbSettings> settings)
         {
-            _log              = log;
+            _log = log;
             _connectionString = settings.ConnectionString(x => x.DataConnectionString);
+        }
+
+        private INoSQLTableStorage<T> CreateTable<T>(string tableName)
+            where T : AzureTableEntity, new()
+        {
+            return AzureTableStorage<T>.Create(_connectionString, tableName, _log);
         }
 
 
@@ -75,7 +81,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
         public IGasPriceRepository BuildGasPriceRepository()
         {
             var table = CreateTable<GasPriceEntity>(DynamicSettingsTable);
-            
+
             return new GasPriceRepository
             (
                 new AddOrReplaceStrategy<GasPriceEntity>(table),
@@ -107,12 +113,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
                 new DeleteStrategy<ObservableBalanceLockEntity>(table),
                 new ExistsStrategy<ObservableBalanceLockEntity>(table)
             );
-        }
-
-        private INoSQLTableStorage<T> CreateTable<T>(string tableName)
-            where T : AzureTableEntity, new()
-        {
-            return AzureTableStorage<T>.Create(_connectionString, tableName, _log);
         }
     }
 }

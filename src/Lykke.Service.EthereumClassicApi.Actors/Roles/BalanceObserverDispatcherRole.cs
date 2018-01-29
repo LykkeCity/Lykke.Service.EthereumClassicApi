@@ -8,14 +8,13 @@ using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Lykke.Service.EthereumClassicApi.Common.Settings;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 
-
 namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 {
     public class BalanceObserverDispatcherRole : IBalanceObserverDispatcherRole
     {
-        private readonly IEthereum                    _ethereum;
+        private readonly IEthereum _ethereum;
         private readonly IObservableBalanceRepository _observableBalanceRepository;
-        private readonly EthereumClassicApiSettings   _settings;
+        private readonly EthereumClassicApiSettings _settings;
 
 
         public BalanceObserverDispatcherRole(
@@ -23,9 +22,9 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             IObservableBalanceRepository observableBalanceRepository,
             EthereumClassicApiSettings settings)
         {
-            _ethereum                    = ethereum;
+            _ethereum = ethereum;
             _observableBalanceRepository = observableBalanceRepository;
-            _settings                    = settings;
+            _settings = settings;
         }
 
         [Pure]
@@ -38,7 +37,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         [Pure]
         public async Task<BigInteger> GetLatestConfirmedBlockNumber()
         {
-            var latestBlockNumber          = await _ethereum.GetLatestBlockNumberAsync();
+            var latestBlockNumber = await _ethereum.GetLatestBlockNumberAsync();
             var latestConfirmedBlockNumber = latestBlockNumber - _settings.TransactionConfirmationLevel;
 
             return latestConfirmedBlockNumber;

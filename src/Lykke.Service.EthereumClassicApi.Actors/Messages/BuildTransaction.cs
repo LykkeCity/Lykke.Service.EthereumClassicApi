@@ -7,13 +7,14 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Messages
     [ImmutableObject(true)]
     public sealed class BuildTransaction
     {
-        public BuildTransaction(BigInteger amount, string fromAddress, bool includeFee, Guid operationId, string toAddress)
+        public BuildTransaction(BigInteger amount, string fromAddress, bool includeFee, Guid operationId,
+            string toAddress)
         {
-            Amount      = amount;
+            Amount = amount;
             FromAddress = fromAddress;
-            IncludeFee  = includeFee;
+            IncludeFee = includeFee;
             OperationId = operationId;
-            ToAddress   = toAddress;
+            ToAddress = toAddress;
         }
 
         public BigInteger Amount { get; }

@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AzureStorage;
-using AzureStorage.Tables.Templates.Index;
 using Lykke.AzureStorage.Tables;
 using Lykke.Service.EthereumClassicApi.Repositories.Strategies.Interfaces;
-
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Strategies
 {

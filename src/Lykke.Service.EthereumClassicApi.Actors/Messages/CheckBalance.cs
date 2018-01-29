@@ -8,12 +8,12 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Messages
     {
         public CheckBalance(string address, BigInteger blockNumbber)
         {
-            Address     = address;
+            Address = address;
             BlockNumber = blockNumbber;
         }
 
         public string Address { get; }
-        
+
         public BigInteger BlockNumber { get; }
     }
 }

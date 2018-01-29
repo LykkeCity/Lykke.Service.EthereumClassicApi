@@ -11,13 +11,12 @@ using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Utils;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace Lykke.Service.EthereumClassicApi.Controllers
 {
     [Route("api/balances")]
     public class BalancesController : Controller
     {
-        private readonly IActorSystemFacade                _actorSystemFacade;
+        private readonly IActorSystemFacade _actorSystemFacade;
         private readonly IObservableBalanceQueryRepository _observableBalanceQueryRepository;
 
 
@@ -25,7 +24,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             IActorSystemFacade actorSystemFacade,
             IObservableBalanceQueryRepository observableBalanceQueryRepository)
         {
-            _actorSystemFacade                = actorSystemFacade;
+            _actorSystemFacade = actorSystemFacade;
             _observableBalanceQueryRepository = observableBalanceQueryRepository;
         }
 
@@ -63,8 +62,9 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBalanceList([FromQuery] int take, [FromQuery] string continuation = "")
         {
-            (var balances, var continuationToken) = await _observableBalanceQueryRepository.GetAllWithNonZeroAmountAsync(take, continuation);
-            
+            (var balances, var continuationToken) =
+                await _observableBalanceQueryRepository.GetAllWithNonZeroAmountAsync(take, continuation);
+
             var responseItems = balances
                 .Select(x => new WalletBalanceContract
                 {
@@ -77,7 +77,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             return Ok(new PaginationResponse<WalletBalanceContract>
             {
                 Continuation = continuationToken,
-                Items        = responseItems
+                Items = responseItems
             });
         }
     }

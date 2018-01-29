@@ -3,7 +3,6 @@ using AzureStorage;
 using Lykke.AzureStorage.Tables;
 using Lykke.Service.EthereumClassicApi.Repositories.Strategies.Interfaces;
 
-
 namespace Lykke.Service.EthereumClassicApi.Repositories.Strategies
 {
     public class AddStrategy<T> : IAddStrategy<T>

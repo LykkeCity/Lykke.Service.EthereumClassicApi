@@ -4,6 +4,6 @@
     {
         public EthereumClassicApiSettings EthereumClassicApi { get; set; }
 
-        public SlackNotificationsSettings SlackNotifications  { get; set; }
+        public SlackNotificationsSettings SlackNotifications { get; set; }
     }
 }

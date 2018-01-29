@@ -10,11 +10,10 @@ namespace Lykke.Service.EthereumClassicApi.Services
 {
     public class GasPriceOracleService : IGasPriceOracleService
     {
-        private readonly BigInteger          _defaultMaxGasPrice;
-        private readonly BigInteger          _defaultMinGasPrice;
-        private readonly IEthereum           _ethereum;
+        private readonly BigInteger _defaultMaxGasPrice;
+        private readonly BigInteger _defaultMinGasPrice;
+        private readonly IEthereum _ethereum;
         private readonly IGasPriceRepository _gasPriceRepository;
-
 
 
         public GasPriceOracleService(
@@ -24,7 +23,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
         {
             _defaultMaxGasPrice = BigInteger.Parse(serviceSettings.DefaultMaxGasPrice);
             _defaultMinGasPrice = BigInteger.Parse(serviceSettings.DefaultMinGasPrice);
-            _ethereum           = ethereum;
+            _ethereum = ethereum;
             _gasPriceRepository = gasPriceRepository;
         }
 
@@ -32,7 +31,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
         public async Task<BigInteger> CalculateGasPriceAsync(string to, BigInteger amount)
         {
             var estimatedGasPrice = await _ethereum.EstimateGasPriceAsync(to, amount);
-            var minMaxGasPrice    = await _gasPriceRepository.GetAsync();
+            var minMaxGasPrice = await _gasPriceRepository.GetAsync();
 
             if (minMaxGasPrice == null)
             {

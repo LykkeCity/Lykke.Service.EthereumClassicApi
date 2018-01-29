@@ -10,14 +10,13 @@ using Lykke.Service.EthereumClassicApi.Common.Settings;
 using Lykke.Service.EthereumClassicApi.Logger;
 using Lykke.SlackNotifications;
 
-
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
     public sealed class ActorSystemFacadeFactory
     {
-        private readonly IRootActorFactory          _rootActorFactory;
+        private readonly IRootActorFactory _rootActorFactory;
+        private readonly IScheduler _scheduler;
         private readonly EthereumClassicApiSettings _serviceSettings;
-        private readonly IScheduler                 _scheduler;
 
 
         internal ActorSystemFacadeFactory(
@@ -26,40 +25,40 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             IScheduler scheduler)
         {
             _rootActorFactory = rootActorFactory;
-            _serviceSettings  = serviceSettings;
-            _scheduler        = scheduler;
+            _serviceSettings = serviceSettings;
+            _scheduler = scheduler;
+        }
+
+        public static IActorSystemFacade Build(IContainer container)
+        {
+            var actorSystem = BuildActorSystem(container);
+            var actorFactory = new RootActorFactory(actorSystem);
+            var settings = container.Resolve<EthereumClassicApiSettings>();
+            var facadeFactory = new ActorSystemFacadeFactory(actorFactory, settings, actorSystem.Scheduler);
+
+
+            return facadeFactory.Build();
         }
 
         internal IActorSystemFacade Build()
         {
             var facade = new ActorSystemFacade(_rootActorFactory);
-            
+
             _scheduler.ScheduleTellRepeatedly
             (
-                initialDelay: _serviceSettings.BalancesCheckInterval,
-                interval:     _serviceSettings.BalancesCheckInterval,
-                receiver:     facade.BalanceObserverDispatcher,
-                message:      CheckBalances.Instance,
-                sender:       Nobody.Instance
+                _serviceSettings.BalancesCheckInterval,
+                _serviceSettings.BalancesCheckInterval,
+                facade.BalanceObserverDispatcher,
+                CheckBalances.Instance,
+                Nobody.Instance
             );
 
             return facade;
         }
 
-        public static IActorSystemFacade Build(IContainer container)
-        {
-            var actorSystem   = BuildActorSystem(container);
-            var actorFactory  = new RootActorFactory(actorSystem);
-            var settings      = container.Resolve<EthereumClassicApiSettings>();
-            var facadeFactory = new ActorSystemFacadeFactory(actorFactory, settings, actorSystem.Scheduler);
-            
-
-            return facadeFactory.Build();
-        }
-
         private static ActorSystem BuildActorSystem(IContainer container)
         {
-            var log                = container.Resolve<ILog>();
+            var log = container.Resolve<ILog>();
             var notificationSender = container.Resolve<ISlackNotificationsSender>();
 
             LykkeLogger.Configure(log, notificationSender);

@@ -13,7 +13,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
     public class TransactionMonitorDispatcherActor : ReceiveActor
     {
         private readonly ITransactionMonitorDispatcherRole _transactionMonitorDispatcherRole;
-        private readonly IActorRef                         _transactionMonitors;
+        private readonly IActorRef _transactionMonitors;
 
 
         public TransactionMonitorDispatcherActor(
@@ -21,7 +21,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             IOperationMonitorsFactory operationMonitorsFactory)
         {
             _transactionMonitorDispatcherRole = transactionMonitorDispatcherRole;
-            _transactionMonitors              = operationMonitorsFactory.Build(Context, "transation-monitors");
+            _transactionMonitors = operationMonitorsFactory.Build(Context, "transation-monitors");
 
 
             Context.System.EventStream
@@ -40,15 +40,23 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
             Self.Tell
             (
-                message: CheckTransactionStates.Instance,
-                sender:  Nobody.Instance
+                CheckTransactionStates.Instance,
+                Nobody.Instance
             );
         }
-        
+
 
         private void ProcessMessage(DeleteTransactionState message)
         {
             _transactionMonitors.Forward(message);
+        }
+
+        private void ProcessMessage(TransactionBroadcasted message)
+        {
+            _transactionMonitors.Tell(new CheckTransactionState
+            (
+                message.OperationId
+            ));
         }
 
         private async Task ProcessMessageAsync(CheckTransactionStates message)
@@ -63,7 +71,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                     {
                         _transactionMonitors.Tell(new CheckTransactionState
                         (
-                            operationId: operationId
+                            operationId
                         ));
                     }
                 }
@@ -71,23 +79,15 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 {
                     Context.System.Scheduler.ScheduleTellOnce
                     (
-                        delay:    TimeSpan.FromMinutes(1),
-                        receiver: Self,
-                        message:  message,
-                        sender:   Nobody.Instance
+                        TimeSpan.FromMinutes(1),
+                        Self,
+                        message,
+                        Nobody.Instance
                     );
 
                     logger.Error(e);
                 }
             }
-        }
-
-        private void ProcessMessage(TransactionBroadcasted message)
-        {
-            _transactionMonitors.Tell(new CheckTransactionState
-            (
-                operationId: message.OperationId
-            ));
         }
     }
 }

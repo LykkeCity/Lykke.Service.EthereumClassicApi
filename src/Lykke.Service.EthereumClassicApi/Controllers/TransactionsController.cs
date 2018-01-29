@@ -13,13 +13,12 @@ using Lykke.Service.EthereumClassicApi.Mappers;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace Lykke.Service.EthereumClassicApi.Controllers
 {
     [Route("api/transactions")]
     public class TransactionsController : Controller
     {
-        private readonly IActorSystemFacade                          _actorSystemFacade;
+        private readonly IActorSystemFacade _actorSystemFacade;
         private readonly IBroadcastedTransactionStateQueryRepository _broadcastedTransactionStateQueryRepository;
 
 
@@ -27,8 +26,27 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             IActorSystemFacade actorSystemFacade,
             IBroadcastedTransactionStateQueryRepository broadcastedTransactionStateQueryRepository)
         {
-            _actorSystemFacade             = actorSystemFacade;
+            _actorSystemFacade = actorSystemFacade;
             _broadcastedTransactionStateQueryRepository = broadcastedTransactionStateQueryRepository;
+        }
+
+        [HttpPost("broadcast")]
+        public async Task<IActionResult> Broadcast([FromBody] BroadcastTransactionRequest request)
+        {
+            try
+            {
+                await _actorSystemFacade.BroadcastTransactionAsync
+                (
+                    request.OperationId,
+                    request.SignedTransaction
+                );
+
+                return Ok();
+            }
+            catch (ConflictException e)
+            {
+                return StatusCode((int) HttpStatusCode.Conflict, e.Message);
+            }
         }
 
 
@@ -44,7 +62,8 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
 
             if (!await AddressValidator.ValidateAsync(request.FromAddress))
             {
-                errorResponse.AddModelError("FromAddress", $"FromAddress [{request.FromAddress}] should be a valid address.");
+                errorResponse.AddModelError("FromAddress",
+                    $"FromAddress [{request.FromAddress}] should be a valid address.");
             }
 
             if (request.AssetId != Constants.EtcAsset.AssetId)
@@ -62,11 +81,11 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             {
                 var txData = await _actorSystemFacade.BuildTransactionAsync
                 (
-                    amount:      BigInteger.Parse(request.Amount),
-                    fromAddress: request.FromAddress,
-                    includeFee:  request.IncludeFee,
-                    operationId: request.OperationId,
-                    toAddress:   request.ToAddress
+                    BigInteger.Parse(request.Amount),
+                    request.FromAddress,
+                    request.IncludeFee,
+                    request.OperationId,
+                    request.ToAddress
                 );
 
                 return Ok(new BuildTransactionResponse
@@ -74,10 +93,36 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
                     TransactionContext = txData
                 });
             }
-            else
+
+            return BadRequest(errorResponse);
+        }
+
+        [HttpDelete("broadcast/{operationId}")]
+        public async Task<IActionResult> DeleteState(Guid operationId)
+        {
+            try
             {
-                return BadRequest(errorResponse);
+                await _actorSystemFacade.DeleteOperationStateAsync(operationId);
+
+                return Ok();
             }
+            catch (NotFoundException)
+            {
+                return NoContent();
+            }
+        }
+
+        [HttpGet("broadcast/{operationId}")]
+        public async Task<IActionResult> GetState(Guid operationId)
+        {
+            var state = await _broadcastedTransactionStateQueryRepository.GetAsync(operationId);
+
+            if (state != null)
+            {
+                return Ok(state.ToBuildTransactionResponse());
+            }
+
+            return NoContent();
         }
 
         [HttpPut]
@@ -95,8 +140,8 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             {
                 var txData = await _actorSystemFacade.RebuildTransactionAsync
                 (
-                    feeFactor:   request.FeeFactor,
-                    operationId: request.OperationId
+                    request.FeeFactor,
+                    request.OperationId
                 );
 
                 return Ok(new RebuildTransactionResponse
@@ -104,59 +149,8 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
                     TransactionContext = txData
                 });
             }
-            else
-            {
-                return BadRequest(errorResponse);
-            }
-        }
 
-        [HttpPost("broadcast")]
-        public async Task<IActionResult> Broadcast([FromBody] BroadcastTransactionRequest request)
-        {
-            try
-            {
-                await _actorSystemFacade.BroadcastTransactionAsync
-                (
-                    operationId:  request.OperationId,
-                    signedTxData: request.SignedTransaction
-                );
-
-                return Ok();
-            }
-            catch (ConflictException e)
-            {
-                return StatusCode((int)HttpStatusCode.Conflict, e.Message);
-            }
-        }
-
-        [HttpGet("broadcast/{operationId}")]
-        public async Task<IActionResult> GetState(Guid operationId)
-        {
-            var state = await _broadcastedTransactionStateQueryRepository.GetAsync(operationId);
-
-            if (state != null)
-            {
-                return Ok(state.ToBuildTransactionResponse());
-            }
-            else
-            {
-                return NoContent();
-            }
-        }
-
-        [HttpDelete("broadcast/{operationId}")]
-        public async Task<IActionResult> DeleteState(Guid operationId)
-        {
-            try
-            {
-                await _actorSystemFacade.DeleteOperationStateAsync(operationId);
-
-                return Ok();
-            }
-            catch (NotFoundException)
-            {
-                return NoContent();
-            }
+            return BadRequest(errorResponse);
         }
     }
 }

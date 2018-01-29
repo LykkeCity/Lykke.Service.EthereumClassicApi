@@ -32,13 +32,15 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         }
 
         [HttpGet("to/{address}")]
-        public async Task<IActionResult> GetIncomingHistory(string address, [FromQuery] int take, [FromQuery] string afterHash = "")
+        public async Task<IActionResult> GetIncomingHistory(string address, [FromQuery] int take,
+            [FromQuery] string afterHash = "")
         {
             return StatusCode((int) HttpStatusCode.NotImplemented);
         }
 
         [HttpGet("from/{address}")]
-        public async Task<IActionResult> GetOutgoingHistory(string address, [FromQuery] int take, [FromQuery] string afterHash = "")
+        public async Task<IActionResult> GetOutgoingHistory(string address, [FromQuery] int take,
+            [FromQuery] string afterHash = "")
         {
             return StatusCode((int) HttpStatusCode.NotImplemented);
         }

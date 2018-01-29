@@ -21,8 +21,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Factories
         {
             return _actorSystem.ActorOf
             (
-                props: _actorSystem.DI().Props<T>(),
-                name:  name
+                _actorSystem.DI().Props<T>(),
+                name
             );
         }
     }

@@ -14,11 +14,11 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.DTOs
 
         public string EnvironmentInfo { get; set; }
 
+        public bool EthereumRpcNodeStatusIsAlive { get; set; }
+
         public bool IsDebug { get; set; }
 
         public bool IsHealthy { get; set; }
-
-        public bool EthereumRpcNodeStatusIsAlive { get; set; }
 
         public bool SignServiceIsAlive { get; set; }
 

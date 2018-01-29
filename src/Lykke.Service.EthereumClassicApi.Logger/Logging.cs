@@ -5,18 +5,18 @@ namespace Lykke.Service.EthereumClassicApi.Logger
     public static class Logging
     {
         /// <summary>
-        ///    Creates a new logging adapter using the specified context's event stream.
+        ///     Creates a new logging adapter using the specified context's event stream.
         /// </summary>
         /// <param name="context">
-        ///    The context used to configure the logging adapter.
+        ///     The context used to configure the logging adapter.
         /// </param>
         /// <returns>
-        ///    The newly created logging adapter.
+        ///     The newly created logging adapter.
         /// </returns>
         public static ILykkeLoggingAdapter GetLykkeLogger(this IActorContext context)
         {
             var logSource = context.Self.ToString();
-            var logClass  = context.Props.Type;
+            var logClass = context.Props.Type;
 
             return new LykkeBusLogging(context.System.EventStream, logSource, logClass);
         }

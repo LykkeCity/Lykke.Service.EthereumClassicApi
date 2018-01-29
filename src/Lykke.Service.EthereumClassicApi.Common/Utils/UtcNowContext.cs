@@ -11,12 +11,6 @@ namespace Lykke.Service.EthereumClassicApi.Common.Utils
             ThreadScopeStack = new ThreadLocal<Stack<UtcNowContext>>(() => new Stack<UtcNowContext>());
         }
 
-        public static UtcNowContext Current =>
-            ThreadScopeStack.Value.Count == 0 ? null : ThreadScopeStack.Value.Peek();
-
-        private static ThreadLocal<Stack<UtcNowContext>> ThreadScopeStack { get; }
-
-
 
         public UtcNowContext(DateTime utcNow)
         {
@@ -26,6 +20,11 @@ namespace Lykke.Service.EthereumClassicApi.Common.Utils
         }
 
         public DateTime ContextUtcNow { get; }
+
+        public static UtcNowContext Current =>
+            ThreadScopeStack.Value.Count == 0 ? null : ThreadScopeStack.Value.Peek();
+
+        private static ThreadLocal<Stack<UtcNowContext>> ThreadScopeStack { get; }
 
         public void Dispose()
         {

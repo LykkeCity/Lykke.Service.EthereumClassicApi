@@ -50,7 +50,7 @@
 //            _containerBuilder
 //                .RegisterAssemblyTypes(typeof(ActorsModule).Assembly)
 //                .Where(x => !x.IsAbstract && x.IsSubclassOf(typeof(ActorBase)));
-            
+
 //            _actorSystem = (ActorSystem)testActorSystemProp.GetValue(state);
 //        }
 
@@ -90,3 +90,5 @@
 //        }
 //    }
 //}
+
+

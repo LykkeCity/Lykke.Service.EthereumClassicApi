@@ -3,7 +3,6 @@ using Autofac;
 using Lykke.Service.EthereumClassicApi.Actors.Factories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
 
-
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
     public sealed class ActorsModule : Module
@@ -15,7 +14,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 .AssignableTo<IActorRole>()
                 .AsImplementedInterfaces()
                 .SingleInstance();
-            
+
             builder
                 .RegisterAssemblyTypes(ThisAssembly)
                 .AssignableTo<IChildActorFactory>()

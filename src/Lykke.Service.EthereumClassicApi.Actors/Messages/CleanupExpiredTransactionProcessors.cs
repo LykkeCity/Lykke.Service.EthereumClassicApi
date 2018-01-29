@@ -7,11 +7,10 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Messages
     {
         private CleanupExpiredTransactionProcessors()
         {
-
         }
 
         /// <summary>
-        ///    The singleton instance of CleanupExpiredTransactionProcessors.
+        ///     The singleton instance of CleanupExpiredTransactionProcessors.
         /// </summary>
         public static CleanupExpiredTransactionProcessors Instance { get; }
             = new CleanupExpiredTransactionProcessors();

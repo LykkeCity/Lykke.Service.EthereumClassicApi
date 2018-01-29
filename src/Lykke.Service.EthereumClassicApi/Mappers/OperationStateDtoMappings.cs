@@ -3,7 +3,6 @@ using Lykke.Service.BlockchainApi.Contract.Transactions;
 using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 
-
 namespace Lykke.Service.EthereumClassicApi.Mappers
 {
     internal static class OperationStateDtoMappings
@@ -29,13 +28,13 @@ namespace Lykke.Service.EthereumClassicApi.Mappers
 
             return new BroadcastedTransactionResponse
             {
-                Amount      = dto.Amount.ToString(),
-                Error       = dto.Error,
-                Fee         = dto.Fee.HasValue ? dto.Fee.ToString() : null,
-                Hash        = dto.TxHash,
+                Amount = dto.Amount.ToString(),
+                Error = dto.Error,
+                Fee = dto.Fee.HasValue ? dto.Fee.ToString() : null,
+                Hash = dto.TxHash,
                 OperationId = dto.OperationId,
-                State       = state,
-                Timestamp   = dto.Timestamp
+                State = state,
+                Timestamp = dto.Timestamp
             };
         }
     }
