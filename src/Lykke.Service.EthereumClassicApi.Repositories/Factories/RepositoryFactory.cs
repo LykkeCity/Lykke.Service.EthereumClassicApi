@@ -6,7 +6,6 @@ using Lykke.Service.EthereumClassicApi.Common.Settings;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Factories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
-using Lykke.Service.EthereumClassicApi.Repositories.Strategies;
 using Lykke.SettingsReader;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
@@ -44,75 +43,42 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
         {
             var table = CreateTable<BroadcastedTransactionStateEntity>(BroadcastedTransactionStateTable);
 
-            return new BroadcastedTransactionStateRepository
-            (
-                new AddOrReplaceStrategy<BroadcastedTransactionStateEntity>(table),
-                new DeleteStrategy<BroadcastedTransactionStateEntity>(table),
-                new GetStrategy<BroadcastedTransactionStateEntity>(table)
-            );
+            return new BroadcastedTransactionStateRepository(table);
         }
 
         public IBroadcastedTransactionRepository BuildBroadcastedTransactionRepository()
         {
             var table = CreateTable<BroadcastedTransactionEntity>(BroadcastedTransactionTable);
 
-            return new BroadcastedTransactionRepository
-            (
-                new AddStrategy<BroadcastedTransactionEntity>(table),
-                new DeleteStrategy<BroadcastedTransactionEntity>(table),
-                new ExistsStrategy<BroadcastedTransactionEntity>(table),
-                new GetAllStrategy<BroadcastedTransactionEntity>(table)
-            );
+            return new BroadcastedTransactionRepository(table);
         }
 
         public IBuiltTransactionRepository BuildBuiltTransactionRepository()
         {
             var table = CreateTable<BuiltTransactionEntity>(BuiltTransactionTable);
 
-            return new BuiltTransactionRepository
-            (
-                new AddStrategy<BuiltTransactionEntity>(table),
-                new DeleteStrategy<BuiltTransactionEntity>(table),
-                new GetAllStrategy<BuiltTransactionEntity>(table),
-                new GetStrategy<BuiltTransactionEntity>(table)
-            );
+            return new BuiltTransactionRepository(table);
         }
 
         public IGasPriceRepository BuildGasPriceRepository()
         {
             var table = CreateTable<GasPriceEntity>(DynamicSettingsTable);
 
-            return new GasPriceRepository
-            (
-                new AddOrReplaceStrategy<GasPriceEntity>(table),
-                new GetStrategy<GasPriceEntity>(table)
-            );
+            return new GasPriceRepository(table);
         }
 
         public IObservableBalanceRepository BuildObservableBalanceRepository()
         {
             var table = CreateTable<ObservableBalanceEntity>(ObservableBalanceTable);
 
-            return new ObservableBalanceRepository
-            (
-                new AddStrategy<ObservableBalanceEntity>(table),
-                new DeleteStrategy<ObservableBalanceEntity>(table),
-                new ExistsStrategy<ObservableBalanceEntity>(table),
-                new GetAllStrategy<ObservableBalanceEntity>(table),
-                new ReplaceStrategy<ObservableBalanceEntity>(table)
-            );
+            return new ObservableBalanceRepository(table);
         }
 
         public IObservableBalanceLockRepository BuildObservableBalanceLockRepository()
         {
             var table = CreateTable<ObservableBalanceLockEntity>(ObservableBalanceLockTable);
 
-            return new ObservableBalanceLockRepository
-            (
-                new AddOrReplaceStrategy<ObservableBalanceLockEntity>(table),
-                new DeleteStrategy<ObservableBalanceLockEntity>(table),
-                new ExistsStrategy<ObservableBalanceLockEntity>(table)
-            );
+            return new ObservableBalanceLockRepository(table);
         }
     }
 }

@@ -1,23 +1,22 @@
 ﻿using System.Threading.Tasks;
+using AzureStorage;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Repositories.Mappins;
-using Lykke.Service.EthereumClassicApi.Repositories.Strategies.Interfaces;
+
 
 namespace Lykke.Service.EthereumClassicApi.Repositories
 {
     public class GasPriceRepository : IGasPriceRepository
     {
-        private readonly IAddOrReplaceStrategy<GasPriceEntity> _addOrReplaceStrategy;
-        private readonly IGetStrategy<GasPriceEntity> _getStrategy;
+        private readonly INoSQLTableStorage<GasPriceEntity> _table;
+
 
         public GasPriceRepository(
-            IAddOrReplaceStrategy<GasPriceEntity> addOrReplaceStrategy,
-            IGetStrategy<GasPriceEntity> getStrategy)
+            INoSQLTableStorage<GasPriceEntity> table)
         {
-            _addOrReplaceStrategy = addOrReplaceStrategy;
-            _getStrategy = getStrategy;
+            _table = table;
         }
 
 
@@ -38,14 +37,13 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             entity.PartitionKey = GetPartitionKey();
             entity.RowKey = GetRowKey();
 
-            await _addOrReplaceStrategy.ExecuteAsync(entity);
+            await _table.InsertOrReplaceAsync(entity);
         }
 
-        public async Task<GasPriceDto> GetAsync()
+        public async Task<GasPriceDto> TryGetAsync()
         {
-            var entity = await _getStrategy.ExecuteAsync(GetPartitionKey(), GetRowKey());
-
-            return entity?.ToDto();
+            return (await _table.GetDataAsync(GetPartitionKey(), GetRowKey()))?
+                .ToDto();
         }
     }
 }

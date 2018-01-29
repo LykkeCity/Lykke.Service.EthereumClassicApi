@@ -7,6 +7,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
     {
         Task AddOrReplaceAsync(GasPriceDto dto);
 
-        Task<GasPriceDto> GetAsync();
+        Task<GasPriceDto> TryGetAsync();
     }
 }

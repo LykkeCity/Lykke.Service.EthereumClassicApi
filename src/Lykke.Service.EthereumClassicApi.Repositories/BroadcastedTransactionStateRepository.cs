@@ -1,29 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AzureStorage;
 using Common;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Repositories.Mappins;
-using Lykke.Service.EthereumClassicApi.Repositories.Strategies.Interfaces;
+
 
 namespace Lykke.Service.EthereumClassicApi.Repositories
 {
     public class BroadcastedTransactionStateRepository : IBroadcastedTransactionStateRepository
     {
-        private readonly IAddOrReplaceStrategy<BroadcastedTransactionStateEntity> _addOrReplaceStrategy;
-        private readonly IDeleteStrategy<BroadcastedTransactionStateEntity> _deleteStrategy;
-        private readonly IGetStrategy<BroadcastedTransactionStateEntity> _getStrategy;
+        private readonly INoSQLTableStorage<BroadcastedTransactionStateEntity> _table;
 
 
         public BroadcastedTransactionStateRepository(
-            IAddOrReplaceStrategy<BroadcastedTransactionStateEntity> addOrReplaceStrategy,
-            IDeleteStrategy<BroadcastedTransactionStateEntity> deleteStrategy,
-            IGetStrategy<BroadcastedTransactionStateEntity> getStrategy)
+            INoSQLTableStorage<BroadcastedTransactionStateEntity> table)
         {
-            _addOrReplaceStrategy = addOrReplaceStrategy;
-            _deleteStrategy = deleteStrategy;
-            _getStrategy = getStrategy;
+            _table = table;
         }
 
 
@@ -34,7 +29,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
 
         private static string GetRowKey(Guid operationId)
         {
-            return $"{operationId:N}";
+            return operationId.ToString();
         }
 
 
@@ -45,17 +40,21 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             entity.PartitionKey = GetPartitionKey(dto.OperationId);
             entity.RowKey = GetRowKey(dto.OperationId);
 
-            await _addOrReplaceStrategy.ExecuteAsync(entity);
+            await _table.InsertOrReplaceAsync(entity);
         }
 
-        public async Task DeleteAsync(Guid operationId)
+        public async Task DeleteIfExistAsync(Guid operationId)
         {
-            await _deleteStrategy.ExecuteAsync(GetPartitionKey(operationId));
+            await _table.DeleteIfExistAsync
+            (
+                GetPartitionKey(operationId),
+                GetRowKey(operationId)
+            );
         }
 
-        public async Task<BroadcastedTransactionStateDto> GetAsync(Guid operationId)
+        public async Task<BroadcastedTransactionStateDto> TryGetAsync(Guid operationId)
         {
-            return (await _getStrategy.ExecuteAsync(GetPartitionKey(operationId), GetRowKey(operationId)))?
+            return (await _table.GetDataAsync(GetPartitionKey(operationId), GetRowKey(operationId)))?
                 .ToDto();
         }
     }

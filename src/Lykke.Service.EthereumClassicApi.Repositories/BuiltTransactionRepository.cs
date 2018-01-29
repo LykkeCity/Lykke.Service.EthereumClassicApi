@@ -2,42 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AzureStorage;
+using Common;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Repositories.Mappins;
-using Lykke.Service.EthereumClassicApi.Repositories.Strategies.Interfaces;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories
 {
     public class BuiltTransactionRepository : IBuiltTransactionRepository
     {
-        private readonly IAddStrategy<BuiltTransactionEntity> _addStrategy;
-        private readonly IDeleteStrategy<BuiltTransactionEntity> _deleteStrategy;
-        private readonly IGetAllStrategy<BuiltTransactionEntity> _getAllStrategy;
-        private readonly IGetStrategy<BuiltTransactionEntity> _getStrategy;
+        private readonly INoSQLTableStorage<BuiltTransactionEntity> _table;
 
 
         public BuiltTransactionRepository(
-            IAddStrategy<BuiltTransactionEntity> addStrategy,
-            IDeleteStrategy<BuiltTransactionEntity> deleteStrategy,
-            IGetAllStrategy<BuiltTransactionEntity> getAllStrategy,
-            IGetStrategy<BuiltTransactionEntity> getStrategy)
+            INoSQLTableStorage<BuiltTransactionEntity> table)
         {
-            _addStrategy = addStrategy;
-            _deleteStrategy = deleteStrategy;
-            _getAllStrategy = getAllStrategy;
-            _getStrategy = getStrategy;
+            _table = table;
         }
 
-        private static string GetPartitionKey()
+        private static string GetPartitionKey(Guid operationId)
         {
-            return "Operation";
+            return operationId.ToString().CalculateHexHash32(3);
         }
 
         private static string GetRowKey(Guid operationId)
         {
-            return $"{operationId:N}";
+            return operationId.ToString();
         }
 
 
@@ -45,27 +37,25 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         {
             var entity = dto.ToEntity();
 
-            entity.PartitionKey = GetPartitionKey();
+            entity.PartitionKey = GetPartitionKey(dto.OperationId);
             entity.RowKey = GetRowKey(dto.OperationId);
 
-            await _addStrategy.ExecuteAsync(entity);
+            await _table.InsertAsync(entity);
         }
 
-        public async Task DeleteAsync(Guid operationId)
+        public async Task DeleteIfExistsAsync(Guid operationId)
         {
-            await _deleteStrategy.ExecuteAsync(GetPartitionKey(), GetRowKey(operationId));
+            await _table.DeleteIfExistAsync
+            (
+                GetPartitionKey(operationId),
+                GetRowKey(operationId)
+            );
         }
 
-        public async Task<BuiltTransactionDto> GetAsync(Guid operationId)
+        public async Task<BuiltTransactionDto> TryGetAsync(Guid operationId)
         {
-            return (await _getStrategy.ExecuteAsync(GetPartitionKey(), GetRowKey(operationId)))?
+            return (await _table.GetDataAsync(GetPartitionKey(operationId), GetRowKey(operationId)))?
                 .ToDto();
-        }
-
-        public async Task<IEnumerable<Guid>> GetAllOperationIdsAsync()
-        {
-            return (await _getAllStrategy.ExecuteAsync(GetPartitionKey()))
-                .Select(x => x.OperationId);
         }
     }
 }

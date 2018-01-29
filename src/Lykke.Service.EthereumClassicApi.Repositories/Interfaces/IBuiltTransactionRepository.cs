@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 
@@ -9,10 +8,8 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
     {
         Task AddAsync(BuiltTransactionDto dto);
 
-        Task DeleteAsync(Guid operationId);
-
-        Task<IEnumerable<Guid>> GetAllOperationIdsAsync();
-
-        Task<BuiltTransactionDto> GetAsync(Guid operationId);
+        Task DeleteIfExistsAsync(Guid operationId);
+        
+        Task<BuiltTransactionDto> TryGetAsync(Guid operationId);
     }
 }

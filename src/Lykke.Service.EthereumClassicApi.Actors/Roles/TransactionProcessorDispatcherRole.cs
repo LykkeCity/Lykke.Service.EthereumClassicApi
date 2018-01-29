@@ -19,7 +19,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 
         public async Task<string> GetFromAddressAsync(Guid operationId)
         {
-            return (await _builtTransactionRepository.GetAsync(operationId)).FromAddress;
+            return (await _builtTransactionRepository.TryGetAsync(operationId)).FromAddress;
         }
     }
 }

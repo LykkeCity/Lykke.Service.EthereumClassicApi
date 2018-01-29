@@ -1,28 +1,23 @@
 ﻿using System.Threading.Tasks;
+using AzureStorage;
 using Common;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Repositories.Mappins;
-using Lykke.Service.EthereumClassicApi.Repositories.Strategies.Interfaces;
+
 
 namespace Lykke.Service.EthereumClassicApi.Repositories
 {
     public class ObservableBalanceLockRepository : IObservableBalanceLockRepository
     {
-        private readonly IAddOrReplaceStrategy<ObservableBalanceLockEntity> _addOrReplaceStrategy;
-        private readonly IDeleteStrategy<ObservableBalanceLockEntity> _deleteStrategy;
-        private readonly IExistsStrategy<ObservableBalanceLockEntity> _existsStrategy;
+        private readonly INoSQLTableStorage<ObservableBalanceLockEntity> _table;
 
 
         public ObservableBalanceLockRepository(
-            IAddOrReplaceStrategy<ObservableBalanceLockEntity> addOrReplaceStrategy,
-            IDeleteStrategy<ObservableBalanceLockEntity> deleteStrategy,
-            IExistsStrategy<ObservableBalanceLockEntity> existsStrategy)
+            INoSQLTableStorage<ObservableBalanceLockEntity> table)
         {
-            _addOrReplaceStrategy = addOrReplaceStrategy;
-            _deleteStrategy = deleteStrategy;
-            _existsStrategy = existsStrategy;
+            _table = table;
         }
 
 
@@ -37,19 +32,19 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         }
 
 
-        public async Task AddAsync(ObservableBalanceLockDto dto)
+        public async Task AddOrReplaceAsync(ObservableBalanceLockDto dto)
         {
             var entity = dto.ToEntity();
 
             entity.PartitionKey = GetPartitionKey(dto.Address);
             entity.RowKey = GetRowKey(dto.Address);
 
-            await _addOrReplaceStrategy.ExecuteAsync(entity);
+            await _table.InsertOrReplaceAsync(entity);
         }
 
-        public async Task DeleteAsync(string address)
+        public async Task DeleteIfExistsAsync(string address)
         {
-            await _deleteStrategy.ExecuteAsync
+            await _table.DeleteIfExistAsync
             (
                 GetPartitionKey(address),
                 GetRowKey(address)
@@ -58,11 +53,9 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
 
         public async Task<bool> ExistsAsync(string address)
         {
-            return await _existsStrategy.ExecuteAsync
-            (
-                GetPartitionKey(address),
-                GetRowKey(address)
-            );
+            var entity = await _table.GetDataAsync(GetPartitionKey(address), GetRowKey(address));
+
+            return entity != null;
         }
     }
 }

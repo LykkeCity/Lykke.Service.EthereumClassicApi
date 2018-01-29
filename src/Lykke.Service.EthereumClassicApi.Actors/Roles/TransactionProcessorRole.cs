@@ -64,11 +64,11 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         {
             if (!await _broadcastedTransactionRepository.ExistsAsync(operationId, signedTxData))
             {
-                var operation = await _builtTransactionRepository.GetAsync(operationId);
+                var operation = await _builtTransactionRepository.TryGetAsync(operationId);
                 var txHash = await _ethereum.SendRawTransactionAsync(signedTxData);
                 var now = DateTime.UtcNow;
 
-                await _broadcastedTransactionRepository.AddAsync(new BroadcastedTransactionDto
+                await _broadcastedTransactionRepository.AddOrReplaceAsync(new BroadcastedTransactionDto
                 {
                     Amount = operation.Amount,
                     FromAddress = operation.FromAddress,
@@ -91,7 +91,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                     TxHash = txHash
                 });
 
-                await _observableBalanceLockRepository.AddAsync(new ObservableBalanceLockDto
+                await _observableBalanceLockRepository.AddOrReplaceAsync(new ObservableBalanceLockDto
                 {
                     Address = operation.FromAddress
                 });
@@ -106,7 +106,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         public async Task<string> BuildTransactionAsync(BigInteger amount, string fromAddress, bool includeFee,
             Guid operationId, string toAddress)
         {
-            var operation = await _builtTransactionRepository.GetAsync(operationId);
+            var operation = await _builtTransactionRepository.TryGetAsync(operationId);
 
             if (operation == null)
             {
@@ -153,7 +153,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 
         public async Task<string> RebuildTransactionAsync(decimal feeFactor, Guid operationId)
         {
-            var operation = await _builtTransactionRepository.GetAsync(operationId);
+            var operation = await _builtTransactionRepository.TryGetAsync(operationId);
 
             if (operation != null)
             {

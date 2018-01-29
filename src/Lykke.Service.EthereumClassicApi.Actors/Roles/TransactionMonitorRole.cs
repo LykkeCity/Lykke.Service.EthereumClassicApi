@@ -78,9 +78,9 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                     TxHash = completedTransaction.TxHash
                 });
 
-                await _observableBalanceLockRepository.DeleteAsync(completedTransaction.FromAddress);
+                await _observableBalanceLockRepository.DeleteIfExistsAsync(completedTransaction.FromAddress);
 
-                await _builtTransactionRepository.DeleteAsync(operationId);
+                await _builtTransactionRepository.DeleteIfExistsAsync(operationId);
 
                 await _broadcastedTransactionRepository.DeleteAsync(operationId);
 
@@ -109,7 +109,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 
         public async Task DeleteTransactionStateAsync(Guid operationId)
         {
-            await _broadcastedTransactionStateRepository.DeleteAsync(operationId);
+            await _broadcastedTransactionStateRepository.DeleteIfExistAsync(operationId);
         }
     }
 }

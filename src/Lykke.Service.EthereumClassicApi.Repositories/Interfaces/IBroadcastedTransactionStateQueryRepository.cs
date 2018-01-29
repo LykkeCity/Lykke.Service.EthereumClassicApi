@@ -6,6 +6,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 {
     public interface IBroadcastedTransactionStateQueryRepository
     {
-        Task<BroadcastedTransactionStateDto> GetAsync(Guid operationId);
+        Task<BroadcastedTransactionStateDto> TryGetAsync(Guid operationId);
     }
 }

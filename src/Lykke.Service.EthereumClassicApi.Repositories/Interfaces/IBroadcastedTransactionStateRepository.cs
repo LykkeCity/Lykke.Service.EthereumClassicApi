@@ -8,6 +8,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
     {
         Task AddOrReplaceAsync(BroadcastedTransactionStateDto dto);
 
-        Task DeleteAsync(Guid operationId);
+        Task DeleteIfExistAsync(Guid operationId);
     }
 }

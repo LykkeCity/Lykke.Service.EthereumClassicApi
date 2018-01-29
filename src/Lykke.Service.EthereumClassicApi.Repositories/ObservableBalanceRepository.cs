@@ -1,36 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AzureStorage;
 using Common;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Repositories.Mappins;
-using Lykke.Service.EthereumClassicApi.Repositories.Strategies.Interfaces;
+using Microsoft.WindowsAzure.Storage.Table;
+
 
 namespace Lykke.Service.EthereumClassicApi.Repositories
 {
     public class ObservableBalanceRepository : IObservableBalanceRepository
     {
-        private readonly IAddStrategy<ObservableBalanceEntity> _addStrategy;
-        private readonly IDeleteStrategy<ObservableBalanceEntity> _deleteStrategy;
-        private readonly IExistsStrategy<ObservableBalanceEntity> _existsStrategy;
-        private readonly IGetAllStrategy<ObservableBalanceEntity> _getAllStrategy;
-        private readonly IReplaceStrategy<ObservableBalanceEntity> _replaceStrategy;
+        private readonly INoSQLTableStorage<ObservableBalanceEntity> _table;
 
 
         public ObservableBalanceRepository(
-            IAddStrategy<ObservableBalanceEntity> addStrategy,
-            IDeleteStrategy<ObservableBalanceEntity> deleteStrategy,
-            IExistsStrategy<ObservableBalanceEntity> existsStrategy,
-            IGetAllStrategy<ObservableBalanceEntity> getAllStrategy,
-            IReplaceStrategy<ObservableBalanceEntity> replaceStrategy)
+            INoSQLTableStorage<ObservableBalanceEntity> table)
         {
-            _addStrategy = addStrategy;
-            _deleteStrategy = deleteStrategy;
-            _existsStrategy = existsStrategy;
-            _getAllStrategy = getAllStrategy;
-            _replaceStrategy = replaceStrategy;
+            _table = table;
         }
 
 
@@ -52,12 +42,12 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             entity.PartitionKey = GetPartitionKey(dto.Address);
             entity.RowKey = GetRowKey(dto.Address);
 
-            await _addStrategy.ExecuteAsync(entity);
+            await _table.InsertAsync(entity);
         }
 
         public async Task DeleteAsync(string address)
         {
-            await _deleteStrategy.ExecuteAsync
+            await _table.DeleteIfExistAsync
             (
                 GetPartitionKey(address),
                 GetRowKey(address)
@@ -66,27 +56,39 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
 
         public async Task<bool> ExistsAsync(string address)
         {
-            return await _existsStrategy.ExecuteAsync
-            (
-                GetPartitionKey(address),
-                GetRowKey(address)
-            );
+            var entity = await _table.GetDataAsync(GetPartitionKey(address), GetRowKey(address));
+
+            return entity != null;
         }
 
         public async Task<IEnumerable<ObservableBalanceDto>> GetAllAsync()
         {
-            return (await _getAllStrategy.ExecuteAsync())
-                .Select(x => x.ToDto());
+            var dtos = new List<ObservableBalanceDto>();
+
+            string continuationToken = null;
+
+            do
+            {
+                IEnumerable<ObservableBalanceEntity> entities;
+
+                (entities, continuationToken) = await _table.GetDataWithContinuationTokenAsync(1000, continuationToken);
+
+                dtos.AddRange(entities.Select(x => x.ToDto()));
+
+            } while (continuationToken != null);
+
+            return dtos;
         }
 
-        public async Task<(IEnumerable<ObservableBalanceDto> Balances, string ContinuationToken)>
-            GetAllWithNonZeroAmountAsync(int take, string continuationToken)
+        public async Task<(IEnumerable<ObservableBalanceDto> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(int take, string continuationToken)
         {
             IEnumerable<ObservableBalanceEntity> entities;
 
-            (entities, continuationToken) =
-                await _getAllStrategy.ExecuteAsync(x => x.Amount != "0", take, continuationToken);
-
+            var filterCondition = TableQuery.GenerateFilterCondition("Amount", QueryComparisons.NotEqual, "0");
+            var query = new TableQuery<ObservableBalanceEntity>().Where(filterCondition);
+            
+            (entities, continuationToken) = await _table.GetDataWithContinuationTokenAsync(query, take, continuationToken);
+            
             return (entities.Select(x => x.ToDto()), continuationToken);
         }
 
@@ -98,7 +100,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             entity.RowKey = GetRowKey(dto.Address);
             entity.ETag = "*";
 
-            await _replaceStrategy.ExecuteAsync(entity);
+            await _table.ReplaceAsync(entity);
         }
     }
 }

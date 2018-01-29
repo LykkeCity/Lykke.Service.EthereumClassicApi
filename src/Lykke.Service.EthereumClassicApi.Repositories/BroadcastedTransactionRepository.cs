@@ -2,38 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AzureStorage;
 using Common;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Repositories.Mappins;
-using Lykke.Service.EthereumClassicApi.Repositories.Strategies.Interfaces;
+
 
 namespace Lykke.Service.EthereumClassicApi.Repositories
 {
     public class BroadcastedTransactionRepository : IBroadcastedTransactionRepository
     {
-        private readonly IAddStrategy<BroadcastedTransactionEntity> _addStrategy;
-        private readonly IDeleteStrategy<BroadcastedTransactionEntity> _deleteStrategy;
-        private readonly IExistsStrategy<BroadcastedTransactionEntity> _existsStrategy;
-        private readonly IGetAllStrategy<BroadcastedTransactionEntity> _getAllStrategy;
+        private readonly INoSQLTableStorage<BroadcastedTransactionEntity> _table;
+
 
         public BroadcastedTransactionRepository(
-            IAddStrategy<BroadcastedTransactionEntity> addStrategy,
-            IDeleteStrategy<BroadcastedTransactionEntity> deleteStrategy,
-            IExistsStrategy<BroadcastedTransactionEntity> existsStrategy,
-            IGetAllStrategy<BroadcastedTransactionEntity> getAllStrategy)
+            INoSQLTableStorage<BroadcastedTransactionEntity> table)
         {
-            _addStrategy = addStrategy;
-            _deleteStrategy = deleteStrategy;
-            _existsStrategy = existsStrategy;
-            _getAllStrategy = getAllStrategy;
+            _table = table;
         }
 
 
         private static string GetPartitionKey(Guid operationId)
         {
-            return $"{operationId:N}";
+            return operationId.ToString();
         }
 
         private static string GetRowKey(string signedTxData)
@@ -42,34 +35,62 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         }
 
 
-        public async Task AddAsync(BroadcastedTransactionDto dto)
+        public async Task AddOrReplaceAsync(BroadcastedTransactionDto dto)
         {
             var entity = dto.ToEntity();
 
             entity.PartitionKey = GetPartitionKey(dto.OperationId);
             entity.RowKey = GetRowKey(dto.SignedTxData);
 
-            await _addStrategy.ExecuteAsync(entity);
+            await _table.InsertOrReplaceAsync(entity);
         }
 
         public async Task DeleteAsync(Guid operationId)
         {
-            await _deleteStrategy.ExecuteAsync(GetPartitionKey(operationId));
+            var entities = await InnerGetAsync(operationId);
+
+            await _table.DeleteAsync(entities);
         }
 
-        public async Task<bool> ExistsAsync(Guid operation, string signedTxData)
+        public async Task<IEnumerable<BroadcastedTransactionDto>> GetAllAsync()
         {
-            return await _existsStrategy.ExecuteAsync
+            var dtos = new List<BroadcastedTransactionDto>();
+
+            string continuationToken = null;
+
+            do
+            {
+                IEnumerable<BroadcastedTransactionEntity> entities;
+
+                (entities, continuationToken) = await _table.GetDataWithContinuationTokenAsync(1000, continuationToken);
+
+                dtos.AddRange(entities.Select(x => x.ToDto()));
+
+            } while (continuationToken != null);
+
+            return dtos;
+        }
+
+        public async Task<bool> ExistsAsync(Guid operationId, string signedTxData)
+        {
+            var entity = await _table.GetDataAsync
             (
-                GetPartitionKey(operation),
+                GetPartitionKey(operationId),
                 GetRowKey(signedTxData)
             );
+
+            return entity != null;
         }
 
         public async Task<IEnumerable<BroadcastedTransactionDto>> GetAsync(Guid operationId)
         {
-            return (await _getAllStrategy.ExecuteAsync(GetPartitionKey(operationId)))
+            return (await InnerGetAsync(operationId))
                 .Select(x => x.ToDto());
+        }
+
+        private async Task<IEnumerable<BroadcastedTransactionEntity>> InnerGetAsync(Guid operationId)
+        {
+            return await _table.GetDataAsync(GetPartitionKey(operationId));
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
         public async Task<BigInteger> CalculateGasPriceAsync(string to, BigInteger amount)
         {
             var estimatedGasPrice = await _ethereum.EstimateGasPriceAsync(to, amount);
-            var minMaxGasPrice = await _gasPriceRepository.GetAsync();
+            var minMaxGasPrice = await _gasPriceRepository.TryGetAsync();
 
             if (minMaxGasPrice == null)
             {

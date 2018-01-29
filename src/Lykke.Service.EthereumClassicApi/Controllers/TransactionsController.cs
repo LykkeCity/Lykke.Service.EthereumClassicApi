@@ -115,7 +115,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpGet("broadcast/{operationId}")]
         public async Task<IActionResult> GetState(Guid operationId)
         {
-            var state = await _broadcastedTransactionStateQueryRepository.GetAsync(operationId);
+            var state = await _broadcastedTransactionStateQueryRepository.TryGetAsync(operationId);
 
             if (state != null)
             {
