@@ -11,11 +11,17 @@ namespace Lykke.Service.EthereumClassicApi.Actors
     public class ActorSystemFacade : IActorSystemFacade
     {
         private readonly IRootActorFactory _rootActorFactory;
+        private readonly Func<Task> _shutdownCallback;
 
-        public ActorSystemFacade(IRootActorFactory rootActorFactory)
+        public ActorSystemFacade(
+            IRootActorFactory rootActorFactory,
+            Func<Task> shutdownCallback)
         {
             _rootActorFactory
                 = rootActorFactory;
+
+            _shutdownCallback
+                = shutdownCallback;
 
             BalanceObserverDispatcher =
                 _rootActorFactory.Build<BalanceObserverDispatcherActor>("balances-observer-dispatcher");
@@ -127,6 +133,21 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             var txData = CheckIfResponseIs<TransactionBuilt>(response).TxData;
 
             return txData;
+        }
+
+        public async Task ShutdownAsync()
+        {
+            var gracefulStutdownPeriod = TimeSpan.FromMinutes(1);
+
+            await Task.WhenAll
+            (
+                BalanceObserverDispatcher.GracefulStop(gracefulStutdownPeriod),
+                BalanceObserverManager.GracefulStop(gracefulStutdownPeriod),
+                TransactionMonitorDispatcher.GracefulStop(gracefulStutdownPeriod),
+                TransactionProcessorsDispatcher.GracefulStop(gracefulStutdownPeriod)
+            );
+            
+            await _shutdownCallback();
         }
     }
 }

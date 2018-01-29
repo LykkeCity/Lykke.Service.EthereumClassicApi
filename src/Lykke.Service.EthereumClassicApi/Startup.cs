@@ -30,7 +30,7 @@ namespace Lykke.Service.EthereumClassicApi
         private readonly ISlackNotificationsSender _notificationsSender;
         private readonly IReloadingManager<AppSettings> _settings;
 
-
+        private IActorSystemFacade _actorSystemFacade;
         private IContainer _container;
 
 
@@ -110,7 +110,7 @@ namespace Lykke.Service.EthereumClassicApi
                 _container = builder.Build();
 
 
-                _container
+                _actorSystemFacade = _container
                     .Resolve<IActorSystemFacade>();
 
                 return new AutofacServiceProvider(_container);
@@ -191,6 +191,10 @@ namespace Lykke.Service.EthereumClassicApi
         {
             try
             {
+                if (_actorSystemFacade != null)
+                {
+                    await _actorSystemFacade.ShutdownAsync();
+                }
             }
             catch (Exception ex)
             {

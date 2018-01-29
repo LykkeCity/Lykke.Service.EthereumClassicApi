@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AzureStorage;
@@ -76,7 +77,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
                 dtos.AddRange(entities.Select(x => x.ToDto()));
 
             } while (continuationToken != null);
-
+            
             return dtos;
         }
 

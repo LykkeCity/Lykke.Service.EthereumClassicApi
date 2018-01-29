@@ -28,5 +28,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
         Task EndBalanceMonitoringAsync(string address);
 
         Task<string> RebuildTransactionAsync(decimal feeFactor, Guid operationId);
+
+        Task ShutdownAsync();
     }
 }

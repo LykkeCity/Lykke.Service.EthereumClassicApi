@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Lykke.Service.BlockchainApi.Contract.Addresses;
-using Lykke.Service.EthereumClassicApi.Common.Utils;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

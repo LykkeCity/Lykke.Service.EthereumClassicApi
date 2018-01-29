@@ -30,8 +30,7 @@ namespace Lykke.Service.EthereumClassicApi.Logger
         ///     The message that triggered this event.
         /// </param>
         /// <inheritdoc />
-        public LykkeInfo(string logSource, Type logClass, string message, long? duration, string process,
-            object trigger)
+        public LykkeInfo(string logSource, Type logClass, string message, long? duration, string process, object trigger)
         {
             Duration = duration;
             LogSource = logSource;

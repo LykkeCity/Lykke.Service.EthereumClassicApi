@@ -14,8 +14,7 @@ namespace Lykke.Service.EthereumClassicApi
 
         public static async Task Main(string[] args)
         {
-            Console.WriteLine(
-                $"{Constants.ApplicationName} version {PlatformServices.Default.Application.ApplicationVersion}");
+            Console.WriteLine($"{Constants.ApplicationName} version {PlatformServices.Default.Application.ApplicationVersion}");
             Console.WriteLine($"Is {(Constants.IsDebug ? "DEBUG" : "RELEASE")}");
 
             var environmentInfo = Environment.GetEnvironmentVariable("ENV_INFO");

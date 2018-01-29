@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
 using Akka.Configuration;
 using Autofac;
 using Common.Log;
@@ -14,16 +15,19 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 {
     public sealed class ActorSystemFacadeFactory
     {
+        private readonly ActorSystem _actorSystem;
         private readonly IRootActorFactory _rootActorFactory;
         private readonly IScheduler _scheduler;
         private readonly EthereumClassicApiSettings _serviceSettings;
 
 
         internal ActorSystemFacadeFactory(
+            ActorSystem actorSystem,
             IRootActorFactory rootActorFactory,
             EthereumClassicApiSettings serviceSettings,
             IScheduler scheduler)
         {
+            _actorSystem = actorSystem;
             _rootActorFactory = rootActorFactory;
             _serviceSettings = serviceSettings;
             _scheduler = scheduler;
@@ -34,7 +38,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             var actorSystem = BuildActorSystem(container);
             var actorFactory = new RootActorFactory(actorSystem);
             var settings = container.Resolve<EthereumClassicApiSettings>();
-            var facadeFactory = new ActorSystemFacadeFactory(actorFactory, settings, actorSystem.Scheduler);
+            var facadeFactory = new ActorSystemFacadeFactory(actorSystem, actorFactory, settings, actorSystem.Scheduler);
 
 
             return facadeFactory.Build();
@@ -42,11 +46,14 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
         internal IActorSystemFacade Build()
         {
-            var facade = new ActorSystemFacade(_rootActorFactory);
+            var facade = new ActorSystemFacade
+            (
+                rootActorFactory: _rootActorFactory,
+                shutdownCallback: async () => await CoordinatedShutdown.Get(_actorSystem).Run());
 
             _scheduler.ScheduleTellRepeatedly
             (
-                _serviceSettings.BalancesCheckInterval,
+                TimeSpan.Zero, 
                 _serviceSettings.BalancesCheckInterval,
                 facade.BalanceObserverDispatcher,
                 CheckBalances.Instance,
@@ -68,7 +75,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 "Lykke.Service.EthereumClassicApi.Actors.SystemConfig.json",
                 typeof(ActorSystemFacadeFactory).Assembly
             );
-
+            
             return ActorSystem
                 .Create("ethereum-classic", systemConfig)
                 .WithContainer(container);
