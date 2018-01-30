@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces
 {
-    public interface ITransactionProcessorDispatcherRole : IActorRole
+    public interface ITransactionBroadcasterDispatcherRole : IActorRole
     {
         Task<string> GetFromAddressAsync(Guid operationId);
     }

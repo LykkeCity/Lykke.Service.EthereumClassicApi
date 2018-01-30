@@ -10,7 +10,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
         
         IActorRef TransactionMonitorDispatcher { get; }
 
-        IActorRef TransactionProcessorsDispatcher { get; }
+        IActorRef TransactionBroadcastersDispatcher { get; }
         
 
         Task BroadcastTransactionAsync(Guid operationId, string signedTxData);

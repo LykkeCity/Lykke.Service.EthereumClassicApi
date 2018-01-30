@@ -4,7 +4,7 @@ using Lykke.Service.EthereumClassicApi.Common.Exceptions;
 
 namespace Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces
 {
-    public interface ITransactionProcessorRole : IActorRole
+    public interface ITransactionBroadcasterRole : IActorRole
     {
         /// <summary>
         ///     Broadcasts specified signed transaction.

@@ -7,15 +7,15 @@ using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
 
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
-    public class TransactionProcessorActor : ReceiveActor
+    public class TransactionBroadcasterActor : ReceiveActor
     {
-        private readonly ITransactionProcessorRole _transactionProcessorRole;
+        private readonly ITransactionBroadcasterRole _transactionBroadcasterRole;
 
 
-        public TransactionProcessorActor(
-            ITransactionProcessorRole transactionProcessorRole)
+        public TransactionBroadcasterActor(
+            ITransactionBroadcasterRole transactionBroadcasterRole)
         {
-            _transactionProcessorRole = transactionProcessorRole;
+            _transactionBroadcasterRole = transactionBroadcasterRole;
 
 
             ReceiveAsync<BroadcastTransaction>(
@@ -29,7 +29,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             {
                 try
                 {
-                    var txHash = await _transactionProcessorRole.BroadcastTransaction
+                    var txHash = await _transactionBroadcasterRole.BroadcastTransaction
                     (
                         message.OperationId,
                         message.SignedTxData

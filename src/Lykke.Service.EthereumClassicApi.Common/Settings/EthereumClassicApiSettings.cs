@@ -19,9 +19,7 @@ namespace Lykke.Service.EthereumClassicApi.Common.Settings
         public int NrOfBalanceReaders { get; set; }
 
         public int NrOfOperationMonitors { get; set; }
-
-        public int NrOfTransactionProcessors { get; set; }
-
+        
         public TimeSpan TransactionApdexPeriod { get; set; }
 
         public int TransactionApdexToleratingCount { get; set; }

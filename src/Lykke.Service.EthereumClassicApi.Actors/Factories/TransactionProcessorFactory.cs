@@ -2,8 +2,8 @@
 
 namespace Lykke.Service.EthereumClassicApi.Actors.Factories
 {
-    public class TransactionProcessorsFactory : ChildActorFactory<TransactionProcessorActor>,
-        ITransactionProcessorFactory
+    public class TransactionBroadcasterFactory : ChildActorFactory<TransactionBroadcasterActor>,
+        ITransactionBroadcasterFactory
     {
     }
 }

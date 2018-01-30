@@ -14,23 +14,23 @@ using Lykke.Service.EthereumClassicApi.Common.Utils;
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
     [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
-    public class TransactionProcessorDispatcherActor : ReceiveActor
+    public class TransactionBroadcastersDispatcherActor : ReceiveActor
     {
-        private readonly ITransactionProcessorDispatcherRole _transactionProcessorDispatcherRole;
-        private readonly ITransactionProcessorFactory _transactionProcessorFactory;
-        private readonly Dictionary<string, TransactionProcessorRef> _transactionProcessors;
+        private readonly ITransactionBroadcasterDispatcherRole _transactionBroadcasterDispatcherRole;
+        private readonly ITransactionBroadcasterFactory _transactionBroadcasterFactory;
+        private readonly Dictionary<string, TransactionBroadcasterRef> _transactionBroadcasters;
 
 
-        public TransactionProcessorDispatcherActor(
-            ITransactionProcessorDispatcherRole transactionProcessorDispatcherRole,
-            ITransactionProcessorFactory transactionProcessorFactory)
+        public TransactionBroadcastersDispatcherActor(
+            ITransactionBroadcasterDispatcherRole transactionBroadcasterDispatcherRole,
+            ITransactionBroadcasterFactory transactionBroadcasterFactory)
         {
-            _transactionProcessorDispatcherRole = transactionProcessorDispatcherRole;
-            _transactionProcessorFactory = transactionProcessorFactory;
-            _transactionProcessors = new Dictionary<string, TransactionProcessorRef>();
+            _transactionBroadcasterDispatcherRole = transactionBroadcasterDispatcherRole;
+            _transactionBroadcasterFactory = transactionBroadcasterFactory;
+            _transactionBroadcasters = new Dictionary<string, TransactionBroadcasterRef>();
 
             
-            Receive<CleanupExpiredTransactionProcessors>(
+            Receive<CleanupExpiredTransactionBroadcasters>(
                 msg => ProcessMessage(msg));
 
             ReceiveAsync<BroadcastTransaction>(
@@ -39,7 +39,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
         }
 
 
-        private void ProcessMessage(CleanupExpiredTransactionProcessors message)
+        private void ProcessMessage(CleanupExpiredTransactionBroadcasters message)
         {
             using (var logger = Context.GetLogger(message))
             {
@@ -47,14 +47,14 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
                 try
                 {
-                    _transactionProcessors
+                    _transactionBroadcasters
                         .Where(x => x.Value.LastTalkTime <= expirationTime)
                         .ToList()
                         .ForEach(x =>
                         {
                             x.Value.Tell(PoisonPill.Instance);
 
-                            _transactionProcessors.Remove(x.Key);
+                            _transactionBroadcasters.Remove(x.Key);
                         });
                 }
                 catch (Exception e)
@@ -70,9 +70,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             {
                 try
                 {
-                    var fromAddress =
-                        await _transactionProcessorDispatcherRole.GetFromAddressAsync(message.OperationId);
-                    var processor = GetOrCreateTransactionProcessor(fromAddress);
+                    var fromAddress = await _transactionBroadcasterDispatcherRole.GetFromAddressAsync(message.OperationId);
+                    var processor = GetOrCreateTransactionBroadcaster(fromAddress);
 
                     processor.Forward(message);
                 }
@@ -90,25 +89,25 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
         #region Common
 
-        private IActorRef GetOrCreateTransactionProcessor(string address)
+        private IActorRef GetOrCreateTransactionBroadcaster(string address)
         {
-            if (!_transactionProcessors.ContainsKey(address))
+            if (!_transactionBroadcasters.ContainsKey(address))
             {
-                _transactionProcessors[address] = new TransactionProcessorRef
+                _transactionBroadcasters[address] = new TransactionBroadcasterRef
                 (
-                    _transactionProcessorFactory.Build(Context, $"transaction-processor-{address}")
+                    _transactionBroadcasterFactory.Build(Context, $"transaction-broadcaster-{address}-{Guid.NewGuid():N}")
                 );
             }
 
-            return _transactionProcessors[address];
+            return _transactionBroadcasters[address];
         }
 
-        private class TransactionProcessorRef : IActorRef
+        private class TransactionBroadcasterRef : IActorRef
         {
             private readonly IActorRef _actorRef;
 
 
-            public TransactionProcessorRef(IActorRef actorRef)
+            public TransactionBroadcasterRef(IActorRef actorRef)
             {
                 _actorRef = actorRef;
             }

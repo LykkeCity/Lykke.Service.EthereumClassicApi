@@ -11,7 +11,7 @@ using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 
 namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 {
-    public class TransactionProcessorRole : ITransactionProcessorRole
+    public class TransactionBroadcasterRole : ITransactionBroadcasterRole
     {
         private readonly IBroadcastedTransactionRepository _broadcastedTransactionRepository;
         private readonly IBroadcastedTransactionStateRepository _broadcastedTransactionStateRepository;
@@ -20,7 +20,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         private readonly IObservableBalanceRepository _observableBalanceRepository;
 
 
-        public TransactionProcessorRole(
+        public TransactionBroadcasterRole(
             IBroadcastedTransactionRepository broadcastedTransactionRepository,
             IBroadcastedTransactionStateRepository broadcastedTransactionStateRepository,
             IBuiltTransactionRepository builtTransactionRepository,

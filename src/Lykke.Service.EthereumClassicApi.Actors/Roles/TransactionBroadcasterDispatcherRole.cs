@@ -5,12 +5,12 @@ using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 
 namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 {
-    public class TransactionProcessorDispatcherRole : ITransactionProcessorDispatcherRole
+    public class TransactionBroadcasterDispatcherRole : ITransactionBroadcasterDispatcherRole
     {
         private readonly IBuiltTransactionRepository _builtTransactionRepository;
 
 
-        public TransactionProcessorDispatcherRole(
+        public TransactionBroadcasterDispatcherRole(
             IBuiltTransactionRepository builtTransactionRepository)
         {
             _builtTransactionRepository = builtTransactionRepository;

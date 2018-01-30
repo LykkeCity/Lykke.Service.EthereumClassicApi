@@ -24,13 +24,13 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 = shutdownCallback;
 
             BalanceObserverDispatcher =
-                _rootActorFactory.Build<BalanceObserverDispatcherActor>("balances-observer-dispatcher");
+                _rootActorFactory.Build<BalanceObserverDispatcherActor>("balances-observers-dispatcher");
             
             TransactionMonitorDispatcher =
-                _rootActorFactory.Build<TransactionMonitorDispatcherActor>("transaction-monitor-dispatcher");
+                _rootActorFactory.Build<TransactionMonitorDispatcherActor>("transaction-monitors-dispatcher");
 
-            TransactionProcessorsDispatcher =
-                _rootActorFactory.Build<TransactionProcessorDispatcherActor>("transaction-procesor-dispatcher");
+            TransactionBroadcastersDispatcher =
+                _rootActorFactory.Build<TransactionBroadcastersDispatcherActor>("transaction-broadcasters-dispatcher");
         }
 
         private static T CheckIfResponseIs<T>(object response)
@@ -56,13 +56,13 @@ namespace Lykke.Service.EthereumClassicApi.Actors
         
         public IActorRef TransactionMonitorDispatcher { get; }
 
-        public IActorRef TransactionProcessorsDispatcher { get; }
+        public IActorRef TransactionBroadcastersDispatcher { get; }
 
 
         
         public async Task BroadcastTransactionAsync(Guid operationId, string signedTxData)
         {
-            var response = await TransactionProcessorsDispatcher.Ask(new BroadcastTransaction
+            var response = await TransactionBroadcastersDispatcher.Ask(new BroadcastTransaction
             (
                 operationId,
                 signedTxData
@@ -79,7 +79,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             (
                 BalanceObserverDispatcher.GracefulStop(gracefulStutdownPeriod),
                 TransactionMonitorDispatcher.GracefulStop(gracefulStutdownPeriod),
-                TransactionProcessorsDispatcher.GracefulStop(gracefulStutdownPeriod)
+                TransactionBroadcastersDispatcher.GracefulStop(gracefulStutdownPeriod)
             );
             
             await _shutdownCallback();
