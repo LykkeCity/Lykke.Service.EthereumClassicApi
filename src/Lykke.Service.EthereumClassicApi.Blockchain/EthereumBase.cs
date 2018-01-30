@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Threading.Tasks;
+using Common;
 using Lykke.Service.EthereumClassicApi.Blockchain.Entities;
 using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Nethereum.Hex.HexConvertors.Extensions;
@@ -7,6 +8,8 @@ using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
 using Newtonsoft.Json.Linq;
+
+using CommonUtils = Common.Utils;
 using Transaction = Nethereum.Signer.Transaction;
 
 namespace Lykke.Service.EthereumClassicApi.Blockchain
@@ -92,6 +95,12 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             var block = BlockParameter.CreatePending();
 
             return await GetBalanceAsync(address, block);
+        }
+
+        public string GetTransactionHash(string signedTxData)
+        {
+            return (new Transaction(CommonUtils.HexToArray(signedTxData)))
+                .Hash.ToHex(true);
         }
 
         public async Task<TransactionReceiptEntity> GetTransactionReceiptAsync(string txHash)

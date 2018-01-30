@@ -25,8 +25,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         /// <returns>
         ///     RLP-encoded transaction data in hex format.
         /// </returns>
-        string BuildTransaction(string to, BigInteger amount, BigInteger nonce, BigInteger gasPrice,
-            BigInteger gasAmount);
+        string BuildTransaction(string to, BigInteger amount, BigInteger nonce, BigInteger gasPrice, BigInteger gasAmount);
 
         /// <summary>
         ///     Estimates gas price for simple transfer transaction.
@@ -57,7 +56,8 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         Task<BigInteger> GetBalanceAsync(string address, BigInteger blockNumber);
 
         Task<string> GetCodeAsync(string address);
-            /// <summary>
+
+        /// <summary>
         ///     Get the balance of a public address at a latest block.
         /// </summary>
         /// <param name="address">
@@ -98,9 +98,10 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         /// </returns>
         Task<BigInteger> GetPendingBalanceAsync(string address);
 
+        string GetTransactionHash(string signedTxData);
+
         Task<string> GetTransactionErrorAsync(string txHash);
-
-
+        
         Task<BigInteger> GetTransactionGasPriceAsync(string txHash);
 
         /// <summary>

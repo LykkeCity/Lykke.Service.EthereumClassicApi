@@ -7,7 +7,7 @@ using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Common.Exceptions;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
-using Lykke.Service.EthereumClassicApi.Services.Interfaces;
+
 
 namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 {
@@ -17,7 +17,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         private readonly IBroadcastedTransactionStateRepository _broadcastedTransactionStateRepository;
         private readonly IBuiltTransactionRepository _builtTransactionRepository;
         private readonly IEthereum _ethereum;
-        private readonly IGasPriceOracleService _gasPriceOracleService;
         private readonly IObservableBalanceLockRepository _observableBalanceLockRepository;
 
 
@@ -26,14 +25,12 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             IBroadcastedTransactionStateRepository broadcastedTransactionStateRepository,
             IBuiltTransactionRepository builtTransactionRepository,
             IEthereum ethereum,
-            IGasPriceOracleService gasPriceOracleService,
             IObservableBalanceLockRepository observableBalanceLockRepository)
         {
             _broadcastedTransactionStateRepository = broadcastedTransactionStateRepository;
             _broadcastedTransactionRepository = broadcastedTransactionRepository;
             _builtTransactionRepository = builtTransactionRepository;
             _ethereum = ethereum;
-            _gasPriceOracleService = gasPriceOracleService;
             _observableBalanceLockRepository = observableBalanceLockRepository;
         }
         
@@ -43,7 +40,12 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             if (!await _broadcastedTransactionRepository.ExistsAsync(operationId, signedTxData))
             {
                 var operation = await _builtTransactionRepository.TryGetAsync(operationId);
-                var txHash = await _ethereum.SendRawTransactionAsync(signedTxData);
+                if (operation == null)
+                {
+                    throw new NotFoundException($"Specified operation [{operationId}] is not found.");
+                }
+
+                var txHash = await SendRawTransactionOrGetTxHashAsync(signedTxData);
                 var now = DateTime.UtcNow;
 
                 await _broadcastedTransactionRepository.AddOrReplaceAsync(new BroadcastedTransactionDto
@@ -57,6 +59,11 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                     TxHash = txHash
                 });
 
+                await _observableBalanceLockRepository.AddOrReplaceAsync(new ObservableBalanceLockDto
+                {
+                    Address = operation.FromAddress
+                });
+
                 await _broadcastedTransactionStateRepository.AddOrReplaceAsync(new BroadcastedTransactionStateDto
                 {
                     Amount = operation.Amount,
@@ -68,17 +75,34 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                     ToAddress = operation.ToAddress,
                     TxHash = txHash
                 });
-
-                await _observableBalanceLockRepository.AddOrReplaceAsync(new ObservableBalanceLockDto
-                {
-                    Address = operation.FromAddress
-                });
-
+                
                 return txHash;
             }
 
             throw new ConflictException(
                 $"Specified transaction [{signedTxData}] for specified operation [{operationId}] has laready been broadcasted.");
+        }
+
+        /// <summary>
+        ///   Sends raw transaction, or, if it has already been sent, returns it's txHash
+        /// </summary>
+        /// <param name="signedTxData">
+        ///    Signed transaction data.
+        /// </param>
+        /// <returns>
+        ///    Transaction hash.
+        /// </returns>
+        private async Task<string> SendRawTransactionOrGetTxHashAsync(string signedTxData)
+        {
+            var txHash = _ethereum.GetTransactionHash(signedTxData);
+            var receipt = await _ethereum.GetTransactionReceiptAsync(txHash);
+
+            if (receipt == null)
+            {
+                await _ethereum.SendRawTransactionAsync(signedTxData);
+            }
+
+            return txHash;
         }
     }
 }
