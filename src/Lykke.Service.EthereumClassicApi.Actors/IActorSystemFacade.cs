@@ -15,8 +15,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
         Task BroadcastTransactionAsync(Guid operationId, string signedTxData);
         
-        Task DeleteOperationStateAsync(Guid operationId);
-        
         Task ShutdownAsync();
     }
 }

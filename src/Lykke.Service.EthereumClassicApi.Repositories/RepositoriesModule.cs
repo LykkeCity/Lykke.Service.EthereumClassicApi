@@ -32,7 +32,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             builder
                 .Register(c => c.Resolve<IRepositoryFactory>().BuildBroadcastedTransactionStateRepository())
                 .AsSelf()
-                .As<IBroadcastedTransactionStateQueryRepository>()
                 .SingleInstance();
 
             builder

@@ -20,17 +20,17 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
     public class TransactionsController : Controller
     {
         private readonly IActorSystemFacade _actorSystemFacade;
-        private readonly IBroadcastedTransactionStateQueryRepository _broadcastedTransactionStateQueryRepository;
+        private readonly IBroadcastedTransactionStateRepository _broadcastedTransactionStateRepository;
         private readonly ITransactionBuilderService _transactionBuilderService;
 
 
         public TransactionsController(
             IActorSystemFacade actorSystemFacade,
-            IBroadcastedTransactionStateQueryRepository broadcastedTransactionStateQueryRepository,
+            IBroadcastedTransactionStateRepository broadcastedTransactionStateRepository,
             ITransactionBuilderService transactionBuilderService)
         {
             _actorSystemFacade = actorSystemFacade;
-            _broadcastedTransactionStateQueryRepository = broadcastedTransactionStateQueryRepository;
+            _broadcastedTransactionStateRepository = broadcastedTransactionStateRepository;
             _transactionBuilderService = transactionBuilderService;
         }
 
@@ -104,13 +104,13 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpDelete("broadcast/{operationId}")]
         public async Task<IActionResult> DeleteState(Guid operationId)
         {
-            try
+            if (await _broadcastedTransactionStateRepository.ExistsAsync(operationId))
             {
-                await _actorSystemFacade.DeleteOperationStateAsync(operationId);
+                await _broadcastedTransactionStateRepository.DeleteIfExistAsync(operationId);
 
                 return Ok();
             }
-            catch (NotFoundException)
+            else
             {
                 return NoContent();
             }
@@ -119,7 +119,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpGet("broadcast/{operationId}")]
         public async Task<IActionResult> GetState(Guid operationId)
         {
-            var state = await _broadcastedTransactionStateQueryRepository.TryGetAsync(operationId);
+            var state = await _broadcastedTransactionStateRepository.TryGetAsync(operationId);
 
             if (state != null)
             {

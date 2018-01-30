@@ -70,17 +70,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
             CheckIfResponseIsSuccess(response);
         }
-
-        public async Task DeleteOperationStateAsync(Guid operationId)
-        {
-            var response = await TransactionMonitorDispatcher.Ask(new DeleteTransactionState
-            (
-                operationId
-            ));
-
-            CheckIfResponseIsSuccess(response);
-        }
-
+        
         public async Task ShutdownAsync()
         {
             var gracefulStutdownPeriod = TimeSpan.FromMinutes(1);

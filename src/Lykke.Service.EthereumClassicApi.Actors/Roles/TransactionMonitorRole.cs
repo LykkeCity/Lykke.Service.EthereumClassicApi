@@ -114,10 +114,5 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                 return false;
             }
         }
-
-        public async Task DeleteTransactionStateAsync(Guid operationId)
-        {
-            await _broadcastedTransactionStateRepository.DeleteIfExistAsync(operationId);
-        }
     }
 }

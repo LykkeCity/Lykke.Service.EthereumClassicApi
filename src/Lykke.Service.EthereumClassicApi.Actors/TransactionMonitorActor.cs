@@ -15,10 +15,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             ITransactionMonitorRole transactionMonitorRole)
         {
             _transactionMonitorRole = transactionMonitorRole;
-
-            ReceiveAsync<DeleteTransactionState>(
-                ProcessMessageAsync);
-
+            
             ReceiveAsync<CheckTransactionState>(
                 ProcessMessageAsync);
         }
@@ -42,28 +39,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 catch (Exception e)
                 {
                     ScheduleRetry(message);
-
-                    logger.Error(e);
-                }
-            }
-        }
-
-        private async Task ProcessMessageAsync(DeleteTransactionState message)
-        {
-            using (var logger = Context.GetLogger(message))
-            {
-                try
-                {
-                    await _transactionMonitorRole.DeleteTransactionStateAsync(message.OperationId);
-
-                    Sender.Tell(new Status.Success(null));
-                }
-                catch (Exception e)
-                {
-                    Sender.Tell(new Status.Failure
-                    (
-                        e
-                    ));
 
                     logger.Error(e);
                 }

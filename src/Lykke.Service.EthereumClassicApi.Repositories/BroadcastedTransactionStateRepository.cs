@@ -52,6 +52,11 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             );
         }
 
+        public async Task<bool> ExistsAsync(Guid operationId)
+        {
+            return await _table.GetDataAsync(GetPartitionKey(operationId), GetRowKey(operationId)) != null;
+        }
+
         public async Task<BroadcastedTransactionStateDto> TryGetAsync(Guid operationId)
         {
             return (await _table.GetDataAsync(GetPartitionKey(operationId), GetRowKey(operationId)))?

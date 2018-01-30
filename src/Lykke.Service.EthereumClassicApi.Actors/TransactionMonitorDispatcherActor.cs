@@ -30,10 +30,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
             ReceiveAsync<CheckTransactionStates>(
                 ProcessMessageAsync);
-
-            Receive<DeleteTransactionState>(
-                msg => ProcessMessage(msg));
-
+            
             Receive<TransactionBroadcasted>(
                 msg => ProcessMessage(msg));
 
@@ -44,13 +41,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 Nobody.Instance
             );
         }
-
-
-        private void ProcessMessage(DeleteTransactionState message)
-        {
-            _transactionMonitors.Forward(message);
-        }
-
+        
         private void ProcessMessage(TransactionBroadcasted message)
         {
             _transactionMonitors.Tell(new CheckTransactionState
