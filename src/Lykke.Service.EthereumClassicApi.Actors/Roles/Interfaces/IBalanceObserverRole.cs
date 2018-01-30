@@ -17,6 +17,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces
         /// <returns>
         ///     A BigInteger instance of the current balance for the given address in wei.
         /// </returns>
-        Task<BigInteger> GetBalanceAsync(string address, BigInteger blockNumber);
+        Task<BigInteger> UpdateBalanceAsync(string address, BigInteger blockNumber);
     }
 }

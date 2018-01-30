@@ -15,7 +15,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         private readonly IBroadcastedTransactionRepository _broadcastedTransactionRepository;
         private readonly IBroadcastedTransactionStateRepository _broadcastedTransactionStateRepository;
         private readonly IBuiltTransactionRepository _builtTransactionRepository;
-        private readonly IObservableBalanceLockRepository _observableBalanceLockRepository;
+        private readonly IObservableBalanceRepository _observableBalanceRepository;
         private readonly ITransactionStateService _transactionStateService;
 
 
@@ -23,13 +23,13 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             IBroadcastedTransactionRepository broadcastedTransactionRepository,
             IBroadcastedTransactionStateRepository broadcastedTransactionStateRepository,
             IBuiltTransactionRepository builtTransactionRepository,
-            IObservableBalanceLockRepository observableBalanceLockRepository,
+            IObservableBalanceRepository observableBalanceRepository,
             ITransactionStateService transactionStateService)
         {
             _broadcastedTransactionRepository = broadcastedTransactionRepository;
             _broadcastedTransactionStateRepository = broadcastedTransactionStateRepository;
             _builtTransactionRepository = builtTransactionRepository;
-            _observableBalanceLockRepository = observableBalanceLockRepository;
+            _observableBalanceRepository = observableBalanceRepository;
             _transactionStateService = transactionStateService;
         }
 
@@ -55,15 +55,23 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             if (finishedTransactionStates.Count > 1)
             {
                 throw new UnsupportedEdgeCaseException(
-                    $"More than one transaction finished for operation [{operationId:N}].");
+                    $"More than one transaction finished for operation [{operationId}].");
             }
-
-            if (finishedTransactionStates.Count == 1)
+            else if (finishedTransactionStates.Count == 1)
             {
-                var completedTransactionState =
-                    finishedTransactionStates.Single(x => x.State.State != TransactionState.InProgress);
+                var completedTransactionState = finishedTransactionStates.Single(x => x.State.State != TransactionState.InProgress);
                 var completedTransaction = completedTransactionState.Transaction;
                 var state = completedTransactionState.State;
+
+                if (await _observableBalanceRepository.ExistsAsync(completedTransaction.FromAddress))
+                {
+                    await _observableBalanceRepository.UpdateAsync
+                    (
+                        address: completedTransaction.FromAddress,
+                        amount: 0,
+                        locked: false
+                    );
+                }
 
                 await _broadcastedTransactionStateRepository.AddOrReplaceAsync(new BroadcastedTransactionStateDto
                 {
@@ -77,34 +85,34 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                     ToAddress = completedTransaction.ToAddress,
                     TxHash = completedTransaction.TxHash
                 });
-
-                await _observableBalanceLockRepository.DeleteIfExistsAsync(completedTransaction.FromAddress);
-
+                
                 await _builtTransactionRepository.DeleteIfExistsAsync(operationId);
 
                 await _broadcastedTransactionRepository.DeleteAsync(operationId);
 
                 return true;
             }
-
-            var latestTransaction = transactions.OrderByDescending(x => x.Timestamp).FirstOrDefault();
-
-            if (latestTransaction != null)
+            else
             {
-                await _broadcastedTransactionStateRepository.AddOrReplaceAsync(new BroadcastedTransactionStateDto
-                {
-                    Amount = latestTransaction.Amount,
-                    Fee = null,
-                    FromAddress = latestTransaction.FromAddress,
-                    OperationId = operationId,
-                    State = TransactionState.InProgress,
-                    Timestamp = latestTransaction.Timestamp,
-                    ToAddress = latestTransaction.ToAddress,
-                    TxHash = latestTransaction.TxHash
-                });
-            }
+                var latestTransaction = transactions.OrderByDescending(x => x.Timestamp).FirstOrDefault();
 
-            return false;
+                if (latestTransaction != null)
+                {
+                    await _broadcastedTransactionStateRepository.AddOrReplaceAsync(new BroadcastedTransactionStateDto
+                    {
+                        Amount = latestTransaction.Amount,
+                        Fee = null,
+                        FromAddress = latestTransaction.FromAddress,
+                        OperationId = operationId,
+                        State = TransactionState.InProgress,
+                        Timestamp = latestTransaction.Timestamp,
+                        ToAddress = latestTransaction.ToAddress,
+                        TxHash = latestTransaction.TxHash
+                    });
+                }
+
+                return false;
+            }
         }
 
         public async Task DeleteTransactionStateAsync(Guid operationId)

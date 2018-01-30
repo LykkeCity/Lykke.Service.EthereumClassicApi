@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using AzureStorage;
 using Common;
@@ -62,6 +62,12 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             return entity != null;
         }
 
+        public async Task<ObservableBalanceDto> TryGetAsync(string address)
+        {
+            return (await _table.GetDataAsync(GetPartitionKey(address), GetRowKey(address)))
+                .ToDto();
+        }
+
         public async Task<IEnumerable<ObservableBalanceDto>> GetAllAsync()
         {
             var dtos = new List<ObservableBalanceDto>();
@@ -84,8 +90,14 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         public async Task<(IEnumerable<ObservableBalanceDto> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(int take, string continuationToken)
         {
             IEnumerable<ObservableBalanceEntity> entities;
+            
+            var filterCondition = TableQuery.CombineFilters
+            (
+                TableQuery.GenerateFilterCondition("Amount", QueryComparisons.NotEqual, "0"),
+                "AND",
+                TableQuery.GenerateFilterConditionForBool("Locked", QueryComparisons.NotEqual, true)
+            );
 
-            var filterCondition = TableQuery.GenerateFilterCondition("Amount", QueryComparisons.NotEqual, "0");
             var query = new TableQuery<ObservableBalanceEntity>().Where(filterCondition);
             
             (entities, continuationToken) = await _table.GetDataWithContinuationTokenAsync(query, take, continuationToken);
@@ -93,15 +105,29 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             return (entities.Select(x => x.ToDto()), continuationToken);
         }
 
-        public async Task ReplaceAsync(ObservableBalanceDto dto)
+        public async Task UpdateAsync(string address, BigInteger? amount = null, bool? locked = null)
         {
-            var entity = dto.ToEntity();
+            ObservableBalanceEntity UpdateAction(ObservableBalanceEntity entity)
+            {
+                if (amount.HasValue)
+                {
+                    entity.Amount = amount.Value.ToString();
+                }
 
-            entity.PartitionKey = GetPartitionKey(dto.Address);
-            entity.RowKey = GetRowKey(dto.Address);
-            entity.ETag = "*";
-
-            await _table.ReplaceAsync(entity);
+                if (locked.HasValue)
+                {
+                    entity.Locked = locked.Value;
+                }
+                
+                return entity;
+            }
+            
+            await _table.MergeAsync
+            (
+                GetPartitionKey(address),
+                GetRowKey(address),
+                UpdateAction
+            );
         }
     }
 }

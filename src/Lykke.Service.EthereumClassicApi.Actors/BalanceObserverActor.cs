@@ -29,7 +29,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             {
                 try
                 {
-                    var balance = await _balanceObserverRole.GetBalanceAsync(message.Address, message.BlockNumber);
+                    var balance = await _balanceObserverRole.UpdateBalanceAsync(message.Address, message.BlockNumber);
 
                     if (balance > 0)
                     {

@@ -17,7 +17,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         private readonly IBroadcastedTransactionStateRepository _broadcastedTransactionStateRepository;
         private readonly IBuiltTransactionRepository _builtTransactionRepository;
         private readonly IEthereum _ethereum;
-        private readonly IObservableBalanceLockRepository _observableBalanceLockRepository;
+        private readonly IObservableBalanceRepository _observableBalanceRepository;
 
 
         public TransactionProcessorRole(
@@ -25,13 +25,13 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             IBroadcastedTransactionStateRepository broadcastedTransactionStateRepository,
             IBuiltTransactionRepository builtTransactionRepository,
             IEthereum ethereum,
-            IObservableBalanceLockRepository observableBalanceLockRepository)
+            IObservableBalanceRepository observableBalanceRepository)
         {
             _broadcastedTransactionStateRepository = broadcastedTransactionStateRepository;
             _broadcastedTransactionRepository = broadcastedTransactionRepository;
             _builtTransactionRepository = builtTransactionRepository;
             _ethereum = ethereum;
-            _observableBalanceLockRepository = observableBalanceLockRepository;
+            _observableBalanceRepository = observableBalanceRepository;
         }
         
         /// <inheritdoc />
@@ -43,6 +43,16 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                 if (operation == null)
                 {
                     throw new NotFoundException($"Specified operation [{operationId}] is not found.");
+                }
+
+                if (await _observableBalanceRepository.ExistsAsync(operation.FromAddress))
+                {
+                    await _observableBalanceRepository.UpdateAsync
+                    (
+                        address: operation.FromAddress,
+                        amount: 0,
+                        locked: true
+                    );
                 }
 
                 var txHash = await SendRawTransactionOrGetTxHashAsync(signedTxData);
@@ -58,12 +68,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                     ToAddress = operation.ToAddress,
                     TxHash = txHash
                 });
-
-                await _observableBalanceLockRepository.AddOrReplaceAsync(new ObservableBalanceLockDto
-                {
-                    Address = operation.FromAddress
-                });
-
+                
                 await _broadcastedTransactionStateRepository.AddOrReplaceAsync(new BroadcastedTransactionStateDto
                 {
                     Amount = operation.Amount,

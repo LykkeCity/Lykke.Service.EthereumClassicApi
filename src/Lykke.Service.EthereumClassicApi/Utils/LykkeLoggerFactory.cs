@@ -15,8 +15,7 @@ namespace Lykke.Service.EthereumClassicApi.Utils
 {
     internal class LykkeLoggerFactory
     {
-        public static (ILog Log, ISlackNotificationsSender NotificationsSender) CreateLykkeLoggers(
-            IReloadingManager<AppSettings> settings)
+        public static (ILog Log, ISlackNotificationsSender NotificationsSender) CreateLykkeLoggers(IReloadingManager<AppSettings> settings)
         {
             var connectionString = settings.Nested(x => x.EthereumClassicApi.Db.LogsConnectionString);
             var slackSettings = settings.CurrentValue?.SlackNotifications?.AzureQueue;

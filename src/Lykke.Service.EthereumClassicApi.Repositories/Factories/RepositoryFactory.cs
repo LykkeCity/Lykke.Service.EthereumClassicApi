@@ -2,6 +2,8 @@
 using AzureStorage.Tables;
 using Common.Log;
 using Lykke.AzureStorage.Tables;
+using Lykke.AzureStorage.Tables.Entity.Metamodel;
+using Lykke.AzureStorage.Tables.Entity.Metamodel.Providers;
 using Lykke.Service.EthereumClassicApi.Common.Settings;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Factories.Interfaces;
@@ -16,7 +18,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
         private const string BroadcastedTransactionTable = "BroadcastedTransactions";
         private const string BuiltTransactionTable = "BuiltTransactions";
         private const string DynamicSettingsTable = "DynamicSettings";
-        private const string ObservableBalanceLockTable = "ObservableBalanceLocks";
         private const string ObservableBalanceTable = "ObservableBalances";
 
 
@@ -30,6 +31,9 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
         {
             _log = log;
             _connectionString = settings.ConnectionString(x => x.DataConnectionString);
+            
+
+            EntityMetamodel.Configure(new AnnotationsBasedMetamodelProvider());
         }
 
         private INoSQLTableStorage<T> CreateTable<T>(string tableName)
@@ -72,13 +76,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
             var table = CreateTable<ObservableBalanceEntity>(ObservableBalanceTable);
 
             return new ObservableBalanceRepository(table);
-        }
-
-        public IObservableBalanceLockRepository BuildObservableBalanceLockRepository()
-        {
-            var table = CreateTable<ObservableBalanceLockEntity>(ObservableBalanceLockTable);
-
-            return new ObservableBalanceLockRepository(table);
         }
     }
 }

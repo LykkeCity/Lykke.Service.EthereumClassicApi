@@ -11,7 +11,8 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
             return new ObservableBalanceDto
             {
                 Address = entity.Address,
-                Amount = BigInteger.Parse(entity.Amount)
+                Amount = BigInteger.Parse(entity.Amount),
+                Locked = entity.Locked
             };
         }
 
@@ -20,7 +21,8 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
             return new ObservableBalanceEntity
             {
                 Address = dto.Address,
-                Amount = dto.Amount.ToString()
+                Amount = dto.Amount.ToString(),
+                Locked = dto.Locked
             };
         }
     }

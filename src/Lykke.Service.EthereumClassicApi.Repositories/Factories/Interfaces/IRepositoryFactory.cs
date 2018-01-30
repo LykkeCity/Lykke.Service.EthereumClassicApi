@@ -10,9 +10,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories.Interfaces
         IBuiltTransactionRepository BuildBuiltTransactionRepository();
 
         IGasPriceRepository BuildGasPriceRepository();
-
-        IObservableBalanceLockRepository BuildObservableBalanceLockRepository();
-
+        
         IObservableBalanceRepository BuildObservableBalanceRepository();
     }
 }
