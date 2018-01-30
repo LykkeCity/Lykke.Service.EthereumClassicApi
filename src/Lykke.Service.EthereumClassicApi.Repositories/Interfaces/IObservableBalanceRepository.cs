@@ -7,18 +7,20 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 {
     public interface IObservableBalanceRepository
     {
-        Task AddAsync(ObservableBalanceDto dto);
-
-        Task DeleteAsync(string address);
+        Task<bool> DeleteIfExistsAsync(string address);
 
         Task<bool> ExistsAsync(string address);
-
-        Task<ObservableBalanceDto> TryGetAsync(string address);
 
         Task<IEnumerable<ObservableBalanceDto>> GetAllAsync();
 
         Task<(IEnumerable<ObservableBalanceDto> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(int take, string continuationToken);
+        
+        Task<bool> TryAddAsync(string address);
 
-        Task UpdateAsync(string address, BigInteger? amount = null, bool? locked = null);
+        Task<ObservableBalanceDto> TryGetAsync(string address);
+
+        Task UpdateAmountAsync(string address, BigInteger amount);
+
+        Task UpdateLockAsync(string address, bool locked);
     }
 }

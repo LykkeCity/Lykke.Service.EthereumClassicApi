@@ -29,13 +29,8 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpPost("{address}/observation")]
         public async Task<IActionResult> AddAddressToObservationList([Address] string address)
         {
-            if (!await _observableBalanceRepository.ExistsAsync(address))
+            if (await _observableBalanceRepository.TryAddAsync(address))
             {
-                await _observableBalanceRepository.AddAsync(new ObservableBalanceDto
-                {
-                    Address = address
-                });
-
                 return Ok();
             }
             else
@@ -51,10 +46,8 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpDelete("{address}/observation")]
         public async Task<IActionResult> DeleteAddressFromObservationList([Address] string address)
         {
-            if (await _observableBalanceRepository.ExistsAsync(address))
+            if (await _observableBalanceRepository.DeleteIfExistsAsync(address))
             {
-                await _observableBalanceRepository.DeleteAsync(address);
-
                 return Ok();
             }
             else

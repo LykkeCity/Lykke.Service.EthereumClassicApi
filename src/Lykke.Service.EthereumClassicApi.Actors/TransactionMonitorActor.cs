@@ -27,7 +27,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 try
                 {
                     var operationCompleted =
-                        await _transactionMonitorRole.CheckTransactionStateAsync(message.OperationId);
+                        await _transactionMonitorRole.CheckTransactionStatesAsync(message.OperationId);
 
                     if (!operationCompleted)
                     {

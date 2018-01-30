@@ -14,11 +14,9 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
 {
     public class RepositoryFactory : IRepositoryFactory
     {
-        private const string BroadcastedTransactionStateTable = "BroadcastedTransactionStates";
-        private const string BroadcastedTransactionTable = "BroadcastedTransactions";
-        private const string BuiltTransactionTable = "BuiltTransactions";
         private const string DynamicSettingsTable = "DynamicSettings";
         private const string ObservableBalanceTable = "ObservableBalances";
+        private const string TransactionTable = "Transactions";
 
 
         private readonly IReloadingManager<string> _connectionString;
@@ -41,29 +39,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
         {
             return AzureTableStorage<T>.Create(_connectionString, tableName, _log);
         }
-
-
-        public IBroadcastedTransactionStateRepository BuildBroadcastedTransactionStateRepository()
-        {
-            var table = CreateTable<BroadcastedTransactionStateEntity>(BroadcastedTransactionStateTable);
-
-            return new BroadcastedTransactionStateRepository(table);
-        }
-
-        public IBroadcastedTransactionRepository BuildBroadcastedTransactionRepository()
-        {
-            var table = CreateTable<BroadcastedTransactionEntity>(BroadcastedTransactionTable);
-
-            return new BroadcastedTransactionRepository(table);
-        }
-
-        public IBuiltTransactionRepository BuildBuiltTransactionRepository()
-        {
-            var table = CreateTable<BuiltTransactionEntity>(BuiltTransactionTable);
-
-            return new BuiltTransactionRepository(table);
-        }
-
+        
         public IGasPriceRepository BuildGasPriceRepository()
         {
             var table = CreateTable<GasPriceEntity>(DynamicSettingsTable);
@@ -76,6 +52,13 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
             var table = CreateTable<ObservableBalanceEntity>(ObservableBalanceTable);
 
             return new ObservableBalanceRepository(table);
+        }
+
+        public ITransactionRepository BuildTransactionRepository()
+        {
+            var table = CreateTable<TransactionEntity>(TransactionTable);
+
+            return new TransactionRepository(table);
         }
     }
 }

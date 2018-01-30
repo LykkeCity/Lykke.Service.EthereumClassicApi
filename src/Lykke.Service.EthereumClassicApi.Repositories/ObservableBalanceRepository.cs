@@ -35,20 +35,10 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             return address;
         }
 
-
-        public async Task AddAsync(ObservableBalanceDto dto)
+        
+        public async Task<bool> DeleteIfExistsAsync(string address)
         {
-            var entity = dto.ToEntity();
-
-            entity.PartitionKey = GetPartitionKey(dto.Address);
-            entity.RowKey = GetRowKey(dto.Address);
-
-            await _table.InsertAsync(entity);
-        }
-
-        public async Task DeleteAsync(string address)
-        {
-            await _table.DeleteIfExistAsync
+            return await _table.DeleteIfExistAsync
             (
                 GetPartitionKey(address),
                 GetRowKey(address)
@@ -61,43 +51,24 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
 
             return entity != null;
         }
-
-        public async Task<ObservableBalanceDto> TryGetAsync(string address)
-        {
-            return (await _table.GetDataAsync(GetPartitionKey(address), GetRowKey(address)))
-                .ToDto();
-        }
-
+        
         public async Task<IEnumerable<ObservableBalanceDto>> GetAllAsync()
         {
-            var dtos = new List<ObservableBalanceDto>();
-
-            string continuationToken = null;
-
-            do
-            {
-                IEnumerable<ObservableBalanceEntity> entities;
-
-                (entities, continuationToken) = await _table.GetDataWithContinuationTokenAsync(1000, continuationToken);
-
-                dtos.AddRange(entities.Select(x => x.ToDto()));
-
-            } while (continuationToken != null);
-            
-            return dtos;
+            return (await _table.GetDataAsync(x => true))
+                .Select(x => x.ToDto());
         }
 
         public async Task<(IEnumerable<ObservableBalanceDto> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(int take, string continuationToken)
         {
             IEnumerable<ObservableBalanceEntity> entities;
-            
+
             var filterCondition = TableQuery.CombineFilters
             (
                 TableQuery.GenerateFilterCondition("Amount", QueryComparisons.NotEqual, "0"),
-                "AND",
+                TableOperators.And,
                 TableQuery.GenerateFilterConditionForBool("Locked", QueryComparisons.NotEqual, true)
             );
-
+            
             var query = new TableQuery<ObservableBalanceEntity>().Where(filterCondition);
             
             (entities, continuationToken) = await _table.GetDataWithContinuationTokenAsync(query, take, continuationToken);
@@ -105,23 +76,54 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             return (entities.Select(x => x.ToDto()), continuationToken);
         }
 
-        public async Task UpdateAsync(string address, BigInteger? amount = null, bool? locked = null)
+        public async Task<bool> TryAddAsync(string address)
+        {
+            var entity = new ObservableBalanceEntity
+            {
+                PartitionKey = GetPartitionKey(address),
+                RowKey = GetRowKey(address),
+
+                Address = address,
+                Amount = "0",
+                Locked = false
+            };
+
+            return await _table.TryInsertAsync(entity);
+        }
+
+        public async Task<ObservableBalanceDto> TryGetAsync(string address)
+        {
+            return (await _table.GetDataAsync(GetPartitionKey(address), GetRowKey(address)))
+                .ToDto();
+        }
+
+        public async Task UpdateAmountAsync(string address, BigInteger amount)
         {
             ObservableBalanceEntity UpdateAction(ObservableBalanceEntity entity)
             {
-                if (amount.HasValue)
-                {
-                    entity.Amount = amount.Value.ToString();
-                }
+                entity.Amount = amount.ToString();
 
-                if (locked.HasValue)
-                {
-                    entity.Locked = locked.Value;
-                }
-                
                 return entity;
             }
-            
+
+            await _table.MergeAsync
+            (
+                GetPartitionKey(address),
+                GetRowKey(address),
+                UpdateAction
+            );
+        }
+
+        public async Task UpdateLockAsync(string address, bool locked)
+        {
+            ObservableBalanceEntity UpdateAction(ObservableBalanceEntity entity)
+            {
+                entity.Amount = "0";
+                entity.Locked = locked;
+
+                return entity;
+            }
+
             await _table.MergeAsync
             (
                 GetPartitionKey(address),

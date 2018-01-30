@@ -24,30 +24,23 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             _transactionMonitors = operationMonitorsFactory.Build(Context, "transation-monitors");
 
 
-            Context.System.EventStream
-                .Subscribe(Self, typeof(TransactionBroadcasted));
-
+            Receive<CheckTransactionState>(
+                msg => ProcessMessage(msg));
 
             ReceiveAsync<CheckTransactionStates>(
                 ProcessMessageAsync);
             
-            Receive<TransactionBroadcasted>(
-                msg => ProcessMessage(msg));
-
-
             Self.Tell
             (
                 CheckTransactionStates.Instance,
                 Nobody.Instance
             );
         }
-        
-        private void ProcessMessage(TransactionBroadcasted message)
+
+
+        private void ProcessMessage(CheckTransactionState message)
         {
-            _transactionMonitors.Tell(new CheckTransactionState
-            (
-                message.OperationId
-            ));
+            _transactionMonitors.Forward(message);
         }
 
         private async Task ProcessMessageAsync(CheckTransactionStates message)
@@ -56,7 +49,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             {
                 try
                 {
-                    var operationIds = await _transactionMonitorDispatcherRole.GetAllOperationIdsAsync();
+                    var operationIds = await _transactionMonitorDispatcherRole.GetAllInProgressOperationIdsAsync();
 
                     foreach (var operationId in operationIds)
                     {

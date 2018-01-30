@@ -135,5 +135,22 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
         {
             return await _web3.Eth.Transactions.SendRawTransaction.SendRequestAsync(signedTxData);
         }
+
+        public string UnsignTransaction(string signedTxData)
+        {
+            var signedTransaction = new Transaction(CommonUtils.HexToArray(signedTxData));
+
+            var unsignedTransaction = new Transaction
+            (
+                nonce: signedTransaction.Nonce,
+                gasPrice: signedTransaction.GasPrice,
+                gasLimit: signedTransaction.GasLimit,
+                receiveAddress: signedTransaction.ReceiveAddress,
+                value: signedTransaction.Value,
+                data: signedTransaction.Data
+            );
+
+            return unsignedTransaction.GetRLPEncoded().ToHex(true);
+        }
     }
 }

@@ -6,6 +6,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces
 {
     public interface ITransactionMonitorDispatcherRole : IActorRole
     {
-        Task<IEnumerable<Guid>> GetAllOperationIdsAsync();
+        Task<IEnumerable<Guid>> GetAllInProgressOperationIdsAsync();
     }
 }

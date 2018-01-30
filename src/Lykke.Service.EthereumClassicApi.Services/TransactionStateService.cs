@@ -32,7 +32,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
             {
                 var gasPrice = await _ethereum.GetTransactionGasPriceAsync(txHash);
                 var transactionError = await _ethereum.GetTransactionErrorAsync(txHash);
-
+                
                 return new TransactionStateDto
                 {
                     Error = transactionError,

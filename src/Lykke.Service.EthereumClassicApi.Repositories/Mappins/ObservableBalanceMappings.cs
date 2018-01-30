@@ -15,15 +15,5 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Mappins
                 Locked = entity.Locked
             };
         }
-
-        public static ObservableBalanceEntity ToEntity(this ObservableBalanceDto dto)
-        {
-            return new ObservableBalanceEntity
-            {
-                Address = dto.Address,
-                Amount = dto.Amount.ToString(),
-                Locked = dto.Locked
-            };
-        }
     }
 }

@@ -9,18 +9,19 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 {
     public class TransactionMonitorDispatcherRole : ITransactionMonitorDispatcherRole
     {
-        private readonly IBroadcastedTransactionRepository _broadcastedTransactionRepository;
+        private readonly ITransactionRepository _transactionRepository;
+
 
         public TransactionMonitorDispatcherRole(
-            IBroadcastedTransactionRepository broadcastedTransactionRepository)
+            ITransactionRepository transactionRepository)
         {
-            _broadcastedTransactionRepository = broadcastedTransactionRepository;
+            _transactionRepository = transactionRepository;
         }
 
 
-        public async Task<IEnumerable<Guid>> GetAllOperationIdsAsync()
+        public async Task<IEnumerable<Guid>> GetAllInProgressOperationIdsAsync()
         {
-            return (await _broadcastedTransactionRepository.GetAllAsync())
+            return (await _transactionRepository.GetAllInProgressAsync())
                 .Select(x => x.OperationId)
                 .Distinct();
         }

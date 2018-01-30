@@ -12,106 +12,82 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 {
     public class TransactionMonitorRole : ITransactionMonitorRole
     {
-        private readonly IBroadcastedTransactionRepository _broadcastedTransactionRepository;
-        private readonly IBroadcastedTransactionStateRepository _broadcastedTransactionStateRepository;
-        private readonly IBuiltTransactionRepository _builtTransactionRepository;
         private readonly IObservableBalanceRepository _observableBalanceRepository;
+        private readonly ITransactionRepository _transactionRepository;
         private readonly ITransactionStateService _transactionStateService;
 
 
         public TransactionMonitorRole(
-            IBroadcastedTransactionRepository broadcastedTransactionRepository,
-            IBroadcastedTransactionStateRepository broadcastedTransactionStateRepository,
-            IBuiltTransactionRepository builtTransactionRepository,
             IObservableBalanceRepository observableBalanceRepository,
+            ITransactionRepository transactionRepository,
             ITransactionStateService transactionStateService)
         {
-            _broadcastedTransactionRepository = broadcastedTransactionRepository;
-            _broadcastedTransactionStateRepository = broadcastedTransactionStateRepository;
-            _builtTransactionRepository = builtTransactionRepository;
             _observableBalanceRepository = observableBalanceRepository;
+            _transactionRepository = transactionRepository;
             _transactionStateService = transactionStateService;
         }
 
 
-        public async Task<bool> CheckTransactionStateAsync(Guid operationId)
+        public async Task<bool> CheckTransactionStatesAsync(Guid operationId)
         {
-            var transactions = (await _broadcastedTransactionRepository.GetAsync(operationId)).ToList();
-            var transactionStates = await Task.WhenAll(transactions
-                .Select(async x =>
-                {
-                    var state = await _transactionStateService.GetTransactionStateAsync(x.TxHash);
+            var operationTransactions = (await _transactionRepository.GetAllAsync(operationId)).ToList();
 
-                    return new
-                    {
-                        Transaction = x,
-                        State = state
-                    };
-                }));
-
-            var finishedTransactionStates =
-                transactionStates.Where(x => x.State.State != TransactionState.InProgress).ToList();
-
-            if (finishedTransactionStates.Count > 1)
+            bool TransactionCompleted(TransactionDto dto)
             {
-                throw new UnsupportedEdgeCaseException(
-                    $"More than one transaction finished for operation [{operationId}].");
+                return dto.State == TransactionState.Completed ||
+                       dto.State == TransactionState.Failed;
             }
-            else if (finishedTransactionStates.Count == 1)
+
+            foreach (var operationTransaction in operationTransactions.Where(x => x.State == TransactionState.InProgress))
             {
-                var completedTransactionState = finishedTransactionStates.Single(x => x.State.State != TransactionState.InProgress);
-                var completedTransaction = completedTransactionState.Transaction;
-                var state = completedTransactionState.State;
+                var currentState = await _transactionStateService.GetTransactionStateAsync(operationTransaction.SignedTxHash);
 
-                if (await _observableBalanceRepository.ExistsAsync(completedTransaction.FromAddress))
+                operationTransaction.Error = currentState.Error;
+                operationTransaction.State = currentState.State;
+
+                if (TransactionCompleted(operationTransaction))
                 {
-                    await _observableBalanceRepository.UpdateAsync
-                    (
-                        address: completedTransaction.FromAddress,
-                        amount: 0,
-                        locked: false
-                    );
+                    //TODO: Use timestamp of a block
+
+                    operationTransaction.CompletedOn = DateTime.UtcNow;
                 }
+            }
 
-                await _broadcastedTransactionStateRepository.AddOrReplaceAsync(new BroadcastedTransactionStateDto
-                {
-                    Amount = completedTransaction.Amount,
-                    Error = state.Error,
-                    Fee = state.Fee,
-                    FromAddress = completedTransaction.FromAddress,
+            var completedTransactions = operationTransactions.Where(TransactionCompleted).ToList();
+            if (completedTransactions.Count > 1)
+            {
+                throw new UnsupportedEdgeCaseException($"More than one transaction completed for operation [{operationId}].");
+            }
+
+            var completedTransaction = completedTransactions.FirstOrDefault();
+            if (completedTransaction != null)
+            {
+                await UnlockBalanceIfNecessaryAsync(completedTransaction.FromAddress);
+
+                await _transactionRepository.UpdateAsync(new CompletedTransactionDto
+                { 
+                    // ReSharper disable once PossibleInvalidOperationException
+                    // CompletedOn should always be set for completed or failed transactions
+                    CompletedOn = completedTransaction.CompletedOn.Value,
+                    Error = completedTransaction.Error,
                     OperationId = operationId,
-                    State = state.State,
-                    Timestamp = DateTime.UtcNow,
-                    ToAddress = completedTransaction.ToAddress,
-                    TxHash = completedTransaction.TxHash
+                    State = completedTransaction.State,
+                    TxData = completedTransaction.TxData
                 });
-                
-                await _builtTransactionRepository.DeleteIfExistsAsync(operationId);
-
-                await _broadcastedTransactionRepository.DeleteAsync(operationId);
 
                 return true;
             }
             else
             {
-                var latestTransaction = transactions.OrderByDescending(x => x.Timestamp).FirstOrDefault();
-
-                if (latestTransaction != null)
-                {
-                    await _broadcastedTransactionStateRepository.AddOrReplaceAsync(new BroadcastedTransactionStateDto
-                    {
-                        Amount = latestTransaction.Amount,
-                        Fee = null,
-                        FromAddress = latestTransaction.FromAddress,
-                        OperationId = operationId,
-                        State = TransactionState.InProgress,
-                        Timestamp = latestTransaction.Timestamp,
-                        ToAddress = latestTransaction.ToAddress,
-                        TxHash = latestTransaction.TxHash
-                    });
-                }
-
                 return false;
+            }
+        }
+
+        private async Task UnlockBalanceIfNecessaryAsync(string fromAddress)
+        {
+            if (await _observableBalanceRepository.ExistsAsync(fromAddress))
+            {
+                await _observableBalanceRepository.UpdateLockAsync(fromAddress, true);
             }
         }
     }

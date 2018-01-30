@@ -125,5 +125,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         ///     The 32 Bytes transaction hash as HEX string.
         /// </returns>
         Task<string> SendRawTransactionAsync(string signedTxData);
+
+        string UnsignTransaction(string signedTxData);
     }
 }
