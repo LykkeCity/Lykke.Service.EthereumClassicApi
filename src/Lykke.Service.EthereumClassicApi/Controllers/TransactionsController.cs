@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
 using System.Numerics;
 using System.Threading.Tasks;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
 using Lykke.Service.EthereumClassicApi.Actors;
 using Lykke.Service.EthereumClassicApi.Common;
-using Lykke.Service.EthereumClassicApi.Common.Exceptions;
-using Lykke.Service.EthereumClassicApi.Common.Utils;
+using Lykke.Service.EthereumClassicApi.Filters;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;
@@ -38,76 +36,52 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpPost("broadcast")]
         public async Task<IActionResult> Broadcast([FromBody] BroadcastTransactionRequest request)
         {
-            try
-            {
-                await _transactionService.BroadcastTransactionAsync
-                (
-                    request.OperationId,
-                    request.SignedTransaction
-                );
+            await _transactionService.BroadcastTransactionAsync
+            (
+                request.OperationId,
+                request.SignedTransaction
+            );
 
-                _actorSystemFacade.OnTransactionBroadcasted(request.OperationId);
+            _actorSystemFacade.OnTransactionBroadcasted(request.OperationId);
 
-                return Ok();
-            }
-            catch (ConflictException e)
-            {
-                return StatusCode((int) HttpStatusCode.Conflict, e.Message);
-            }
+            return Ok();
         }
 
 
         [HttpPost]
+        [ValidateModel]
         public async Task<IActionResult> Build([FromBody] BuildTransactionRequest request)
         {
-            var errorResponse = new ErrorResponse();
+            var txParams = await _transactionService.CalculateTransactionParamsAsync
+            (
+                BigInteger.Parse(request.Amount),
+                request.IncludeFee,
+                request.ToAddress
+            );
 
-            if (!BigInteger.TryParse(request.Amount, out var amount) || amount <= 0)
+            if (txParams.Amount <= 0)
             {
-                errorResponse.AddModelError("Amount", $"Amount [{request.Amount}] should be a positive integer.");
+                return BadRequest
+                (
+                    ErrorResponse.Create("Transaction amount should be greater then zero.")
+                );
             }
 
-            if (!await AddressValidator.ValidateAsync(request.FromAddress))
+            var txData = await _transactionService.BuildTransactionAsync
+            (
+                txParams.Amount,
+                txParams.Fee,
+                request.FromAddress.ToLowerInvariant(),
+                txParams.GasPrice,
+                request.IncludeFee,
+                request.OperationId,
+                request.ToAddress.ToLowerInvariant()
+            );
+
+            return Ok(new BuildTransactionResponse
             {
-                errorResponse.AddModelError("FromAddress", $"FromAddress [{request.FromAddress}] should be a valid address.");
-            }
-
-            if (request.AssetId != Constants.EtcAsset.AssetId)
-            {
-                errorResponse.AddModelError("AssetId", $"AssetId [{request.AssetId}] is not supported.");
-            }
-
-            if (!await AddressValidator.ValidateAsync(request.ToAddress))
-            {
-                errorResponse.AddModelError("ToAddress", $"ToAddress [{request.ToAddress}] should be a valid address.");
-            }
-
-
-            if (errorResponse.ModelErrors == null || !errorResponse.ModelErrors.Any())
-            {
-                try
-                {
-                    //var txData = await _transactionService.BuildTransactionAsync
-                    //(
-                    //    BigInteger.Parse(request.Amount),
-                    //    request.FromAddress.ToLowerInvariant(),
-                    //    request.IncludeFee,
-                    //    request.OperationId,
-                    //    request.ToAddress.ToLowerInvariant()
-                    //);
-
-                    return Ok(new BuildTransactionResponse
-                    {
-                        //TransactionContext = txData
-                    });
-                }
-                catch (BadRequestException e)
-                {
-                    errorResponse.ErrorMessage = e.Message;
-                }
-            }
-
-            return BadRequest(errorResponse);
+                TransactionContext = txData
+            });
         }
 
         [HttpDelete("broadcast/{operationId}")]
@@ -188,31 +162,20 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         }
 
         [HttpPut]
+        [ValidateModel]
         public async Task<IActionResult> Rebuild([FromBody] RebuildTransactionRequest request)
         {
-            var errorResponse = new ErrorResponse();
+            var txData = await _transactionService.RebuildTransactionAsync
+            (
+                request.FeeFactor,
+                request.OperationId
+            );
 
-            if (request.FeeFactor <= 1m)
+            return Ok(new RebuildTransactionResponse
             {
-                errorResponse.AddModelError("FeeFactor", $"FeeFactor [{request.FeeFactor}] should be greater then 1.");
-            }
-
-
-            if (errorResponse.ModelErrors == null || !errorResponse.ModelErrors.Any())
-            {
-                var txData = await _transactionService.RebuildTransactionAsync
-                (
-                    request.FeeFactor,
-                    request.OperationId
-                );
-
-                return Ok(new RebuildTransactionResponse
-                {
-                    TransactionContext = txData
-                });
-            }
-
-            return BadRequest(errorResponse);
+                TransactionContext = txData
+            });
         }
     }
 }
+

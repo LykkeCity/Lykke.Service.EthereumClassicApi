@@ -3,14 +3,18 @@ using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
+using FluentValidation.AspNetCore;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Service.EthereumClassicApi.Actors;
 using Lykke.Service.EthereumClassicApi.Blockchain;
+using Lykke.Service.EthereumClassicApi.Common.Exceptions;
 using Lykke.Service.EthereumClassicApi.Common.Settings;
+using Lykke.Service.EthereumClassicApi.Filters;
 using Lykke.Service.EthereumClassicApi.Modules;
 using Lykke.Service.EthereumClassicApi.Repositories;
 using Lykke.Service.EthereumClassicApi.Services;
 using Lykke.Service.EthereumClassicApi.Utils;
+using Lykke.Service.EthereumClassicApi.Validation;
 using Lykke.SettingsReader;
 using Lykke.SlackNotifications;
 using Microsoft.AspNetCore.Builder;
@@ -54,7 +58,7 @@ namespace Lykke.Service.EthereumClassicApi
                 }
 
                 app
-                    .UseLykkeMiddleware("EthereumClassicApi", ex => new {Message = ex.ToString()});
+                    .UseLykkeMiddleware("EthereumClassicApi", ex => new { Message = ex.ToString() });
 
                 app
                     .UseMvc()
@@ -84,7 +88,11 @@ namespace Lykke.Service.EthereumClassicApi
             try
             {
                 services
-                    .AddMvc();
+                    .AddMvc(o =>
+                    {
+                        o.Filters.Add(new ExceptionFilterAttribute(typeof(BadRequestException), System.Net.HttpStatusCode.BadRequest));
+                        o.Filters.Add(new ExceptionFilterAttribute(typeof(ConflictException), System.Net.HttpStatusCode.Conflict));
+                    }).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<BuildTransactionRequestValidator>());
 
                 services
                     .AddSwaggerGen(SetupSwaggerGen);
