@@ -9,6 +9,7 @@ using Lykke.Service.EthereumClassicApi.Actors;
 using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Common.Exceptions;
 using Lykke.Service.EthereumClassicApi.Common.Utils;
+using Lykke.Service.EthereumClassicApi.Filters;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;
@@ -38,26 +39,20 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpPost("broadcast")]
         public async Task<IActionResult> Broadcast([FromBody] BroadcastTransactionRequest request)
         {
-            try
-            {
-                await _transactionService.BroadcastTransactionAsync
-                (
-                    request.OperationId,
-                    request.SignedTransaction
-                );
+            await _transactionService.BroadcastTransactionAsync
+            (
+                request.OperationId,
+                request.SignedTransaction
+            );
 
-                _actorSystemFacade.OnTransactionBroadcasted(request.OperationId);
+            _actorSystemFacade.OnTransactionBroadcasted(request.OperationId);
 
-                return Ok();
-            }
-            catch (ConflictException e)
-            {
-                return StatusCode((int) HttpStatusCode.Conflict, e.Message);
-            }
+            return Ok();
         }
 
 
         [HttpPost]
+        //[ExceptionFilter(typeof(BadRequestException), HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Build([FromBody] BuildTransactionRequest request)
         {
             var errorResponse = new ErrorResponse();
@@ -85,26 +80,19 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
 
             if (errorResponse.ModelErrors == null || !errorResponse.ModelErrors.Any())
             {
-                try
-                {
-                    var txData = await _transactionService.BuildTransactionAsync
-                    (
-                        BigInteger.Parse(request.Amount),
-                        request.FromAddress.ToLowerInvariant(),
-                        request.IncludeFee,
-                        request.OperationId,
-                        request.ToAddress.ToLowerInvariant()
-                    );
+                var txData = await _transactionService.BuildTransactionAsync
+                (
+                    BigInteger.Parse(request.Amount),
+                    request.FromAddress.ToLowerInvariant(),
+                    request.IncludeFee,
+                    request.OperationId,
+                    request.ToAddress.ToLowerInvariant()
+                );
 
-                    return Ok(new BuildTransactionResponse
-                    {
-                        TransactionContext = txData
-                    });
-                }
-                catch (BadRequestException e)
+                return Ok(new BuildTransactionResponse
                 {
-                    errorResponse.ErrorMessage = e.Message;
-                }
+                    TransactionContext = txData
+                });
             }
 
             return BadRequest(errorResponse);
