@@ -85,19 +85,26 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
 
             if (errorResponse.ModelErrors == null || !errorResponse.ModelErrors.Any())
             {
-                var txData = await _transactionService.BuildTransactionAsync
-                (
-                    BigInteger.Parse(request.Amount),
-                    request.FromAddress,
-                    request.IncludeFee,
-                    request.OperationId,
-                    request.ToAddress
-                );
-
-                return Ok(new BuildTransactionResponse
+                try
                 {
-                    TransactionContext = txData
-                });
+                    var txData = await _transactionService.BuildTransactionAsync
+                    (
+                        BigInteger.Parse(request.Amount),
+                        request.FromAddress,
+                        request.IncludeFee,
+                        request.OperationId,
+                        request.ToAddress
+                    );
+
+                    return Ok(new BuildTransactionResponse
+                    {
+                        TransactionContext = txData
+                    });
+                }
+                catch (BadRequestException e)
+                {
+                    errorResponse.ErrorMessage = e.Message;
+                }
             }
 
             return BadRequest(errorResponse);

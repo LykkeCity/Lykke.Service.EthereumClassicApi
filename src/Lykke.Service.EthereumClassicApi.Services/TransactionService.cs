@@ -142,6 +142,11 @@ namespace Lykke.Service.EthereumClassicApi.Services
                     actualAmount -= fee;
                 }
 
+                if (actualAmount <= 0)
+                {
+                    throw new BadRequestException("Transaction amount is too low.");
+                }
+
                 var txData = _ethereum.BuildTransaction
                 (
                     toAddress,
