@@ -160,6 +160,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
                 {
                     Amount = actualAmount,
                     BuiltOn = DateTime.UtcNow,
+                    Fee = fee,
                     FromAddress = fromAddress,
                     GasPrice = gasPrice,
                     IncludeFee = includeFee,

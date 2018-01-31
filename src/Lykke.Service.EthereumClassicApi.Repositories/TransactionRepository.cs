@@ -40,6 +40,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             {
                 Amount = dto.Amount.ToString(),
                 BuiltOn = dto.BuiltOn,
+                Fee = dto.Fee.ToString(),
                 FromAddress = dto.FromAddress,
                 GasPrice = dto.GasPrice.ToString(),
                 IncludeFee = dto.IncludeFee,

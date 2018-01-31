@@ -10,6 +10,8 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.DTOs
 
         public DateTime BuiltOn { get; set; }
 
+        public BigInteger Fee { get; set; }
+
         public string FromAddress { get; set; }
 
         public BigInteger GasPrice { get; set; }

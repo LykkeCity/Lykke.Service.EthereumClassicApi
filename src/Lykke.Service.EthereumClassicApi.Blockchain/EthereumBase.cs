@@ -157,7 +157,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
                 data: signedTransaction.Data
             );
 
-            return unsignedTransaction.GetRLPEncoded().ToHex(true);
+            return unsignedTransaction.GetRLPEncoded().ToHex();
         }
     }
 }
