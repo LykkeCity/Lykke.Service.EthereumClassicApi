@@ -13,6 +13,7 @@ using Lykke.Service.EthereumClassicApi.Filters;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;
+using Lykke.Service.EthereumClassicApi.Validation;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -52,50 +53,22 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
 
 
         [HttpPost]
-        //[ExceptionFilter(typeof(BadRequestException), HttpStatusCode.BadRequest)]
+        [ValidateModel]
         public async Task<IActionResult> Build([FromBody] BuildTransactionRequest request)
         {
-            var errorResponse = new ErrorResponse();
+            var txData = await _transactionService.BuildTransactionAsync
+            (
+                BigInteger.Parse(request.Amount),
+                request.FromAddress.ToLowerInvariant(),
+                request.IncludeFee,
+                request.OperationId,
+                request.ToAddress.ToLowerInvariant()
+            );
 
-            if (!BigInteger.TryParse(request.Amount, out var amount) || amount <= 0)
+            return Ok(new BuildTransactionResponse
             {
-                errorResponse.AddModelError("Amount", $"Amount [{request.Amount}] should be a positive integer.");
-            }
-
-            if (!await AddressValidator.ValidateAsync(request.FromAddress))
-            {
-                errorResponse.AddModelError("FromAddress", $"FromAddress [{request.FromAddress}] should be a valid address.");
-            }
-
-            if (request.AssetId != Constants.EtcAsset.AssetId)
-            {
-                errorResponse.AddModelError("AssetId", $"AssetId [{request.AssetId}] is not supported.");
-            }
-
-            if (!await AddressValidator.ValidateAsync(request.ToAddress))
-            {
-                errorResponse.AddModelError("ToAddress", $"ToAddress [{request.ToAddress}] should be a valid address.");
-            }
-
-
-            if (errorResponse.ModelErrors == null || !errorResponse.ModelErrors.Any())
-            {
-                var txData = await _transactionService.BuildTransactionAsync
-                (
-                    BigInteger.Parse(request.Amount),
-                    request.FromAddress.ToLowerInvariant(),
-                    request.IncludeFee,
-                    request.OperationId,
-                    request.ToAddress.ToLowerInvariant()
-                );
-
-                return Ok(new BuildTransactionResponse
-                {
-                    TransactionContext = txData
-                });
-            }
-
-            return BadRequest(errorResponse);
+                TransactionContext = txData
+            });
         }
 
         [HttpDelete("broadcast/{operationId}")]
@@ -176,31 +149,20 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         }
 
         [HttpPut]
+        [ValidateModel]
         public async Task<IActionResult> Rebuild([FromBody] RebuildTransactionRequest request)
         {
-            var errorResponse = new ErrorResponse();
+            var txData = await _transactionService.RebuildTransactionAsync
+            (
+                request.FeeFactor,
+                request.OperationId
+            );
 
-            if (request.FeeFactor <= 1m)
+            return Ok(new RebuildTransactionResponse
             {
-                errorResponse.AddModelError("FeeFactor", $"FeeFactor [{request.FeeFactor}] should be greater then 1.");
-            }
-
-
-            if (errorResponse.ModelErrors == null || !errorResponse.ModelErrors.Any())
-            {
-                var txData = await _transactionService.RebuildTransactionAsync
-                (
-                    request.FeeFactor,
-                    request.OperationId
-                );
-
-                return Ok(new RebuildTransactionResponse
-                {
-                    TransactionContext = txData
-                });
-            }
-
-            return BadRequest(errorResponse);
+                TransactionContext = txData
+            });
         }
     }
 }
+
