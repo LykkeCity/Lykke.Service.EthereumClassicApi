@@ -1,13 +1,10 @@
-﻿using System;
-using Akka.Actor;
+﻿using Akka.Actor;
 using Akka.Configuration;
 using Autofac;
 using Common.Log;
 using Lykke.Service.EthereumClassicApi.Actors.Extensions;
 using Lykke.Service.EthereumClassicApi.Actors.Factories;
 using Lykke.Service.EthereumClassicApi.Actors.Factories.Interfaces;
-using Lykke.Service.EthereumClassicApi.Actors.Messages;
-using Lykke.Service.EthereumClassicApi.Common.Settings;
 using Lykke.Service.EthereumClassicApi.Logger;
 using Lykke.SlackNotifications;
 
@@ -17,30 +14,22 @@ namespace Lykke.Service.EthereumClassicApi.Actors
     {
         private readonly ActorSystem _actorSystem;
         private readonly IRootActorFactory _rootActorFactory;
-        private readonly IScheduler _scheduler;
-        private readonly EthereumClassicApiSettings _serviceSettings;
 
 
         internal ActorSystemFacadeFactory(
             ActorSystem actorSystem,
-            IRootActorFactory rootActorFactory,
-            EthereumClassicApiSettings serviceSettings,
-            IScheduler scheduler)
+            IRootActorFactory rootActorFactory)
         {
             _actorSystem = actorSystem;
             _rootActorFactory = rootActorFactory;
-            _serviceSettings = serviceSettings;
-            _scheduler = scheduler;
         }
 
         public static IActorSystemFacade Build(IContainer container)
         {
             var actorSystem = BuildActorSystem(container);
             var actorFactory = new RootActorFactory(actorSystem);
-            var settings = container.Resolve<EthereumClassicApiSettings>();
-            var facadeFactory = new ActorSystemFacadeFactory(actorSystem, actorFactory, settings, actorSystem.Scheduler);
-
-
+            var facadeFactory = new ActorSystemFacadeFactory(actorSystem, actorFactory);
+            
             return facadeFactory.Build();
         }
 
@@ -51,16 +40,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 rootActorFactory: _rootActorFactory,
                 shutdownCallback: async () => await CoordinatedShutdown.Get(_actorSystem).Run()
             );
-
-            _scheduler.ScheduleTellRepeatedly
-            (
-                TimeSpan.Zero, 
-                _serviceSettings.BalancesCheckInterval,
-                facade.BalanceObserverDispatcher,
-                CheckBalances.Instance,
-                Nobody.Instance
-            );
-
+            
             return facade;
         }
 

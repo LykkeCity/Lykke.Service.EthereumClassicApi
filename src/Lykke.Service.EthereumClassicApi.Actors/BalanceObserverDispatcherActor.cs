@@ -7,6 +7,7 @@ using Lykke.Service.EthereumClassicApi.Actors.Extensions;
 using Lykke.Service.EthereumClassicApi.Actors.Factories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Actors.Messages;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
+using Lykke.Service.EthereumClassicApi.Common.Settings;
 
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
@@ -15,19 +16,27 @@ namespace Lykke.Service.EthereumClassicApi.Actors
     {
         private readonly IBalanceObserverDispatcherRole _balanceObserverDispatcherRole;
         private readonly IActorRef _balanceReaders;
+        private readonly EthereumClassicApiSettings _settings;
 
         private int _numberOfRemainingBalances;
 
 
         public BalanceObserverDispatcherActor(
             IBalanceObserverDispatcherRole balanceObserverDispatcherRole,
-            IBalanceObserversFactory balanceObserversFactory)
+            IBalanceObserversFactory balanceObserversFactory,
+            EthereumClassicApiSettings settings)
         {
             _balanceObserverDispatcherRole = balanceObserverDispatcherRole;
-            _balanceReaders = balanceObserversFactory.Build(Context, "balance-readers");
-
+            _balanceReaders = balanceObserversFactory.Build(Context, "balance-observers");
+            _settings = settings;
 
             Become(Idle);
+
+            Self.Tell
+            (
+                CheckBalances.Instance,
+                Nobody.Instance
+            );
         }
 
 
@@ -37,6 +46,9 @@ namespace Lykke.Service.EthereumClassicApi.Actors
         {
             Receive<BalanceChecked>(
                 msg => ProcessMessageWhenBusy(msg));
+
+            Receive<CheckBalances>(
+                msg => { });
         }
 
         private void ProcessMessageWhenBusy(BalanceChecked message)
@@ -44,6 +56,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             if (--_numberOfRemainingBalances == 0)
             {
                 Become(Idle);
+
+                ScheduleBalancesCheck();
             }
         }
 
@@ -81,12 +95,33 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
                         Become(Busy);
                     }
+                    else
+                    {
+                        ScheduleBalancesCheck();
+                    }
                 }
                 catch (Exception e)
                 {
+                    ScheduleBalancesCheck();
+
                     logger.Error(e);
                 }
             }
+        }
+
+        #endregion
+
+        #region Common
+
+        private void ScheduleBalancesCheck()
+        {
+            Context.System.Scheduler.ScheduleTellOnce
+            (
+                delay: _settings.BalancesCheckInterval,
+                receiver: Self,
+                message: CheckBalances.Instance,
+                sender: Nobody.Instance
+            );
         }
 
         #endregion

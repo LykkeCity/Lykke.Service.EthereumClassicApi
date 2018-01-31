@@ -71,8 +71,7 @@ namespace Lykke.Service.EthereumClassicApi.Utils
             return (log, notificationSender);
         }
 
-        private static ISlackNotificationsSender CreateNotificationSender(AzureQueuePublicationSettings slackSettings,
-            ILog log)
+        private static ISlackNotificationsSender CreateNotificationSender(AzureQueuePublicationSettings slackSettings, ILog log)
         {
             var connectionString = slackSettings?.ConnectionString;
             var queueName = slackSettings?.QueueName;
