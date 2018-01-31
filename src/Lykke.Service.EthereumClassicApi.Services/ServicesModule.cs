@@ -9,13 +9,18 @@ namespace Lykke.Service.EthereumClassicApi.Services
         protected override void Load(ContainerBuilder builder)
         {
             builder
+                .RegisterType<AddressValidationService>()
+                .As<IAddressValidationService>()
+                .SingleInstance();
+
+            builder
                 .RegisterType<GasPriceOracleService>()
                 .As<IGasPriceOracleService>()
                 .SingleInstance();
 
             builder
-                .RegisterType<AddressValidationService>()
-                .As<IAddressValidationService>()
+                .RegisterType<TransactionService>()
+                .As<ITransactionService>()
                 .SingleInstance();
 
             builder
