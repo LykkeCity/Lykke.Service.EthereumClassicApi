@@ -61,6 +61,8 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
             var txHash = await SendRawTransactionOrGetTxHashAsync(signedTxData);
 
+            await WaitUntilTransactionIsInPoolAsync(txHash);
+
             await _transactionRepository.UpdateAsync(new BroadcastedTransactionDto
             {
                 BroacastedOn = DateTime.UtcNow,
@@ -73,7 +75,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
             return txHash;
         }
-
+        
         private async Task LockBalanceIfNecessaryAsync(string fromAddress)
         {
             if (await _observableBalanceRepository.ExistsAsync(fromAddress))
@@ -254,6 +256,36 @@ namespace Lykke.Service.EthereumClassicApi.Services
             }
             
             return txData;
+        }
+
+        private async Task WaitUntilTransactionIsInPoolAsync(string txHash)
+        {
+            var retryCount = 0;
+
+            do
+            {
+
+                try
+                {
+                    var receipt = await _ethereum.GetTransactionReceiptAsync(txHash);
+
+                    if (receipt != null)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(1));
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+
+            } while (retryCount++ < 5);
+
+            throw new UnsupportedEdgeCaseException("Transaction not appeared in memory pool in the specified period of time.");
         }
     }
 }
