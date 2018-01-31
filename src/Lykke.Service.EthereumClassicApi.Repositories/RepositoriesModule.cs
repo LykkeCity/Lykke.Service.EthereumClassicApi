@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using Lykke.Service.EthereumClassicApi.Repositories.Factories;
 using Lykke.Service.EthereumClassicApi.Repositories.Factories.Interfaces;
-using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories
 {
@@ -27,11 +26,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             builder
                 .Register(c => c.Resolve<IRepositoryFactory>().BuildTransactionRepository())
                 .AsSelf()
-                .SingleInstance();
-
-            builder
-                .Register(c => new HealthStatusRepository())
-                .As<IHealthStatusRepository>()
                 .SingleInstance();
         }
     }

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
 using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
-using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 
 namespace Lykke.Service.EthereumClassicApi.Actors.Roles

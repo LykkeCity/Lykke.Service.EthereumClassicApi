@@ -1,6 +1,7 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using Lykke.Common.Api.Contract.Responses;
-using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
+using Lykke.Service.EthereumClassicApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Lykke.Service.EthereumClassicApi.Controllers
@@ -8,21 +9,21 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
     [Route("api/isalive")]
     public class IsAliveController : Controller
     {
-        private readonly IHealthStatusRepository _healthStatusRepository;
+        private readonly IHealthService _healthService;
 
         public IsAliveController(
-            IHealthStatusRepository healthStatusRepository)
+            IHealthService healthService)
         {
-            _healthStatusRepository = healthStatusRepository;
+            _healthService = healthService;
         }
 
         [HttpGet]
         public IActionResult GetHealthStatus()
         {
-            var healthStatus = _healthStatusRepository.Get();
-
-            if (healthStatus.IsHealthy)
+            try
             {
+                var healthStatus = _healthService.GetHealthStatus();
+
                 return Ok(new IsAliveResponse
                 {
                     Env = healthStatus.EnvironmentInfo,
@@ -31,12 +32,14 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
                     Version = healthStatus.ApplicationVersion
                 });
             }
-
-            return StatusCode
-            (
-                (int) HttpStatusCode.InternalServerError,
-                ErrorResponse.Create($"Service is unhealthy: {healthStatus.StatusMessage}")
-            );
+            catch (Exception e)
+            {
+                return StatusCode
+                (
+                    (int)HttpStatusCode.InternalServerError,
+                    ErrorResponse.Create($"Service is unhealthy")
+                );
+            }
         }
     }
 }

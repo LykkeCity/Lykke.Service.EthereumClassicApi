@@ -19,6 +19,11 @@ namespace Lykke.Service.EthereumClassicApi.Services
                 .SingleInstance();
 
             builder
+                .RegisterType<HealthService>()
+                .As<IHealthService>()
+                .SingleInstance();
+
+            builder
                 .RegisterType<TransactionService>()
                 .As<ITransactionService>()
                 .SingleInstance();
