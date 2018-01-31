@@ -40,7 +40,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
                 {
                     Error = transactionError,
                     State = transactionState,
-                    Timestamp = DateTimeOffset.FromUnixTimeSeconds((long)blockTimestamp).UtcDateTime
+                    CompletedOn = DateTimeOffset.FromUnixTimeSeconds((long)blockTimestamp).UtcDateTime
                 };
             }
 
@@ -48,7 +48,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
             {
                 Error = string.Empty,
                 State = TransactionState.InProgress,
-                Timestamp = null
+                CompletedOn = null
             };
         }
     }

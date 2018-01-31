@@ -5,10 +5,10 @@ namespace Lykke.Service.EthereumClassicApi.Services.DTOs
 {
     public class TransactionStateDto
     {
-        public string Error { get; set; }
-        
-        public TransactionState State { get; set; }
+        public DateTime? CompletedOn { get; set; }
 
-        public DateTime? Timestamp { get; set; }
+        public string Error { get; set; }
+
+        public TransactionState State { get; set; }
     }
 }

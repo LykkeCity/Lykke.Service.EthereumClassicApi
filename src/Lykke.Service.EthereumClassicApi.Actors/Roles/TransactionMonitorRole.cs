@@ -42,15 +42,9 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             {
                 var currentState = await _transactionStateService.GetTransactionStateAsync(operationTransaction.SignedTxHash);
 
+                operationTransaction.CompletedOn = currentState.CompletedOn;
                 operationTransaction.Error = currentState.Error;
                 operationTransaction.State = currentState.State;
-
-                if (TransactionCompleted(operationTransaction))
-                {
-                    //TODO: Use timestamp of a block
-
-                    operationTransaction.CompletedOn = DateTime.UtcNow;
-                }
             }
 
             var completedTransactions = operationTransactions.Where(TransactionCompleted).ToList();
