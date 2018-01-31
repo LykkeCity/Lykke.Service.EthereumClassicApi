@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Common.Exceptions;
+using Lykke.Service.EthereumClassicApi.Common.Utils;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Services.DTOs;
@@ -38,39 +39,39 @@ namespace Lykke.Service.EthereumClassicApi.Services
         {
             var operationTransactions = (await _transactionRepository.GetAllAsync(operationId)).ToList();
 
-            if (operationTransactions.All(x => x.SignedTxData != signedTxData))
+            if (operationTransactions.Any(x => x.SignedTxData == signedTxData))
             {
-                var txData = _ethereum.UnsignTransaction(signedTxData);
-                var builtTransaction = operationTransactions.FirstOrDefault(x => x.TxData == txData);
-                if (builtTransaction == null)
-                {
-                    throw new NotFoundException
-                    (
-                        $"Specified transaction [{signedTxData}] for specified operation [{operationId}] has not been found."
-                    );
-                }
-
-                await LockBalanceIfNecessaryAsync(builtTransaction.FromAddress);
-
-                var txHash = await SendRawTransactionOrGetTxHashAsync(signedTxData);
-                
-                await _transactionRepository.UpdateAsync(new BroadcastedTransactionDto
-                {
-                    BroacastedOn = DateTime.UtcNow,
-                    OperationId = builtTransaction.OperationId,
-                    SignedTxData = signedTxData,
-                    SignedTxHash = txHash,
-                    State = TransactionState.InProgress,
-                    TxData = builtTransaction.TxData
-                });
-
-                return txHash;
+                throw new ConflictException
+                (
+                    $"Specified transaction [{signedTxData}] for specified operation [{operationId}] has laready been broadcasted."
+                );
             }
 
-            throw new ConflictException
-            (
-                $"Specified transaction [{signedTxData}] for specified operation [{operationId}] has laready been broadcasted."
-            );
+            var txData = _ethereum.UnsignTransaction(signedTxData);
+            var builtTransaction = operationTransactions.FirstOrDefault(x => x.TxData == txData);
+            if (builtTransaction == null)
+            {
+                throw new NotFoundException
+                (
+                    $"Specified transaction [{signedTxData}] for specified operation [{operationId}] has not been found."
+                );
+            }
+
+            await LockBalanceIfNecessaryAsync(builtTransaction.FromAddress);
+
+            var txHash = await SendRawTransactionOrGetTxHashAsync(signedTxData);
+
+            await _transactionRepository.UpdateAsync(new BroadcastedTransactionDto
+            {
+                BroacastedOn = DateTime.UtcNow,
+                OperationId = builtTransaction.OperationId,
+                SignedTxData = signedTxData,
+                SignedTxHash = txHash,
+                State = TransactionState.InProgress,
+                TxData = builtTransaction.TxData
+            });
+
+            return txHash;
         }
 
         private async Task LockBalanceIfNecessaryAsync(string fromAddress)
@@ -105,6 +106,35 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
         public async Task<string> BuildTransactionAsync(BigInteger amount, BigInteger fee, string fromAddress, BigInteger gasPrice, bool includeFee, Guid operationId, string toAddress)
         {
+            #region Validation
+            
+            if (amount <= 0)
+            {
+                throw new ArgumentException("Amount should be greater then zero.", nameof(amount));
+            }
+
+            if (fee <= 0)
+            {
+                throw new ArgumentException("Fee should be greater then zero.", nameof(fee));
+            }
+            
+            if (gasPrice <= 0)
+            {
+                throw new ArgumentException("Gas price should be greater then zero.", nameof(gasPrice));
+            }
+
+            if (!await AddressValidator.ValidateAsync(fromAddress))
+            {
+                throw new ArgumentException("Address is invalid.", nameof(fromAddress));
+            }
+
+            if (!await AddressValidator.ValidateAsync(toAddress))
+            {
+                throw new ArgumentException("Address is invalid.", nameof(toAddress));
+            }
+
+            #endregion
+
             var operationTransactions = (await _transactionRepository.GetAllAsync(operationId));
             var initialTransaction = operationTransactions.OrderBy(x => x.BuiltOn).FirstOrDefault();
 
@@ -144,6 +174,20 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
         public async Task<TransactionParamsDto> CalculateTransactionParamsAsync(BigInteger amount, bool includeFee, string toAddress)
         {
+            #region Validation
+
+            if (amount <= 0)
+            {
+                throw new ArgumentException("Amount should be greater then zero.", nameof(amount));
+            }
+            
+            if (!await AddressValidator.ValidateAsync(toAddress))
+            {
+                throw new ArgumentException("Address is invalid.", nameof(toAddress));
+            }
+
+            #endregion
+
             var gasPrice = await _gasPriceOracleService.CalculateGasPriceAsync(toAddress, amount);
             var fee = gasPrice * Constants.EtcTransferGasAmount;
 
@@ -162,6 +206,15 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
         public async Task<string> RebuildTransactionAsync(decimal feeFactor, Guid operationId)
         {
+            #region Validation
+
+            if (feeFactor <= 1m)
+            {
+                throw new ArgumentException("Fee factor should be greater then one.", nameof(feeFactor));
+            }
+
+            #endregion
+
             var operationTransactions = (await _transactionRepository.GetAllAsync(operationId)).ToList();
             var initialTransaction    = operationTransactions.OrderBy(x => x.BuiltOn).FirstOrDefault();
 
