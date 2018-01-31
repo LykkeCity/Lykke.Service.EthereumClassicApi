@@ -6,7 +6,7 @@ using Lykke.Service.EthereumClassicApi.Services.Utils;
 
 namespace Lykke.Service.EthereumClassicApi.Services.Extensions
 {
-    internal static class TxParamsCalculator
+    internal static class TransactionDtoExtensions
     {
         [Pure]
         public static TransactionParamsDto CalculateTransactionParams(this TransactionDto initialTransaction, decimal feeFactor)
