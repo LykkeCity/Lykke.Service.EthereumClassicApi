@@ -55,6 +55,15 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         /// </returns>
         Task<BigInteger> GetBalanceAsync(string address, BigInteger blockNumber);
 
+        /// <summary>
+        ///    Get the code at a specific address.
+        /// </summary>
+        /// <param name="address">
+        ///    The address to get the code of.
+        /// </param>
+        /// <returns>
+        ///    The data at given address as a hex string (or 0x for wallets).
+        /// </returns>
         Task<string> GetCodeAsync(string address);
 
         /// <summary>
@@ -98,12 +107,28 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         /// </returns>
         Task<BigInteger> GetPendingBalanceAsync(string address);
 
-        string GetTransactionHash(string signedTxData);
+        /// <summary>
+        ///    Get the has of the specified transaction
+        /// </summary>
+        /// <param name="txData">
+        ///    Transaction as a hex string.
+        /// </param>
+        /// <returns>
+        ///    Transaction hash.
+        /// </returns>
+        string GetTransactionHash(string txData);
 
+        /// <summary>
+        ///    Get first error in a transaction.
+        /// </summary>
+        /// <param name="txHash">
+        ///    The hash of the transaction to get error from.
+        /// </param>
+        /// <returns>
+        ///    First error description or null, if no errors occured.
+        /// </returns>
         Task<string> GetTransactionErrorAsync(string txHash);
         
-        Task<BigInteger> GetTransactionGasPriceAsync(string txHash);
-
         /// <summary>
         ///     Get the receipt of a specified transaction.
         /// </summary>
@@ -126,6 +151,15 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         /// </returns>
         Task<string> SendRawTransactionAsync(string signedTxData);
 
+        /// <summary>
+        ///    Get an unsigned transaction from the signed one.
+        /// </summary>
+        /// <param name="signedTxData">
+        ///    Signed transaction data as a hex string.
+        /// </param>
+        /// <returns>
+        ///    Unsigned transaction data as a hex string.
+        /// </returns>
         string UnsignTransaction(string signedTxData);
     }
 }

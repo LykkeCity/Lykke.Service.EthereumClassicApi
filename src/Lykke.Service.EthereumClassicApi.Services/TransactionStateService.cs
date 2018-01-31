@@ -30,24 +30,23 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
             if (receipt?.BlockHash != null && receipt.BlockNumber <= latestConfirmedBlockNumber)
             {
-                var gasPrice = await _ethereum.GetTransactionGasPriceAsync(txHash);
                 var transactionError = await _ethereum.GetTransactionErrorAsync(txHash);
-                
+                var transactionState = string.IsNullOrEmpty(transactionError) ? TransactionState.Completed : TransactionState.Failed;
+
+
                 return new TransactionStateDto
                 {
                     Error = transactionError,
-                    Fee = receipt.GasUsed * gasPrice,
-                    State = string.IsNullOrEmpty(transactionError)
-                        ? TransactionState.Completed
-                        : TransactionState.Failed
+                    State = transactionState,
+                    Timestamp = null
                 };
             }
 
             return new TransactionStateDto
             {
                 Error = string.Empty,
-                Fee = null,
-                State = TransactionState.InProgress
+                State = TransactionState.InProgress,
+                Timestamp = null
             };
         }
     }

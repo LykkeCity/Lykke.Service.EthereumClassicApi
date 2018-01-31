@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Threading.Tasks;
-using Common;
 using Lykke.Service.EthereumClassicApi.Blockchain.Entities;
 using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Nethereum.Hex.HexConvertors.Extensions;
@@ -31,6 +30,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
                 .Value;
         }
 
+        /// <inheritdoc />
         public string BuildTransaction(string to, BigInteger amount, BigInteger nonce, BigInteger gasPrice,
             BigInteger gasAmount)
         {
@@ -46,6 +46,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             return transaction.GetRLPEncoded().ToHex();
         }
 
+        /// <inheritdoc />
         public async Task<BigInteger> EstimateGasPriceAsync(string to, BigInteger amount)
         {
             var input = new TransactionInput
@@ -58,6 +59,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
                 .Value;
         }
 
+        /// <inheritdoc />
         public async Task<BigInteger> GetBalanceAsync(string address, BigInteger blockNumber)
         {
             var block = new BlockParameter((ulong) blockNumber);
@@ -65,11 +67,13 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             return await GetBalanceAsync(address, block);
         }
 
+        /// <inheritdoc />
         public async Task<string> GetCodeAsync(string address)
         {
             return await _web3.Eth.GetCode.SendRequestAsync(address);
         }
 
+        /// <inheritdoc />
         public async Task<BigInteger> GetLatestBalanceAsync(string address)
         {
             var block = BlockParameter.CreateLatest();
@@ -77,19 +81,17 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             return await GetBalanceAsync(address, block);
         }
 
+        /// <inheritdoc />
         public async Task<BigInteger> GetLatestBlockNumberAsync()
         {
             return await _web3.Eth.Blocks.GetBlockNumber.SendRequestAsync();
         }
 
+        /// <inheritdoc />
         public abstract Task<BigInteger> GetNextNonceAsync(string address);
+        
 
-        public async Task<BigInteger> GetTransactionGasPriceAsync(string txHash)
-        {
-            return (await _web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(txHash))
-                .GasPrice.Value;
-        }
-
+        /// <inheritdoc />
         public async Task<BigInteger> GetPendingBalanceAsync(string address)
         {
             var block = BlockParameter.CreatePending();
@@ -97,12 +99,14 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             return await GetBalanceAsync(address, block);
         }
 
-        public string GetTransactionHash(string signedTxData)
+        /// <inheritdoc />
+        public string GetTransactionHash(string txData)
         {
-            return (new Transaction(CommonUtils.HexToArray(signedTxData)))
+            return (new Transaction(CommonUtils.HexToArray(txData)))
                 .Hash.ToHex(true);
         }
 
+        /// <inheritdoc />
         public async Task<TransactionReceiptEntity> GetTransactionReceiptAsync(string txHash)
         {
             // _web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(txHash) fails with exception
@@ -129,13 +133,16 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             return null;
         }
 
+        /// <inheritdoc />
         public abstract Task<string> GetTransactionErrorAsync(string txHash);
 
+        /// <inheritdoc />
         public async Task<string> SendRawTransactionAsync(string signedTxData)
         {
             return await _web3.Eth.Transactions.SendRawTransaction.SendRequestAsync(signedTxData);
         }
 
+        /// <inheritdoc />
         public string UnsignTransaction(string signedTxData)
         {
             var signedTransaction = new Transaction(CommonUtils.HexToArray(signedTxData));
