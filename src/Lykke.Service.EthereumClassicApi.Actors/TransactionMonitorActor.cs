@@ -11,11 +11,13 @@ namespace Lykke.Service.EthereumClassicApi.Actors
     {
         private readonly ITransactionMonitorRole _transactionMonitorRole;
 
+
         public TransactionMonitorActor(
             ITransactionMonitorRole transactionMonitorRole)
         {
             _transactionMonitorRole = transactionMonitorRole;
             
+
             ReceiveAsync<CheckTransactionState>(
                 ProcessMessageAsync);
         }
@@ -26,34 +28,26 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             {
                 try
                 {
-                    var operationCompleted =
-                        await _transactionMonitorRole.CheckTransactionStatesAsync(message.OperationId);
+                    var transactionCompleted = await _transactionMonitorRole.CheckTransactionStatesAsync(message.OperationId);
 
-                    if (!operationCompleted)
+                    if (transactionCompleted)
                     {
-                        ScheduleRetry(message);
+                        logger.Info($"Operation [{message.OperationId}] completed.");
                     }
-
-                    logger.Suppress();
+                    else
+                    {
+                        logger.Suppress();
+                    }
                 }
                 catch (Exception e)
                 {
-                    ScheduleRetry(message);
-
                     logger.Error(e);
                 }
+                finally
+                {
+                    Sender.Tell(TransactionStateChecked.Instance);
+                }
             }
-        }
-
-        private void ScheduleRetry(CheckTransactionState message)
-        {
-            Context.System.Scheduler.ScheduleTellOnce
-            (
-                TimeSpan.FromSeconds(30),
-                Self,
-                message,
-                Sender
-            );
         }
     }
 }

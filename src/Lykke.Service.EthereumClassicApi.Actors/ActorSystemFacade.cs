@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Akka.Actor;
 using Lykke.Service.EthereumClassicApi.Actors.Factories.Interfaces;
-using Lykke.Service.EthereumClassicApi.Actors.Messages;
 
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
@@ -28,15 +27,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
         public IActorRef BalanceObserverDispatcher { get; }
         
         public IActorRef TransactionMonitorDispatcher { get; }
-
-
-        public void OnTransactionBroadcasted(Guid operationId)
-        {
-            TransactionMonitorDispatcher.Tell(new CheckTransactionState
-            (
-                operationId: operationId
-            ));
-        }
+        
 
         public async Task ShutdownAsync()
         {

@@ -16,14 +16,12 @@ namespace Lykke.Service.EthereumClassicApi.Common.Settings
 
         public string EthereumRpcNodeUrl { get; set; }
 
-        public int NrOfBalanceReaders { get; set; }
+        public int NrOfBalanceObservers { get; set; }
 
-        public int NrOfOperationMonitors { get; set; }
+        public int NrOfTransactionMonitors { get; set; }
         
-        public TimeSpan TransactionApdexPeriod { get; set; }
-
-        public int TransactionApdexToleratingCount { get; set; }
-
         public int TransactionConfirmationLevel { get; set; }
+
+        public TimeSpan TransactionStatesCheckInterval { get; set; }
     }
 }

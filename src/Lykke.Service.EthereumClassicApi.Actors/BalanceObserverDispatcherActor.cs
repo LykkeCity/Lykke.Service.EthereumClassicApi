@@ -15,7 +15,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
     public class BalanceObserverDispatcherActor : ReceiveActor
     {
         private readonly IBalanceObserverDispatcherRole _balanceObserverDispatcherRole;
-        private readonly IActorRef _balanceReaders;
+        private readonly IActorRef _balanceObservers;
         private readonly EthereumClassicApiSettings _settings;
 
         private int _numberOfRemainingBalances;
@@ -27,7 +27,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             EthereumClassicApiSettings settings)
         {
             _balanceObserverDispatcherRole = balanceObserverDispatcherRole;
-            _balanceReaders = balanceObserversFactory.Build(Context, "balance-observers");
+            _balanceObservers = balanceObserversFactory.Build(Context, "balance-observers");
             _settings = settings;
 
             Become(Idle);
@@ -82,7 +82,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
                     foreach (var address in observableAddresses)
                     {
-                        _balanceReaders.Tell(new CheckBalance
+                        _balanceObservers.Tell(new CheckBalance
                         (
                             address,
                             latestConfirmedBlockNumber

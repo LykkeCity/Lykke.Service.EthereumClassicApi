@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Akka.Actor;
 
 namespace Lykke.Service.EthereumClassicApi.Actors
@@ -10,9 +9,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
         
         IActorRef TransactionMonitorDispatcher { get; }
 
-
-        void OnTransactionBroadcasted(Guid operationId);
-
+        
         Task ShutdownAsync();
     }
 }

@@ -1,34 +1,36 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading.Tasks;
 using Akka.Actor;
 using Lykke.Service.EthereumClassicApi.Actors.Extensions;
 using Lykke.Service.EthereumClassicApi.Actors.Factories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Actors.Messages;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
+using Lykke.Service.EthereumClassicApi.Common.Settings;
 
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
     [SuppressMessage("ReSharper", "SuggestBaseTypeForParameter")]
     public class TransactionMonitorDispatcherActor : ReceiveActor
     {
+        private readonly EthereumClassicApiSettings _settings;
         private readonly ITransactionMonitorDispatcherRole _transactionMonitorDispatcherRole;
         private readonly IActorRef _transactionMonitors;
 
+        private int _numberOfRemainingTransactions;
+
 
         public TransactionMonitorDispatcherActor(
-            ITransactionMonitorDispatcherRole transactionMonitorDispatcherRole,
-            IOperationMonitorsFactory operationMonitorsFactory)
+            IOperationMonitorsFactory operationMonitorsFactory,
+            EthereumClassicApiSettings settings,
+            ITransactionMonitorDispatcherRole transactionMonitorDispatcherRole)
         {
             _transactionMonitorDispatcherRole = transactionMonitorDispatcherRole;
             _transactionMonitors = operationMonitorsFactory.Build(Context, "transation-monitors");
+            _settings = settings;
 
-
-            Receive<CheckTransactionState>(
-                msg => ProcessMessage(msg));
-
-            ReceiveAsync<CheckTransactionStates>(
-                ProcessMessageAsync);
+            Become(Idle);
             
             Self.Tell
             (
@@ -37,19 +39,44 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             );
         }
 
+        #region Busy state
 
-        private void ProcessMessage(CheckTransactionState message)
+        private void Busy()
         {
-            _transactionMonitors.Forward(message);
+            Receive<TransactionStateChecked>(
+                msg => ProcessMessageWhenBusy(msg));
+
+            Receive<CheckTransactionStates>(
+                msg => { });
         }
 
-        private async Task ProcessMessageAsync(CheckTransactionStates message)
+        private void ProcessMessageWhenBusy(TransactionStateChecked message)
+        {
+            if (--_numberOfRemainingTransactions == 0)
+            {
+                Become(Idle);
+
+                ScheduleTransactionStatesCheck();
+            }
+        }
+
+        #endregion
+
+        #region Idle state
+
+        private void Idle()
+        {
+            ReceiveAsync<CheckTransactionStates>(
+                ProcessMessageWhenIdleAsync);
+        }
+
+        private async Task ProcessMessageWhenIdleAsync(CheckTransactionStates message)
         {
             using (var logger = Context.GetLogger(message))
             {
                 try
                 {
-                    var operationIds = await _transactionMonitorDispatcherRole.GetAllInProgressOperationIdsAsync();
+                    var operationIds = (await _transactionMonitorDispatcherRole.GetAllInProgressOperationIdsAsync()).ToList();
 
                     foreach (var operationId in operationIds)
                     {
@@ -58,20 +85,42 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                             operationId
                         ));
                     }
+
+                    if (operationIds.Count > 0)
+                    {
+                        _numberOfRemainingTransactions = operationIds.Count;
+
+                        Become(Busy);
+                    }
+                    else
+                    {
+                        ScheduleTransactionStatesCheck();
+                    }
                 }
                 catch (Exception e)
                 {
-                    Context.System.Scheduler.ScheduleTellOnce
-                    (
-                        TimeSpan.FromMinutes(1),
-                        Self,
-                        message,
-                        Nobody.Instance
-                    );
+                    ScheduleTransactionStatesCheck();
 
                     logger.Error(e);
                 }
             }
         }
+
+        #endregion
+
+        #region Common
+
+        private void ScheduleTransactionStatesCheck()
+        {
+            Context.System.Scheduler.ScheduleTellOnce
+            (
+                delay: _settings.TransactionStatesCheckInterval,
+                receiver: Self,
+                message: CheckTransactionStates.Instance,
+                sender: Nobody.Instance
+            );
+        }
+
+        #endregion
     }
 }

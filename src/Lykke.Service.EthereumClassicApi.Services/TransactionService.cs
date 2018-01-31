@@ -51,7 +51,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
             var builtTransaction = operationTransactions.FirstOrDefault(x => x.TxData == txData);
             if (builtTransaction == null)
             {
-                throw new NotFoundException
+                throw new BadRequestException
                 (
                     $"Specified transaction [{signedTxData}] for specified operation [{operationId}] has not been found."
                 );

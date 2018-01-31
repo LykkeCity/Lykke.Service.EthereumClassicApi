@@ -18,17 +18,14 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
     [Route("api/transactions")]
     public class TransactionsController : Controller
     {
-        private readonly IActorSystemFacade _actorSystemFacade;
         private readonly ITransactionService _transactionService;
         private readonly ITransactionRepository _transactionRepository;
 
 
         public TransactionsController(
-            IActorSystemFacade actorSystemFacade,
             ITransactionService transactionService,
             ITransactionRepository transactionRepository)
         {
-            _actorSystemFacade = actorSystemFacade;
             _transactionService = transactionService;
             _transactionRepository = transactionRepository;
         }
@@ -41,9 +38,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
                 request.OperationId,
                 request.SignedTransaction
             );
-
-            _actorSystemFacade.OnTransactionBroadcasted(request.OperationId);
-
+            
             return Ok();
         }
 

@@ -19,7 +19,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Factories
 
         public override IActorRef Build(IUntypedActorContext context, string name)
         {
-            var router = new SmallestMailboxPool(_serviceSettings.NrOfOperationMonitors);
+            var router = new SmallestMailboxPool(_serviceSettings.NrOfTransactionMonitors);
 
             return context.ActorOf
             (
