@@ -90,10 +90,10 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
                     var txData = await _transactionService.BuildTransactionAsync
                     (
                         BigInteger.Parse(request.Amount),
-                        request.FromAddress,
+                        request.FromAddress.ToLowerInvariant(),
                         request.IncludeFee,
                         request.OperationId,
-                        request.ToAddress
+                        request.ToAddress.ToLowerInvariant()
                     );
 
                     return Ok(new BuildTransactionResponse

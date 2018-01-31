@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Balances;
 using Lykke.Service.EthereumClassicApi.Common;
-using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Utils;
 using Microsoft.AspNetCore.Mvc;
@@ -64,7 +63,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             var responseItems = balances
                 .Select(x => new WalletBalanceContract
                 {
-                    Address = x.Address,
+                    Address = x.Address.ToLowerInvariant(),
                     AssetId = Constants.EtcAsset.AssetId,
                     Balance = x.Amount.ToString()
                 })
