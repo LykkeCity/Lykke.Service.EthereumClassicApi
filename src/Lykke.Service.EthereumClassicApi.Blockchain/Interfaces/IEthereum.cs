@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using Lykke.Service.EthereumClassicApi.Blockchain.Entities;
 
@@ -106,6 +107,8 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         ///     A BigInteger instance of the current balance for the given address in wei.
         /// </returns>
         Task<BigInteger> GetPendingBalanceAsync(string address);
+
+        Task<BigInteger> GetTimestampAsync(BigInteger blockNumber);
 
         /// <summary>
         ///    Get the has of the specified transaction

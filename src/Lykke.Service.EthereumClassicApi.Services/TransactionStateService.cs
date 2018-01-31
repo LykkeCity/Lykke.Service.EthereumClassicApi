@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Common.Settings;
@@ -32,13 +33,14 @@ namespace Lykke.Service.EthereumClassicApi.Services
             {
                 var transactionError = await _ethereum.GetTransactionErrorAsync(txHash);
                 var transactionState = string.IsNullOrEmpty(transactionError) ? TransactionState.Completed : TransactionState.Failed;
-
+                var blockTimestamp = await _ethereum.GetTimestampAsync(receipt.BlockNumber);
+                
 
                 return new TransactionStateDto
                 {
                     Error = transactionError,
                     State = transactionState,
-                    Timestamp = null
+                    Timestamp = DateTimeOffset.FromUnixTimeSeconds((long)blockTimestamp).UtcDateTime
                 };
             }
 

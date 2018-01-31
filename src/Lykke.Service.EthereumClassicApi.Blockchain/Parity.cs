@@ -21,7 +21,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
 
         public override async Task<BigInteger> GetNextNonceAsync(string address)
         {
-            var request = new RpcRequest($"{NewGuid.Get():N}", "parity_nextNonce", address);
+            var request = new RpcRequest($"{NewGuid.Get()}", "parity_nextNonce", address);
             var response = await _web3Parity.Client.SendRequestAsync<string>(request);
             var result = new HexBigInteger(response);
 
@@ -30,7 +30,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
 
         public override async Task<string> GetTransactionErrorAsync(string txHash)
         {
-            var request = new RpcRequest($"{NewGuid.Get():N}", "trace_transaction", txHash);
+            var request = new RpcRequest($"{NewGuid.Get()}", "trace_transaction", txHash);
             var response = await _web3Parity.Client.SendRequestAsync<JArray>(request);
 
             return response.Select(x => x["error"]?.ToString()).FirstOrDefault();

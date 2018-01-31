@@ -99,6 +99,13 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             return await GetBalanceAsync(address, block);
         }
 
+        public async Task<BigInteger> GetTimestampAsync(BigInteger blockNumber)
+        {
+            var block = await _web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(new HexBigInteger(blockNumber));
+
+            return block.Timestamp.Value;
+        }
+
         /// <inheritdoc />
         public string GetTransactionHash(string txData)
         {
