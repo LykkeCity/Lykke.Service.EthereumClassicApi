@@ -7,7 +7,10 @@ using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Common.Exceptions;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
+using Lykke.Service.EthereumClassicApi.Services.DTOs;
+using Lykke.Service.EthereumClassicApi.Services.Extensions;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;
+
 
 namespace Lykke.Service.EthereumClassicApi.Services
 {
@@ -17,7 +20,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
         private readonly IGasPriceOracleService _gasPriceOracleService;
         private readonly IObservableBalanceRepository _observableBalanceRepository;
         private readonly ITransactionRepository _transactionRepository;
-
+        
         public TransactionService(
             IEthereum ethereum,
             IGasPriceOracleService gasPriceOracleService,
@@ -31,32 +34,9 @@ namespace Lykke.Service.EthereumClassicApi.Services
         }
 
 
-        private static BigInteger ApplyFeeFactor(BigInteger gasPrice, decimal feeFactor)
-        {
-            if (feeFactor == 0)
-            {
-                return 0;
-            }
-
-            var feeFactorBits = decimal.GetBits(feeFactor);
-            var feeFactorMultiplier =
-                new BigInteger(new decimal(feeFactorBits[0], feeFactorBits[1], feeFactorBits[2], false, 0));
-            var decimalPlacesNumber = (int) BitConverter.GetBytes(feeFactorBits[3])[2];
-            var feeFactorDivider = new BigInteger(Math.Pow(10, decimalPlacesNumber));
-            var newGasPrice = gasPrice * feeFactorMultiplier / feeFactorDivider;
-
-            if (newGasPrice > gasPrice)
-            {
-                return newGasPrice;
-            }
-
-            return gasPrice + 1;
-        }
-
         public async Task<string> BroadcastTransactionAsync(Guid operationId, string signedTxData)
         {
-            var operationTransactions = (await _transactionRepository.GetAllAsync(operationId))
-                .ToList();
+            var operationTransactions = (await _transactionRepository.GetAllAsync(operationId)).ToList();
 
             if (operationTransactions.All(x => x.SignedTxData != signedTxData))
             {
@@ -73,11 +53,10 @@ namespace Lykke.Service.EthereumClassicApi.Services
                 await LockBalanceIfNecessaryAsync(builtTransaction.FromAddress);
 
                 var txHash = await SendRawTransactionOrGetTxHashAsync(signedTxData);
-                var now = DateTime.UtcNow;
-
+                
                 await _transactionRepository.UpdateAsync(new BroadcastedTransactionDto
                 {
-                    BroacastedOn = now,
+                    BroacastedOn = DateTime.UtcNow,
                     OperationId = builtTransaction.OperationId,
                     SignedTxData = signedTxData,
                     SignedTxHash = txHash,
@@ -124,115 +103,104 @@ namespace Lykke.Service.EthereumClassicApi.Services
             return txHash;
         }
 
-        public async Task<string> BuildTransactionAsync(BigInteger amount, string fromAddress, bool includeFee, Guid operationId, string toAddress)
+        public async Task<string> BuildTransactionAsync(BigInteger amount, BigInteger fee, string fromAddress, BigInteger gasPrice, bool includeFee, Guid operationId, string toAddress)
         {
-            var initialTransaction = (await _transactionRepository.GetAllAsync(operationId))
-                .OrderBy(x => x.BuiltOn)
-                .FirstOrDefault();
+            var operationTransactions = (await _transactionRepository.GetAllAsync(operationId));
+            var initialTransaction = operationTransactions.OrderBy(x => x.BuiltOn).FirstOrDefault();
 
-            if (initialTransaction == null)
+            if (initialTransaction != null)
             {
-                var nonce = await _ethereum.GetNextNonceAsync(fromAddress);
-                var gasPrice = await _gasPriceOracleService.CalculateGasPriceAsync(toAddress, amount);
-                var fee = gasPrice * Constants.EtcTransferGasAmount;
-                var actualAmount = amount;
-
-                if (includeFee)
-                {
-                    actualAmount -= fee;
-                }
-
-                if (actualAmount <= 0)
-                {
-                    throw new BadRequestException("Transaction amount is too low.");
-                }
-
-                var txData = _ethereum.BuildTransaction
-                (
-                    toAddress,
-                    actualAmount,
-                    nonce,
-                    gasPrice,
-                    Constants.EtcTransferGasAmount
-                );
-
-                await _transactionRepository.AddAsync(new BuiltTransactionDto
-                {
-                    Amount = actualAmount,
-                    BuiltOn = DateTime.UtcNow,
-                    Fee = fee,
-                    FromAddress = fromAddress,
-                    GasPrice = gasPrice,
-                    IncludeFee = includeFee,
-                    Nonce = nonce,
-                    OperationId = operationId,
-                    State = TransactionState.Built,
-                    ToAddress = toAddress,
-                    TxData = txData
-                });
-
-                return txData;
+                return initialTransaction.TxData;
             }
 
-            return _ethereum.BuildTransaction
+            var nonce = await _ethereum.GetNextNonceAsync(fromAddress);
+            
+            var txData = _ethereum.BuildTransaction
             (
-                initialTransaction.ToAddress,
-                initialTransaction.Amount,
-                initialTransaction.Nonce,
-                initialTransaction.GasPrice,
+                toAddress,
+                amount,
+                nonce,
+                gasPrice,
                 Constants.EtcTransferGasAmount
             );
+
+            await _transactionRepository.AddAsync(new BuiltTransactionDto
+            {
+                Amount = amount,
+                BuiltOn = DateTime.UtcNow,
+                Fee = fee,
+                FromAddress = fromAddress,
+                GasPrice = gasPrice,
+                IncludeFee = includeFee,
+                Nonce = nonce,
+                OperationId = operationId,
+                State = TransactionState.Built,
+                ToAddress = toAddress,
+                TxData = txData
+            });
+
+            return txData;
+        }
+
+        public async Task<TransactionParamsDto> CalculateTransactionParamsAsync(BigInteger amount, bool includeFee, string toAddress)
+        {
+            var gasPrice = await _gasPriceOracleService.CalculateGasPriceAsync(toAddress, amount);
+            var fee = gasPrice * Constants.EtcTransferGasAmount;
+
+            if (includeFee)
+            {
+                amount -= fee;
+            }
+
+            return new TransactionParamsDto
+            {
+                Amount = amount,
+                Fee = fee,
+                GasPrice = gasPrice
+            };
         }
 
         public async Task<string> RebuildTransactionAsync(decimal feeFactor, Guid operationId)
         {
-            var operationTransactions = (await _transactionRepository.GetAllAsync(operationId))
-                .OrderBy(x => x.BuiltOn)
-                .ToList();
+            var operationTransactions = (await _transactionRepository.GetAllAsync(operationId)).ToList();
+            var initialTransaction    = operationTransactions.OrderBy(x => x.BuiltOn).FirstOrDefault();
 
-            var initialTransaction = operationTransactions.FirstOrDefault();
-
-            if (initialTransaction != null)
+            if (initialTransaction == null)
             {
-                var gasPrice = ApplyFeeFactor(initialTransaction.GasPrice, feeFactor);
-                var fee = gasPrice * Constants.EtcTransferGasAmount;
-                var actualAmount = initialTransaction.Amount;
-
-                if (initialTransaction.IncludeFee)
-                {
-                    actualAmount -= fee;
-                }
-
-                var txData = _ethereum.BuildTransaction
-                (
-                    initialTransaction.ToAddress,
-                    actualAmount,
-                    initialTransaction.Nonce,
-                    gasPrice,
-                    Constants.EtcTransferGasAmount
-                );
-
-                if (operationTransactions.All(x => x.TxData != txData))
-                {
-                    await _transactionRepository.AddAsync(new BuiltTransactionDto
-                    {
-                        Amount = actualAmount,
-                        BuiltOn = DateTime.UtcNow,
-                        FromAddress = initialTransaction.FromAddress,
-                        GasPrice = gasPrice,
-                        IncludeFee = initialTransaction.IncludeFee,
-                        Nonce = initialTransaction.Nonce,
-                        OperationId = operationId,
-                        State = TransactionState.Built,
-                        ToAddress = initialTransaction.ToAddress,
-                        TxData = txData
-                    });
-                }
-
-                return txData;
+                throw new BadRequestException($"Initial transaction for specified operation [{operationId}] has not been not found.");
             }
 
-            throw new NotFoundException($"Initial transaction for specified operation [{operationId}] has not been not found.");
+            var txParams = initialTransaction.CalculateTransactionParams(feeFactor);
+            
+            var txData = _ethereum.BuildTransaction
+            (
+                initialTransaction.ToAddress,
+                txParams.Amount,
+                initialTransaction.Nonce,
+                txParams.GasPrice,
+                Constants.EtcTransferGasAmount
+            );
+
+            // If same transaction has not been built earlier, persisting it
+            if (operationTransactions.All(x => x.TxData != txData))
+            {
+                await _transactionRepository.AddAsync(new BuiltTransactionDto
+                {
+                    Amount = txParams.Amount,
+                    BuiltOn = DateTime.UtcNow,
+                    Fee = txParams.Fee,
+                    FromAddress = initialTransaction.FromAddress,
+                    GasPrice = txParams.GasPrice,
+                    IncludeFee = initialTransaction.IncludeFee,
+                    Nonce = initialTransaction.Nonce,
+                    OperationId = operationId,
+                    State = TransactionState.Built,
+                    ToAddress = initialTransaction.ToAddress,
+                    TxData = txData
+                });
+            }
+            
+            return txData;
         }
     }
 }

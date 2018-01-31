@@ -13,4 +13,8 @@
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Lykke.Service.EthereumClassicApi.Services\Lykke.Service.EthereumClassicApi.Services.csproj" />
+  </ItemGroup>
+
 </Project>
