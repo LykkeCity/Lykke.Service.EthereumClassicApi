@@ -87,7 +87,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         {
             if (await _observableBalanceRepository.ExistsAsync(fromAddress))
             {
-                await _observableBalanceRepository.UpdateLockAsync(fromAddress, true);
+                await _observableBalanceRepository.UpdateLockAsync(fromAddress, false);
             }
         }
     }
