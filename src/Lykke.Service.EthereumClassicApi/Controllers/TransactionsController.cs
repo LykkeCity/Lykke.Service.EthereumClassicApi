@@ -49,7 +49,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             (
                 BigInteger.Parse(request.Amount),
                 request.IncludeFee,
-                request.ToAddress
+                request.ToAddress.ToLowerInvariant()
             );
 
             if (txParams.Amount <= 0)

@@ -1,9 +1,11 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using Lykke.Service.EthereumClassicApi.Blockchain.DTOs;
 using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Hex.HexTypes;
+using Nethereum.RLP;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
 using Newtonsoft.Json.Linq;
@@ -31,8 +33,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
         }
 
         /// <inheritdoc />
-        public string BuildTransaction(string to, BigInteger amount, BigInteger nonce, BigInteger gasPrice,
-            BigInteger gasAmount)
+        public string BuildTransaction(string to, BigInteger amount, BigInteger nonce, BigInteger gasPrice, BigInteger gasAmount)
         {
             var transaction = new Transaction
             (
@@ -165,17 +166,18 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
         {
             var signedTransaction = new Transaction(CommonUtils.HexToArray(signedTxData));
 
-            var unsignedTransaction = new Transaction
-            (
-                nonce: signedTransaction.Nonce,
-                gasPrice: signedTransaction.GasPrice,
-                gasLimit: signedTransaction.GasLimit,
-                receiveAddress: signedTransaction.ReceiveAddress,
-                value: signedTransaction.Value,
-                data: signedTransaction.Data
-            );
+            if (signedTransaction.Data != null)
+            {
+                throw new NotSupportedException("Transactions with data are not supported.");
+            }
 
-            return unsignedTransaction.GetRLPEncoded().ToHex();
+            var to = signedTransaction.ReceiveAddress.ToHex(true);
+            var amount = signedTransaction.Value.ToBigIntegerFromRLPDecoded();
+            var nonce = signedTransaction.Nonce.ToBigIntegerFromRLPDecoded();
+            var gasPrice = signedTransaction.GasPrice.ToBigIntegerFromRLPDecoded();
+            var gasLimit = signedTransaction.GasLimit.ToBigIntegerFromRLPDecoded();
+
+            return BuildTransaction(to, amount, nonce, gasPrice, gasLimit);
         }
     }
 }
