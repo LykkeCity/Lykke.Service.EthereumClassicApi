@@ -92,7 +92,11 @@ namespace Lykke.Service.EthereumClassicApi
                     {
                         o.Filters.Add(new ExceptionFilterAttribute(typeof(BadRequestException), System.Net.HttpStatusCode.BadRequest));
                         o.Filters.Add(new ExceptionFilterAttribute(typeof(ConflictException), System.Net.HttpStatusCode.Conflict));
-                    }).AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<BuildTransactionRequestValidator>());
+                    })
+                    .AddFluentValidation(fv =>
+                    {
+                        fv.RegisterValidatorsFromAssemblyContaining<Startup>();
+                    });
 
                 services
                     .AddSwaggerGen(SetupSwaggerGen);

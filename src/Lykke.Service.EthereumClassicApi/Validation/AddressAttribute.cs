@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Lykke.Service.EthereumClassicApi.Common.Utils;
 
-namespace Lykke.Service.EthereumClassicApi.Utils
+namespace Lykke.Service.EthereumClassicApi.Validation
 {
     public class AddressAttribute : ValidationAttribute
     {

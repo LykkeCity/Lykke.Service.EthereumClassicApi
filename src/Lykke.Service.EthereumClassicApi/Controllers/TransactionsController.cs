@@ -1,10 +1,10 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Threading.Tasks;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
 using Lykke.Service.EthereumClassicApi.Extensions;
 using Lykke.Service.EthereumClassicApi.Filters;
+using Lykke.Service.EthereumClassicApi.Models;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +28,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         }
 
         [HttpPost("broadcast")]
+        [ValidateModel]
         public async Task<IActionResult> Broadcast([FromBody] BroadcastTransactionRequest request)
         {
             await _transactionService.BroadcastTransactionAsync
@@ -76,10 +77,11 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             });
         }
 
-        [HttpDelete("broadcast/{operationId}")]
-        public async Task<IActionResult> DeleteState(Guid operationId)
+        [HttpDelete("broadcast/{operationId:guid}")]
+        [ValidateModel]
+        public async Task<IActionResult> DeleteState(DeleteTransactionRequest request)
         {
-            if (await _transactionRepository.DeleteIfExistsAsync(operationId))
+            if (await _transactionRepository.DeleteIfExistsAsync(request.OperationId))
             {
                 return Ok();
             }
@@ -89,10 +91,11 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             }
         }
 
-        [HttpGet("broadcast/{operationId}")]
-        public async Task<IActionResult> GetState(Guid operationId)
+        [HttpGet("broadcast/{operationId:guid}")]
+        [ValidateModel]
+        public async Task<IActionResult> GetState(GetTransactionStateRequest request)
         {
-            var transactionState = await _transactionRepository.TryGetTransactionStateAsync(operationId);
+            var transactionState = await _transactionRepository.TryGetTransactionStateAsync(request.OperationId);
 
             if (transactionState != null)
             {

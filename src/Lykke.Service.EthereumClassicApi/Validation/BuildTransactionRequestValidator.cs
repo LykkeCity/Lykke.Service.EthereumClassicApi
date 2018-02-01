@@ -3,10 +3,7 @@ using Lykke.Service.BlockchainApi.Contract.Transactions;
 using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Common.Utils;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Numerics;
-using System.Text;
 
 namespace Lykke.Service.EthereumClassicApi.Validation
 {
@@ -21,6 +18,10 @@ namespace Lykke.Service.EthereumClassicApi.Validation
             RuleFor(x => x.FromAddress)
                 .Must((fromAddress) => AddressValidator.ValidateAsync(fromAddress).Result)
                 .WithMessage(x => $"FromAddress [{x.FromAddress}] should be a valid address.");
+
+            RuleFor(x => x.OperationId)
+                .Must((operationId) => operationId != Guid.Empty)
+                .WithMessage(x => $"OperationId should not be empty.");
 
             RuleFor(x => x.ToAddress)
                 .Must((toAddress) => AddressValidator.ValidateAsync(toAddress).Result)

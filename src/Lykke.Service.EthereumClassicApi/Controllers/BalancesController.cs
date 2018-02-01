@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Balances;
 using Lykke.Service.EthereumClassicApi.Common;
+using Lykke.Service.EthereumClassicApi.Filters;
+using Lykke.Service.EthereumClassicApi.Models;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
-using Lykke.Service.EthereumClassicApi.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -26,9 +27,10 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
 
 
         [HttpPost("{address}/observation")]
-        public async Task<IActionResult> AddAddressToObservationList([Address] string address)
+        [ValidateModel]
+        public async Task<IActionResult> AddAddressToObservationList(AddAddressToObservationListRequest request)
         {
-            if (await _observableBalanceRepository.TryAddAsync(address))
+            if (await _observableBalanceRepository.TryAddAsync(request.Address))
             {
                 return Ok();
             }
@@ -37,15 +39,16 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
                 return StatusCode
                 (
                     (int)HttpStatusCode.Conflict,
-                    $"Specified address [{address}] is already observed."
+                    $"Specified address [{request.Address}] is already observed."
                 );
             }
         }
 
         [HttpDelete("{address}/observation")]
-        public async Task<IActionResult> DeleteAddressFromObservationList([Address] string address)
+        [ValidateModel]
+        public async Task<IActionResult> DeleteAddressFromObservationList(DeleteAddressFromObservationListRequest request)
         {
-            if (await _observableBalanceRepository.DeleteIfExistsAsync(address))
+            if (await _observableBalanceRepository.DeleteIfExistsAsync(request.Address))
             {
                 return Ok();
             }
