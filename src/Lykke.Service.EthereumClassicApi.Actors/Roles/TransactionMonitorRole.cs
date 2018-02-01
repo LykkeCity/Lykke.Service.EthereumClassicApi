@@ -5,6 +5,7 @@ using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
 using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Common.Exceptions;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
+using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;
 
@@ -32,10 +33,10 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         {
             var operationTransactions = (await _transactionRepository.GetAllAsync(operationId)).ToList();
 
-            bool TransactionCompleted(TransactionDto dto)
+            bool TransactionCompleted(TransactionEntity entity)
             {
-                return dto.State == TransactionState.Completed ||
-                       dto.State == TransactionState.Failed;
+                return entity.State == TransactionState.Completed ||
+                       entity.State == TransactionState.Failed;
             }
 
             foreach (var operationTransaction in operationTransactions.Where(x => x.State == TransactionState.InProgress))

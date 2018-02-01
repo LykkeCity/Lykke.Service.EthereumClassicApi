@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Lykke.Service.EthereumClassicApi.Common.Settings;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
+using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;
 
@@ -35,7 +36,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
             if (minMaxGasPrice == null)
             {
-                minMaxGasPrice = new GasPriceDto
+                minMaxGasPrice = new GasPriceEntity
                 {
                     Max = _defaultMaxGasPrice,
                     Min = _defaultMinGasPrice

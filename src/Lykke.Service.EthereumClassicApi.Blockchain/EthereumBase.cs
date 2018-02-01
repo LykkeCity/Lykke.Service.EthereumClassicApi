@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 using System.Threading.Tasks;
-using Lykke.Service.EthereumClassicApi.Blockchain.Entities;
+using Lykke.Service.EthereumClassicApi.Blockchain.DTOs;
 using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Hex.HexTypes;
@@ -114,7 +114,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
         }
 
         /// <inheritdoc />
-        public async Task<TransactionReceiptEntity> GetTransactionReceiptAsync(string txHash)
+        public async Task<TransactionReceiptDto> GetTransactionReceiptAsync(string txHash)
         {
             // _web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(txHash) fails with exception
             // using workaround
@@ -124,7 +124,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
 
             if (receipt != null)
             {
-                return new TransactionReceiptEntity
+                return new TransactionReceiptDto
                 {
                     BlockHash = receipt["blockHash"].Value<string>(),
                     BlockNumber = new HexBigInteger(receipt["blockNumber"].Value<string>()).Value,

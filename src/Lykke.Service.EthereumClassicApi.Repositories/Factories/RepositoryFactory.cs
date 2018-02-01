@@ -1,4 +1,5 @@
-﻿using AzureStorage;
+﻿using System.Numerics;
+using AzureStorage;
 using AzureStorage.Tables;
 using Common.Log;
 using Lykke.AzureStorage.Tables;
@@ -8,6 +9,7 @@ using Lykke.Service.EthereumClassicApi.Common.Settings;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Factories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
+using Lykke.Service.EthereumClassicApi.Repositories.Serializers;
 using Lykke.SettingsReader;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
@@ -30,8 +32,22 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Factories
             _log = log;
             _connectionString = settings.ConnectionString(x => x.DataConnectionString);
             
+            var provider = new CompositeMetamodelProvider()
+                .AddProvider
+                (
+                    new AnnotationsBasedMetamodelProvider()
+                )
+                .AddProvider
+                (
+                    new ConventionBasedMetamodelProvider()
+                        .AddTypeSerializerRule
+                        (
+                            t => t == typeof(BigInteger),
+                            s => new BigIntegerSerializer()
+                        )
+                );
 
-            EntityMetamodel.Configure(new AnnotationsBasedMetamodelProvider());
+            EntityMetamodel.Configure(provider);
         }
 
         private INoSQLTableStorage<T> CreateTable<T>(string tableName)

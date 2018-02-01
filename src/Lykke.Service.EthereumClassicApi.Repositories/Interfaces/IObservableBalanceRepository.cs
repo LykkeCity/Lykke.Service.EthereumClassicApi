@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
-using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
+using Lykke.Service.EthereumClassicApi.Repositories.Entities;
+
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 {
@@ -11,13 +12,13 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 
         Task<bool> ExistsAsync(string address);
 
-        Task<IEnumerable<ObservableBalanceDto>> GetAllAsync();
+        Task<IEnumerable<ObservableBalanceEntity>> GetAllAsync();
 
-        Task<(IEnumerable<ObservableBalanceDto> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(int take, string continuationToken);
+        Task<(IEnumerable<ObservableBalanceEntity> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(int take, string continuationToken);
         
         Task<bool> TryAddAsync(string address);
 
-        Task<ObservableBalanceDto> TryGetAsync(string address);
+        Task<ObservableBalanceEntity> TryGetAsync(string address);
 
         Task UpdateAmountAsync(string address, BigInteger amount);
 

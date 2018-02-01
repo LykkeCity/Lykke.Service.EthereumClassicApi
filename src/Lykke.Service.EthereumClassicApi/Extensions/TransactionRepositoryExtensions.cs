@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
 using Lykke.Service.EthereumClassicApi.Common;
-using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
+using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 
 namespace Lykke.Service.EthereumClassicApi.Extensions
@@ -15,7 +15,7 @@ namespace Lykke.Service.EthereumClassicApi.Extensions
             var transactions = (await transactionRepository.GetAllAsync(operationId))
                 .ToList();
 
-            TransactionDto transaction = null;
+            TransactionEntity transaction = null;
 
             var completedTransaction = transactions
                 .SingleOrDefault(x => x.State == TransactionState.Completed || x.State == TransactionState.Failed);

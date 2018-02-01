@@ -8,7 +8,7 @@ using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
-using Lykke.Service.EthereumClassicApi.Repositories.Mappins;
+
 
 namespace Lykke.Service.EthereumClassicApi.Repositories
 {
@@ -38,15 +38,15 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         {
             var entity = new TransactionEntity
             {
-                Amount = dto.Amount.ToString(),
+                Amount = dto.Amount,
                 BuiltOn = dto.BuiltOn,
-                Fee = dto.Fee.ToString(),
+                Fee = dto.Fee,
                 FromAddress = dto.FromAddress,
-                GasPrice = dto.GasPrice.ToString(),
+                GasPrice = dto.GasPrice,
                 IncludeFee = dto.IncludeFee,
-                Nonce = dto.Nonce.ToString(),
+                Nonce = dto.Nonce,
                 OperationId = dto.OperationId,
-                State = dto.State.ToString(),
+                State = dto.State,
                 ToAddress = dto.ToAddress,
                 TxData = dto.TxData,
 
@@ -59,7 +59,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
 
         public async Task<bool> DeleteIfExistsAsync(Guid operationId)
         {
-            var entities = (await InnerGetAllAsync(operationId)).ToList();
+            var entities = (await GetAllAsync(operationId)).ToList();
 
             if (entities.Any())
             {
@@ -73,16 +73,14 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             }
         }
 
-        public async Task<IEnumerable<TransactionDto>> GetAllAsync(Guid operationId)
+        public async Task<IEnumerable<TransactionEntity>> GetAllAsync(Guid operationId)
         {
-            return (await InnerGetAllAsync(operationId))
-                .Select(x => x.ToDto());
+            return await _table.GetDataAsync(GetPartitionKey(operationId));
         }
 
-        public async Task<IEnumerable<TransactionDto>> GetAllInProgressAsync()
+        public async Task<IEnumerable<TransactionEntity>> GetAllInProgressAsync()
         {
-            return (await _table.GetDataAsync(x => x.State == TransactionState.InProgress.ToString()))
-                .Select(x => x.ToDto());
+            return await _table.GetDataAsync(x => x.State == TransactionState.InProgress);
         }
 
         public async Task UpdateAsync(BroadcastedTransactionDto dto)
@@ -92,7 +90,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
                 entity.BroadcastedOn = dto.BroacastedOn;
                 entity.SignedTxData = dto.SignedTxData;
                 entity.SignedTxHash = dto.SignedTxHash;
-                entity.State = dto.State.ToString();
+                entity.State = dto.State;
                 
                 return entity;
             }
@@ -111,7 +109,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             {
                 entity.CompletedOn = dto.CompletedOn;
                 entity.Error = dto.Error;
-                entity.State = dto.State.ToString();
+                entity.State = dto.State;
 
                 return entity;
             }
@@ -122,11 +120,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
                 GetRowKey(dto.TxData),
                 UpdateAction
             );
-        }
-
-        private async Task<IEnumerable<TransactionEntity>> InnerGetAllAsync(Guid operationId)
-        {
-            return (await _table.GetDataAsync(GetPartitionKey(operationId)));
         }
     }
 }

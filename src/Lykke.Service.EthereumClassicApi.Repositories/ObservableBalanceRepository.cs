@@ -1,13 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using AzureStorage;
 using Common;
-using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
-using Lykke.Service.EthereumClassicApi.Repositories.Mappins;
 using Microsoft.WindowsAzure.Storage.Table;
 
 
@@ -52,16 +49,13 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             return entity != null;
         }
         
-        public async Task<IEnumerable<ObservableBalanceDto>> GetAllAsync()
+        public async Task<IEnumerable<ObservableBalanceEntity>> GetAllAsync()
         {
-            return (await _table.GetDataAsync(x => true))
-                .Select(x => x.ToDto());
+            return await _table.GetDataAsync(x => true);
         }
 
-        public async Task<(IEnumerable<ObservableBalanceDto> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(int take, string continuationToken)
+        public async Task<(IEnumerable<ObservableBalanceEntity> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(int take, string continuationToken)
         {
-            IEnumerable<ObservableBalanceEntity> entities;
-
             var filterCondition = TableQuery.CombineFilters
             (
                 TableQuery.GenerateFilterCondition("Amount", QueryComparisons.NotEqual, "0"),
@@ -71,9 +65,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             
             var query = new TableQuery<ObservableBalanceEntity>().Where(filterCondition);
             
-            (entities, continuationToken) = await _table.GetDataWithContinuationTokenAsync(query, take, continuationToken);
-            
-            return (entities.Select(x => x.ToDto()), continuationToken);
+            return await _table.GetDataWithContinuationTokenAsync(query, take, continuationToken);
         }
 
         public async Task<bool> TryAddAsync(string address)
@@ -84,24 +76,23 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
                 RowKey = GetRowKey(address),
 
                 Address = address,
-                Amount = "0",
+                Amount = 0,
                 Locked = false
             };
 
             return await _table.TryInsertAsync(entity);
         }
 
-        public async Task<ObservableBalanceDto> TryGetAsync(string address)
+        public async Task<ObservableBalanceEntity> TryGetAsync(string address)
         {
-            return (await _table.GetDataAsync(GetPartitionKey(address), GetRowKey(address)))
-                .ToDto();
+            return await _table.GetDataAsync(GetPartitionKey(address), GetRowKey(address));
         }
 
         public async Task UpdateAmountAsync(string address, BigInteger amount)
         {
             ObservableBalanceEntity UpdateAction(ObservableBalanceEntity entity)
             {
-                entity.Amount = amount.ToString();
+                entity.Amount = amount;
 
                 return entity;
             }
@@ -118,7 +109,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         {
             ObservableBalanceEntity UpdateAction(ObservableBalanceEntity entity)
             {
-                entity.Amount = "0";
+                entity.Amount = 0;
                 entity.Locked = locked;
 
                 return entity;

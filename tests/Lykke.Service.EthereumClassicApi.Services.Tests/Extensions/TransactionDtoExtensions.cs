@@ -1,10 +1,7 @@
-﻿using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
-using Lykke.Service.EthereumClassicApi.Services.Extensions;
+﻿using Lykke.Service.EthereumClassicApi.Services.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
+using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 
 namespace Lykke.Service.EthereumClassicApi.Services.Tests.Extensions
 {
@@ -18,7 +15,7 @@ namespace Lykke.Service.EthereumClassicApi.Services.Tests.Extensions
             string amount, string fee, string gasPrice, bool includeFee, string expectedFee, string expectedAmount)
         {
             var feeFactor = 1.1m;
-            TransactionDto dto = new TransactionDto()
+            var entity = new TransactionEntity
             {
                 Amount = BigInteger.Parse(amount),
                 Fee = BigInteger.Parse(fee),
@@ -26,7 +23,7 @@ namespace Lykke.Service.EthereumClassicApi.Services.Tests.Extensions
                 IncludeFee = includeFee
             };
 
-            var trParams = dto.CalculateTransactionParams(feeFactor);
+            var trParams = entity.CalculateTransactionParams(feeFactor);
 
             var expectedFeeResult = BigInteger.Parse(expectedFee);
             var actualFeeResult = trParams.Fee;

@@ -1,11 +1,12 @@
-﻿using Lykke.AzureStorage.Tables;
+﻿using System.Numerics;
+using Lykke.AzureStorage.Tables;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Entities
 {
     public class GasPriceEntity : AzureTableEntity
     {
-        public string Max { get; set; }
+        public BigInteger Max { get; set; }
 
-        public string Min { get; set; }
+        public BigInteger Min { get; set; }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System.Numerics;
 
-namespace Lykke.Service.EthereumClassicApi.Blockchain.Entities
+namespace Lykke.Service.EthereumClassicApi.Blockchain.DTOs
 {
-    public class TransactionReceiptEntity
+    public class TransactionReceiptDto
     {
         public string BlockHash { get; set; }
 

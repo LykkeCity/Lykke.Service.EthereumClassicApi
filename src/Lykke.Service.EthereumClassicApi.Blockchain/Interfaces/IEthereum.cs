@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using System.Threading.Tasks;
-using Lykke.Service.EthereumClassicApi.Blockchain.Entities;
+using Lykke.Service.EthereumClassicApi.Blockchain.DTOs;
 
 namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
 {
@@ -141,7 +141,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         /// <returns>
         ///     A transaction receipt object, or null when no receipt was found.
         /// </returns>
-        Task<TransactionReceiptEntity> GetTransactionReceiptAsync(string txHash);
+        Task<TransactionReceiptDto> GetTransactionReceiptAsync(string txHash);
 
         /// <summary>
         ///     Sends an already signed transaction.

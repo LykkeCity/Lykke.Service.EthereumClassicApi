@@ -1,20 +1,42 @@
 ﻿using System;
+using System.Numerics;
 using Lykke.AzureStorage.Tables;
 using Lykke.AzureStorage.Tables.Entity.Annotation;
 using Lykke.AzureStorage.Tables.Entity.ValueTypesMerging;
+using Lykke.Service.EthereumClassicApi.Common;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Entities
 {
     [ValueTypeMergingStrategy(ValueTypeMergingStrategy.UpdateIfDirty)]
     public class TransactionEntity : AzureTableEntity
     {
+        private BigInteger _amount;
         private DateTime? _broadcastedOn;
         private DateTime _builtOn;
         private DateTime? _completedOn;
+        private BigInteger _fee;
+        private BigInteger _gasPrice;
         private bool _includeFee;
+        private BigInteger _nonce;
         private Guid _operationId;
+        private TransactionState _state;
 
-        public string Amount { get; set; }
+        public BigInteger Amount
+        {
+            get
+            {
+                return _amount;
+            }
+            set
+            {
+                if (_amount != value)
+                {
+                    _amount = value;
+
+                    MarkValueTypePropertyAsDirty(nameof(Amount));
+                }
+            }
+        }
 
         public DateTime? BroadcastedOn
         {
@@ -69,11 +91,41 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Entities
 
         public string Error { get; set; }
 
-        public string Fee { get; set; }
+        public BigInteger Fee
+        {
+            get
+            {
+                return _fee;
+            }
+            set
+            {
+                if (_fee != value)
+                {
+                    _fee = value;
+
+                    MarkValueTypePropertyAsDirty(nameof(Fee));
+                }
+            }
+        }
 
         public string FromAddress { get; set; }
 
-        public string GasPrice { get; set; }
+        public BigInteger GasPrice
+        {
+            get
+            {
+                return _gasPrice;
+            }
+            set
+            {
+                if (_gasPrice != value)
+                {
+                    _gasPrice = value;
+
+                    MarkValueTypePropertyAsDirty(nameof(GasPrice));
+                }
+            }
+        }
 
         public bool IncludeFee
         {
@@ -92,7 +144,22 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Entities
             }
         }
 
-        public string Nonce { get; set; }
+        public BigInteger Nonce
+        {
+            get
+            {
+                return _nonce;
+            }
+            set
+            {
+                if (_nonce != value)
+                {
+                    _nonce = value;
+
+                    MarkValueTypePropertyAsDirty(nameof(Nonce));
+                }
+            }
+        }
 
         public Guid OperationId
         {
@@ -115,7 +182,22 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Entities
 
         public string SignedTxHash { get; set; }
 
-        public string State { get; set; }
+        public TransactionState State
+        {
+            get
+            {
+                return _state;
+            }
+            set
+            {
+                if (_state != value)
+                {
+                    _state = value;
+
+                    MarkValueTypePropertyAsDirty(nameof(State));
+                }
+            }
+        }
 
         public string ToAddress { get; set; }
 

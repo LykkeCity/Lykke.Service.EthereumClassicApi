@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
-using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
+using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 {
     public interface IGasPriceRepository
     {
-        Task AddOrReplaceAsync(GasPriceDto dto);
+        Task AddOrReplaceAsync(GasPriceEntity dto);
 
-        Task<GasPriceDto> TryGetAsync();
+        Task<GasPriceEntity> TryGetAsync();
     }
 }
