@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
-using Lykke.Service.EthereumClassicApi.Actors;
-using Lykke.Service.EthereumClassicApi.Common;
+using Lykke.Service.EthereumClassicApi.Extensions;
 using Lykke.Service.EthereumClassicApi.Filters;
-using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -95,60 +92,11 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         [HttpGet("broadcast/{operationId}")]
         public async Task<IActionResult> GetState(Guid operationId)
         {
-            var transactions = (await _transactionRepository.GetAllAsync(operationId))
-                .ToList();
+            var transactionState = await _transactionRepository.TryGetTransactionStateAsync(operationId);
 
-            TransactionDto transaction = null;
-
-            var completedTransaction = transactions
-                .SingleOrDefault(x => x.State == TransactionState.Completed || x.State == TransactionState.Failed);
-
-            if (completedTransaction != null)
+            if (transactionState != null)
             {
-                transaction = completedTransaction;
-            }
-            else
-            {
-                var latestInProgressTransaction = transactions
-                    .Where(x => x.State == TransactionState.InProgress)
-                    .OrderByDescending(x => x.BroadcastedOn)
-                    .FirstOrDefault();
-
-                if (latestInProgressTransaction != null)
-                {
-                    transaction = latestInProgressTransaction;
-                }
-            }
-
-            if (transaction != null)
-            {
-                BroadcastedTransactionState state;
-
-                switch (transaction.State)
-                {
-                    case TransactionState.InProgress:
-                        state = BroadcastedTransactionState.InProgress;
-                        break;
-                    case TransactionState.Completed:
-                        state = BroadcastedTransactionState.Completed;
-                        break;
-                    case TransactionState.Failed:
-                        state = BroadcastedTransactionState.Failed;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
-                return Ok(new BroadcastedTransactionResponse
-                {
-                    Amount = transaction.Amount.ToString(),
-                    Error = transaction.Error,
-                    Fee = transaction.Fee.ToString(),
-                    Hash = transaction.SignedTxHash,
-                    OperationId = transaction.OperationId,
-                    State = state,
-                    Timestamp = transaction.CompletedOn ?? transaction.BroadcastedOn ?? transaction.BuiltOn
-                });
+                return Ok(transactionState);
             }
             else
             {
