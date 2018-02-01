@@ -267,9 +267,9 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
                 try
                 {
-                    var receipt = await _ethereum.GetTransactionReceiptAsync(txHash);
+                    var isBroadcasted = await _ethereum.CheckIfBroadcastedAsync(txHash);
 
-                    if (receipt != null)
+                    if (isBroadcasted)
                     {
                         return;
                     }

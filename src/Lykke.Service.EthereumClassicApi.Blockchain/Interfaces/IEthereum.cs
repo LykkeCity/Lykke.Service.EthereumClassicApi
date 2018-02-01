@@ -164,5 +164,12 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         ///    Unsigned transaction data as a hex string.
         /// </returns>
         string UnsignTransaction(string signedTxData);
+
+        /// <summary>
+        /// Checks wether transactions was added in node mempool or not
+        /// </summary>
+        /// <param name="transactionHash">Transaction hash to check</param>
+        /// <returns>True - if added</returns>
+        Task<bool> CheckIfBroadcastedAsync(string transactionHash);
     }
 }

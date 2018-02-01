@@ -140,6 +140,17 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             return null;
         }
 
+        public async Task<bool> CheckIfBroadcastedAsync(string transactionHash)
+        {
+            var transaction = await _web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(transactionHash);
+            if (transaction == null || (transaction.BlockNumber.Value != 0))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <inheritdoc />
         public abstract Task<string> GetTransactionErrorAsync(string txHash);
 
