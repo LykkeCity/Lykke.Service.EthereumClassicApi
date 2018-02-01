@@ -75,36 +75,6 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
             return txHash;
         }
-        
-        private async Task LockBalanceIfNecessaryAsync(string fromAddress)
-        {
-            if (await _observableBalanceRepository.ExistsAsync(fromAddress))
-            {
-                await _observableBalanceRepository.UpdateLockAsync(fromAddress, true);
-            }
-        }
-
-        /// <summary>
-        ///     Sends raw transaction, or, if it has already been sent, returns it's txHash
-        /// </summary>
-        /// <param name="signedTxData">
-        ///     Signed transaction data.
-        /// </param>
-        /// <returns>
-        ///     Transaction hash.
-        /// </returns>
-        private async Task<string> SendRawTransactionOrGetTxHashAsync(string signedTxData)
-        {
-            var txHash = _ethereum.GetTransactionHash(signedTxData);
-            var receipt = await _ethereum.GetTransactionReceiptAsync(txHash);
-
-            if (receipt == null)
-            {
-                await _ethereum.SendRawTransactionAsync(signedTxData);
-            }
-
-            return txHash;
-        }
 
         public async Task<string> BuildTransactionAsync(BigInteger amount, BigInteger fee, string fromAddress, BigInteger gasPrice, bool includeFee, Guid operationId, string toAddress)
         {
@@ -286,6 +256,36 @@ namespace Lykke.Service.EthereumClassicApi.Services
             } while (retryCount++ < 5);
 
             throw new UnsupportedEdgeCaseException("Transaction not appeared in memory pool in the specified period of time.");
+        }
+
+        private async Task LockBalanceIfNecessaryAsync(string fromAddress)
+        {
+            if (await _observableBalanceRepository.ExistsAsync(fromAddress))
+            {
+                await _observableBalanceRepository.UpdateLockAsync(fromAddress, true);
+            }
+        }
+
+        /// <summary>
+        ///     Sends raw transaction, or, if it has already been sent, returns it's txHash
+        /// </summary>
+        /// <param name="signedTxData">
+        ///     Signed transaction data.
+        /// </param>
+        /// <returns>
+        ///     Transaction hash.
+        /// </returns>
+        private async Task<string> SendRawTransactionOrGetTxHashAsync(string signedTxData)
+        {
+            var txHash = _ethereum.GetTransactionHash(signedTxData);
+            var receipt = await _ethereum.GetTransactionReceiptAsync(txHash);
+
+            if (receipt == null)
+            {
+                await _ethereum.SendRawTransactionAsync(signedTxData);
+            }
+
+            return txHash;
         }
     }
 }
