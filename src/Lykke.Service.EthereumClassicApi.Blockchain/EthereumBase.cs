@@ -41,7 +41,8 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
                 amount,
                 nonce,
                 gasPrice,
-                gasAmount
+                gasAmount,
+                null
             );
 
             return transaction.GetRLPEncoded().ToHex();
@@ -178,6 +179,14 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             var gasLimit = signedTransaction.GasLimit.ToBigIntegerFromRLPDecoded();
 
             return BuildTransaction(to, amount, nonce, gasPrice, gasLimit);
+        }
+
+        public string GetTransactionSigner(string signedTxData)
+        {
+            var signedTransaction = new Transaction(CommonUtils.HexToArray(signedTxData));
+            var signerPublicAddress = signedTransaction.Key?.GetPublicAddress().ToLowerInvariant();
+
+            return signerPublicAddress;
         }
     }
 }

@@ -48,12 +48,21 @@ namespace Lykke.Service.EthereumClassicApi.Services
             }
 
             var txData = _ethereum.UnsignTransaction(signedTxData);
+            var txSigner = _ethereum.GetTransactionSigner(signedTxData);
             var builtTransaction = operationTransactions.FirstOrDefault(x => x.TxData == txData);
             if (builtTransaction == null)
             {
                 throw new BadRequestException
                 (
                     $"Specified transaction [{signedTxData}] for specified operation [{operationId}] has not been found."
+                );
+            }
+
+            if (!builtTransaction.FromAddress.Equals(txSigner, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new BadRequestException
+                (
+                    $"Signer for [{operationId}] should be [{builtTransaction.FromAddress}] actual [{txSigner}]."
                 );
             }
 
@@ -245,6 +254,11 @@ namespace Lykke.Service.EthereumClassicApi.Services
                     }
                     else
                     {
+                        if (await _ethereum.GetTransactionReceiptAsync(txHash) != null)
+                        {
+                            return;
+                        }
+
                         await Task.Delay(TimeSpan.FromSeconds(1));
                     }
                 }

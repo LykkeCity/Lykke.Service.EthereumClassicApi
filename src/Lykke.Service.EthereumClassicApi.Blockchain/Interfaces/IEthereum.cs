@@ -171,5 +171,12 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain.Interfaces
         /// <param name="transactionHash">Transaction hash to check</param>
         /// <returns>True - if added</returns>
         Task<bool> CheckIfBroadcastedAsync(string transactionHash);
+
+        /// <summary>
+        /// Get Signer public address for signed transaction
+        /// </summary>
+        /// <param name="signedTxData">Signed Transaction Data</param>
+        /// <returns>Signer public address</returns>
+        string GetTransactionSigner(string signedTxData);
     }
 }
