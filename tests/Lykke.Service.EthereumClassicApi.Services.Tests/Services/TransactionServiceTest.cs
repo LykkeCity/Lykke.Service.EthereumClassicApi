@@ -1,4 +1,5 @@
-﻿using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
+﻿using Lykke.Common.Chaos;
+using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Lykke.Service.EthereumClassicApi.Common.Settings;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
@@ -80,6 +81,7 @@ namespace Lykke.Service.EthereumClassicApi.Services.Tests.Extensions
             Mock<IGasPriceOracleService> gasPriceOracleService = new Mock<IGasPriceOracleService>();
             Mock<IObservableBalanceRepository> observableBalanceRepository = new Mock<IObservableBalanceRepository>();
             Mock<ITransactionRepository> transactionRepository = new Mock<ITransactionRepository>();
+            Mock<IChaosKitty> chaosKitty = new Mock<IChaosKitty>();
 
             gasPriceOracleService.Setup(x => x.CalculateGasPriceAsync(to, amount)).Returns(Task.FromResult(gasPrice));
 
@@ -89,7 +91,9 @@ namespace Lykke.Service.EthereumClassicApi.Services.Tests.Extensions
                 ethereum.Object,
                 gasPriceOracleService.Object,
                 observableBalanceRepository.Object,
-                transactionRepository.Object);
+                transactionRepository.Object,
+                chaosKitty.Object);
+
             return service;
         }
     }

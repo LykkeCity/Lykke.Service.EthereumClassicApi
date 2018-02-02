@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Akka.Actor;
+using Lykke.Common.Chaos;
 using Lykke.Service.EthereumClassicApi.Actors.Extensions;
 using Lykke.Service.EthereumClassicApi.Actors.Messages;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
@@ -10,13 +11,14 @@ namespace Lykke.Service.EthereumClassicApi.Actors
     public class TransactionMonitorActor : ReceiveActor
     {
         private readonly ITransactionMonitorRole _transactionMonitorRole;
-
+        private readonly IChaosKitty _chaosKitty;
 
         public TransactionMonitorActor(
-            ITransactionMonitorRole transactionMonitorRole)
+            ITransactionMonitorRole transactionMonitorRole,
+            IChaosKitty chaosKitty)
         {
             _transactionMonitorRole = transactionMonitorRole;
-            
+            _chaosKitty = chaosKitty;
 
             ReceiveAsync<CheckTransactionState>(
                 ProcessMessageAsync);
@@ -28,6 +30,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             {
                 try
                 {
+                    _chaosKitty.Meow(message.OperationId);
                     var transactionCompleted = await _transactionMonitorRole.CheckTransactionStatesAsync(message.OperationId);
 
                     if (transactionCompleted)

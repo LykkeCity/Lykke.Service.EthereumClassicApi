@@ -5,6 +5,7 @@ using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using FluentValidation.AspNetCore;
 using Lykke.Common.ApiLibrary.Middleware;
+using Lykke.Common.Chaos;
 using Lykke.Service.EthereumClassicApi.Actors;
 using Lykke.Service.EthereumClassicApi.Blockchain;
 using Lykke.Service.EthereumClassicApi.Common.Exceptions;
@@ -92,6 +93,7 @@ namespace Lykke.Service.EthereumClassicApi
                     {
                         o.Filters.Add(new ExceptionFilterAttribute(typeof(BadRequestException), System.Net.HttpStatusCode.BadRequest));
                         o.Filters.Add(new ExceptionFilterAttribute(typeof(ConflictException), System.Net.HttpStatusCode.Conflict));
+                        o.Filters.Add(new ExceptionFilterAttribute(typeof(ChaosException), System.Net.HttpStatusCode.InternalServerError));
                     })
                     .AddFluentValidation(fv =>
                     {

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using Lykke.Common.Chaos;
 using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Common.Exceptions;
@@ -21,17 +22,20 @@ namespace Lykke.Service.EthereumClassicApi.Services
         private readonly IGasPriceOracleService _gasPriceOracleService;
         private readonly IObservableBalanceRepository _observableBalanceRepository;
         private readonly ITransactionRepository _transactionRepository;
-        
+        private readonly IChaosKitty _chaosKitty;
+
         public TransactionService(
             IEthereum ethereum,
             IGasPriceOracleService gasPriceOracleService,
             IObservableBalanceRepository observableBalanceRepository,
-            ITransactionRepository transactionRepository)
+            ITransactionRepository transactionRepository,
+            IChaosKitty chaosKitty)
         {
             _ethereum = ethereum;
             _gasPriceOracleService = gasPriceOracleService;
             _observableBalanceRepository = observableBalanceRepository;
             _transactionRepository = transactionRepository;
+            _chaosKitty = chaosKitty;
         }
 
 
@@ -69,6 +73,8 @@ namespace Lykke.Service.EthereumClassicApi.Services
             await LockBalanceIfNecessaryAsync(builtTransaction.FromAddress);
 
             var txHash = await SendRawTransactionOrGetTxHashAsync(signedTxData);
+
+            _chaosKitty.Meow(txHash);
 
             await WaitUntilTransactionIsInPoolAsync(txHash);
 
@@ -149,6 +155,8 @@ namespace Lykke.Service.EthereumClassicApi.Services
                 ToAddress = toAddress,
                 TxData = txData
             });
+
+            _chaosKitty.Meow(operationId);
 
             return txData;
         }
@@ -233,7 +241,9 @@ namespace Lykke.Service.EthereumClassicApi.Services
                     TxData = txData
                 });
             }
-            
+
+            _chaosKitty.Meow(operationId);
+
             return txData;
         }
 

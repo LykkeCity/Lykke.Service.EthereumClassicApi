@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Akka.Actor;
+using Lykke.Common.Chaos;
 using Lykke.Service.EthereumClassicApi.Actors.Extensions;
 using Lykke.Service.EthereumClassicApi.Actors.Messages;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
@@ -10,13 +11,14 @@ namespace Lykke.Service.EthereumClassicApi.Actors
     public class BalanceObserverActor : ReceiveActor
     {
         private readonly IBalanceObserverRole _balanceObserverRole;
-
+        private readonly IChaosKitty _chaosKitty;
 
         public BalanceObserverActor(
-            IBalanceObserverRole balanceObserverRole)
+            IBalanceObserverRole balanceObserverRole,
+            IChaosKitty chaosKitty)
         {
             _balanceObserverRole = balanceObserverRole;
-
+            _chaosKitty = chaosKitty;
 
             ReceiveAsync<CheckBalance>(
                 ProcessMessageAsync);
@@ -29,6 +31,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             {
                 try
                 {
+                    _chaosKitty.Meow(message.Address);
                     var balance = await _balanceObserverRole.UpdateBalanceAsync(message.Address, message.BlockNumber);
 
                     if (balance > 0)
