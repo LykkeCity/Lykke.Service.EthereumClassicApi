@@ -60,11 +60,14 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         public async Task<bool> DeleteIfExistsAsync(Guid operationId)
         {
             var entities = (await GetAllAsync(operationId)).ToList();
-
+            
             if (entities.Any())
             {
-                await _table.DeleteAsync(entities);
-
+                foreach (var entity in entities)
+                {
+                    await _table.DeleteIfExistAsync(entity.PartitionKey, entity.RowKey);
+                }
+                
                 return true;
             }
             else
