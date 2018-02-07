@@ -93,8 +93,8 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
                     (
                         component,
                         process,
-                        context,
-                        WrapException(info, error.Cause),
+                        $"{info}:{context}",
+                        error.Cause,
                         dateTime
                     );
 
@@ -104,8 +104,8 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
                     (
                         component,
                         process,
-                        context,
-                        WrapException(info, fatalError.Cause),
+                        $"{info}:{context}",
+                        fatalError.Cause,
                         dateTime
                     );
 
@@ -125,13 +125,6 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
             };
 
             return JsonConvert.SerializeObject(context, Formatting.None, new ActorRefConverter());
-        }
-
-        private static Exception WrapException(string info, Exception cause)
-        {
-            return string.IsNullOrEmpty(info)
-                ? cause
-                : new Exception(info, cause);
         }
     }
 }
