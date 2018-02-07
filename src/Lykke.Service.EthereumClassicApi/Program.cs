@@ -16,12 +16,10 @@ namespace Lykke.Service.EthereumClassicApi
         {
             Console.WriteLine($"{Constants.ApplicationName} version {PlatformServices.Default.Application.ApplicationVersion}");
             Console.WriteLine($"Is {(Constants.IsDebug ? "DEBUG" : "RELEASE")}");
-
-            var environmentInfo = Environment.GetEnvironmentVariable("ENV_INFO");
-
-            if (!string.IsNullOrEmpty(environmentInfo))
+            
+            if (!string.IsNullOrEmpty(EnvInfo))
             {
-                Console.WriteLine($"ENV_INFO: {environmentInfo}");
+                Console.WriteLine($"ENV_INFO: {EnvInfo}");
             }
 
             try
