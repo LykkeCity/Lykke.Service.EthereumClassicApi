@@ -11,15 +11,13 @@ namespace Lykke.Service.EthereumClassicApi.Actors
     public class BalanceObserverActor : ReceiveActor
     {
         private readonly IBalanceObserverRole _balanceObserverRole;
-        private readonly IChaosKitty _chaosKitty;
+        
 
         public BalanceObserverActor(
-            IBalanceObserverRole balanceObserverRole,
-            IChaosKitty chaosKitty)
+            IBalanceObserverRole balanceObserverRole)
         {
             _balanceObserverRole = balanceObserverRole;
-            _chaosKitty = chaosKitty;
-
+            
             ReceiveAsync<CheckBalance>(
                 ProcessMessageAsync);
         }
@@ -31,7 +29,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             {
                 try
                 {
-                    _chaosKitty.Meow(message.Address);
                     var balance = await _balanceObserverRole.UpdateBalanceAsync(message.Address, message.BlockNumber);
 
                     if (balance > 0)
