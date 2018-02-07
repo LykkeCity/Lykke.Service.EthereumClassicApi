@@ -13,7 +13,7 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
         {
             var component = logEvent.LogSource;
             var dateTime = logEvent.Timestamp;
-            var info = logEvent.Message.ToString();
+            var context = logEvent.Message.ToString();
 
             switch (logEvent)
             {
@@ -23,8 +23,8 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
                     (
                         component,
                         "",
+                        context,
                         "",
-                        info,
                         dateTime
                     );
 
@@ -34,8 +34,8 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
                     (
                         component,
                         "",
+                        context,
                         "",
-                        info,
                         dateTime
                     );
 
@@ -45,8 +45,8 @@ namespace Lykke.Service.EthereumClassicApi.Logger.Extensions
                     (
                         component,
                         "",
-                        "",
-                        new Exception(info, error.Cause),
+                        context,
+                        error.Cause,
                         dateTime
                     );
 
