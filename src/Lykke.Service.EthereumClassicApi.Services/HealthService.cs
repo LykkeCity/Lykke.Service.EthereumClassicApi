@@ -12,7 +12,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
         {
             return new HealthStatusDto
             {
-                ApplicationName = Constants.ApplicationName,
+                ApplicationName = PlatformServices.Default.Application.ApplicationName,
                 ApplicationVersion = PlatformServices.Default.Application.ApplicationVersion,
                 EnvironmentInfo = Environment.GetEnvironmentVariable("ENV_INFO"),
                 IsDebug = Constants.IsDebug

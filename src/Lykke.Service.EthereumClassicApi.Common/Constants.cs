@@ -4,9 +4,6 @@ namespace Lykke.Service.EthereumClassicApi.Common
 {
     public static class Constants
     {
-        public const string ApplicationName
-            = "EthereumClassicApi";
-
         public static BigInteger EtcTransferGasAmount
             = new BigInteger(21000);
 

@@ -10,6 +10,7 @@ using Lykke.Service.EthereumClassicApi.Logger;
 using Lykke.SettingsReader;
 using Lykke.SlackNotification.AzureQueue;
 using Lykke.SlackNotifications;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Lykke.Service.EthereumClassicApi.Utils
 {
@@ -96,7 +97,7 @@ namespace Lykke.Service.EthereumClassicApi.Utils
 
             var azureQueuePublisher = new AzureQueuePublisher<SlackMessageQueueEntity>
             (
-                Constants.ApplicationName,
+                PlatformServices.Default.Application.ApplicationName,
                 new AzureQueueSettings
                 {
                     ConnectionString = connectionString,
@@ -128,7 +129,7 @@ namespace Lykke.Service.EthereumClassicApi.Utils
 
             var persistenceManager = new LykkeLogToAzureStoragePersistenceManager
             (
-                AzureTableStorage<LogEntity>.Create(connectionString, Constants.ApplicationName, consoleLogger),
+                AzureTableStorage<LogEntity>.Create(connectionString, PlatformServices.Default.Application.ApplicationName, consoleLogger),
                 consoleLogger
             );
 
