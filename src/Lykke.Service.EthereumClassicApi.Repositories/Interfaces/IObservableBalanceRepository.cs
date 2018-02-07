@@ -12,7 +12,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 
         Task<bool> ExistsAsync(string address);
 
-        Task<IEnumerable<ObservableBalanceEntity>> GetAllAsync();
+        Task<(IEnumerable<ObservableBalanceEntity> Balances, string ContinuationToken)> GetAllAsync(int take, string continuationToken);
 
         Task<(IEnumerable<ObservableBalanceEntity> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(int take, string continuationToken);
         

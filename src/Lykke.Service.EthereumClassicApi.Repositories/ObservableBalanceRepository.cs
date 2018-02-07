@@ -49,9 +49,9 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             return entity != null;
         }
         
-        public async Task<IEnumerable<ObservableBalanceEntity>> GetAllAsync()
+        public async Task<(IEnumerable<ObservableBalanceEntity> Balances, string ContinuationToken)> GetAllAsync(int take, string continuationToken)
         {
-            return await _table.GetDataAsync(x => true);
+            return await _table.GetDataWithContinuationTokenAsync(take, continuationToken);
         }
 
         public async Task<(IEnumerable<ObservableBalanceEntity> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(int take, string continuationToken)

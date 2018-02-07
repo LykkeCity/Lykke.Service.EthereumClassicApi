@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
 using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Lykke.Service.EthereumClassicApi.Common.Settings;
+using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 
 namespace Lykke.Service.EthereumClassicApi.Actors.Roles
@@ -30,8 +31,20 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         [Pure]
         public async Task<IEnumerable<string>> GetObservableAddressesAsync()
         {
-            return (await _observableBalanceRepository.GetAllAsync())
-                .Select(x => x.Address);
+            string continuationToken = null;
+            var addresses = new List<string>();
+
+            do
+            {
+                IEnumerable<ObservableBalanceEntity> balances;
+
+                (balances, continuationToken) = (await _observableBalanceRepository.GetAllAsync(1000, continuationToken));
+
+                addresses.AddRange(balances.Select(x => x.Address));
+
+            } while (continuationToken != null);
+
+            return addresses;
         }
 
         [Pure]
