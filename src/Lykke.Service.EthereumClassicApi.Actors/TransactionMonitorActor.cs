@@ -48,7 +48,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
                 }
                 finally
                 {
-                    Sender.Tell(TransactionStateChecked.Instance);
+                    Sender.Tell(new TransactionStateChecked());
                 }
             }
         }

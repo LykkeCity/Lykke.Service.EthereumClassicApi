@@ -34,7 +34,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
 
             Self.Tell
             (
-                CheckBalances.Instance,
+                new CheckBalances(),
                 Nobody.Instance
             );
         }
@@ -119,7 +119,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             (
                 delay: _settings.BalancesCheckInterval,
                 receiver: Self,
-                message: CheckBalances.Instance,
+                message: new CheckBalances(),
                 sender: Nobody.Instance
             );
         }

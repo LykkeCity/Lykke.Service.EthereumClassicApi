@@ -34,7 +34,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             
             Self.Tell
             (
-                CheckTransactionStates.Instance,
+                new CheckTransactionStates(),
                 Nobody.Instance
             );
         }
@@ -116,7 +116,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors
             (
                 delay: _settings.TransactionStatesCheckInterval,
                 receiver: Self,
-                message: CheckTransactionStates.Instance,
+                message: new CheckTransactionStates(),
                 sender: Nobody.Instance
             );
         }
