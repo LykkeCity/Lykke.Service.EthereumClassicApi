@@ -6,6 +6,7 @@ using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Common.Exceptions;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
 using Lykke.Service.EthereumClassicApi.Repositories.Entities;
+using Lykke.Service.EthereumClassicApi.Repositories.Extensions;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;
 
@@ -32,13 +33,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         public async Task<bool> CheckTransactionStatesAsync(Guid operationId)
         {
             var operationTransactions = (await _transactionRepository.GetAllAsync(operationId)).ToList();
-
-            bool TransactionCompleted(TransactionEntity entity)
-            {
-                return entity.State == TransactionState.Completed ||
-                       entity.State == TransactionState.Failed;
-            }
-
+            
             foreach (var operationTransaction in operationTransactions.Where(x => x.State == TransactionState.InProgress))
             {
                 var currentState = await _transactionStateService.GetTransactionStateAsync(operationTransaction.SignedTxHash);
@@ -48,7 +43,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
                 operationTransaction.State = currentState.State;
             }
 
-            var completedTransactions = operationTransactions.Where(TransactionCompleted).ToList();
+            var completedTransactions = operationTransactions.Where(x => x.IsFinished()).ToList();
             if (completedTransactions.Count > 1)
             {
                 throw new UnsupportedEdgeCaseException($"More than one transaction completed for operation [{operationId}].");
