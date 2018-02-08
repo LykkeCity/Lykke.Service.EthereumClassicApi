@@ -6,7 +6,7 @@ using Lykke.Service.EthereumClassicApi.Actors.Extensions;
 using Lykke.Service.EthereumClassicApi.Actors.Factories;
 using Lykke.Service.EthereumClassicApi.Actors.Factories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Logger;
-using Lykke.SlackNotifications;
+
 
 namespace Lykke.Service.EthereumClassicApi.Actors
 {
@@ -47,9 +47,8 @@ namespace Lykke.Service.EthereumClassicApi.Actors
         private static ActorSystem BuildActorSystem(IContainer container)
         {
             var log = container.Resolve<ILog>();
-            var notificationSender = container.Resolve<ISlackNotificationsSender>();
-
-            LykkeLogger.Configure(log, notificationSender);
+            
+            LykkeLogger.Configure(log);
 
             var systemConfig = ConfigurationFactory.FromResource
             (

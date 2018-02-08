@@ -5,19 +5,18 @@ using Akka.Dispatch;
 using Akka.Event;
 using Common.Log;
 using Lykke.Service.EthereumClassicApi.Logger.Extensions;
-using Lykke.SlackNotifications;
+
 
 namespace Lykke.Service.EthereumClassicApi.Logger
 {
     public class LykkeLogger : ReceiveActor, IRequiresMessageQueue<ILoggerMessageQueueSemantics>
     {
         private static ILog _lykkeLog;
-        private static ISlackNotificationsSender _lykkeNotificationsSender;
 
 
         public LykkeLogger()
         {
-            if (_lykkeLog == null || _lykkeNotificationsSender == null)
+            if (_lykkeLog == null)
             {
                 throw new InvalidOperationException(
                     $"{nameof(LykkeLogger)} {nameof(Configure)} method should be called before actor system will be created.");
@@ -34,10 +33,9 @@ namespace Lykke.Service.EthereumClassicApi.Logger
                 ProcessMessageAsync);
         }
 
-        public static void Configure(ILog log, ISlackNotificationsSender notificationsSender)
+        public static void Configure(ILog log)
         {
             _lykkeLog = log;
-            _lykkeNotificationsSender = notificationsSender;
         }
 
 
@@ -48,20 +46,12 @@ namespace Lykke.Service.EthereumClassicApi.Logger
 
         private async Task ProcessMessageAsync(LogEvent message)
         {
-            await Task.WhenAll
-            (
-                _lykkeLog.LogEventAsync(message),
-                _lykkeNotificationsSender.NotifyAboutEventAsync(message)
-            );
+            await _lykkeLog.LogEventAsync(message);
         }
 
         private async Task ProcessMessageAsync(LykkeLogEvent message)
         {
-            await Task.WhenAll
-            (
-                _lykkeLog.LogEventAsync(message),
-                _lykkeNotificationsSender.NotifyAboutEventAsync(message)
-            );
+            await _lykkeLog.LogEventAsync(message);
         }
 
         private void SubscribeAndReceiveAsync<T>(Func<T, Task> handler)
