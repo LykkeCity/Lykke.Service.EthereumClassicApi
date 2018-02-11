@@ -11,6 +11,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Entities
     public class TransactionEntity : AzureTableEntity
     {
         private BigInteger _amount;
+        private BigInteger? _blockNumber;
         private DateTime? _broadcastedOn;
         private DateTime _builtOn;
         private DateTime? _completedOn;
@@ -34,6 +35,23 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Entities
                     _amount = value;
 
                     MarkValueTypePropertyAsDirty(nameof(Amount));
+                }
+            }
+        }
+
+        public BigInteger? BlockNumber
+        {
+            get
+            {
+                return _blockNumber;
+            }
+            set
+            {
+                if (_blockNumber != value)
+                {
+                    _blockNumber = value;
+
+                    MarkValueTypePropertyAsDirty(nameof(BlockNumber));
                 }
             }
         }

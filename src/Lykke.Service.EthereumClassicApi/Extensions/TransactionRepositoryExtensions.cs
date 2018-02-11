@@ -59,6 +59,7 @@ namespace Lykke.Service.EthereumClassicApi.Extensions
                 return new BroadcastedSingleTransactionResponse
                 {
                     Amount = transaction.Amount.ToString(),
+                    Block = transaction.BlockNumber.HasValue ? (long) transaction.BlockNumber.Value : 0,
                     Error = transaction.Error,
                     Fee = transaction.Fee.ToString(),
                     Hash = transaction.SignedTxHash,
