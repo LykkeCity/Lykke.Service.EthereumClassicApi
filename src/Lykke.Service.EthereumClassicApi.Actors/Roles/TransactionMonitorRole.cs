@@ -52,8 +52,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             var completedTransaction = completedTransactions.FirstOrDefault();
             if (completedTransaction != null)
             {
-                await UnlockBalanceIfNecessaryAsync(completedTransaction.FromAddress);
-
                 await _transactionRepository.UpdateAsync(new CompletedTransactionDto
                 { 
                     // ReSharper disable once PossibleInvalidOperationException
@@ -70,14 +68,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             else
             {
                 return false;
-            }
-        }
-
-        private async Task UnlockBalanceIfNecessaryAsync(string fromAddress)
-        {
-            if (await _observableBalanceRepository.ExistsAsync(fromAddress))
-            {
-                await _observableBalanceRepository.UpdateLockAsync(fromAddress, false);
             }
         }
     }

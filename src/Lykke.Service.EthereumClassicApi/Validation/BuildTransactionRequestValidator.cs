@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace Lykke.Service.EthereumClassicApi.Validation
 {
-    public class BuildTransactionRequestValidator : AbstractValidator<BuildTransactionRequest>
+    public class BuildTransactionRequestValidator : AbstractValidator<BuildSingleTransactionRequest>
     {
         public BuildTransactionRequestValidator()
         {

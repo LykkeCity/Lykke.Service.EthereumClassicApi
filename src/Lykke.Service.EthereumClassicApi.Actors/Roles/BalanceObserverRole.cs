@@ -25,11 +25,11 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
         {
             var balance = await _observableBalanceRepository.TryGetAsync(address);
 
-            if (balance != null && !balance.Locked)
+            if (balance != null)
             {
                 var amount = await _ethereum.GetBalanceAsync(address, blockNumber);
 
-                await _observableBalanceRepository.UpdateAmountAsync(address, amount);
+                await _observableBalanceRepository.UpdateAmountAsync(address, amount, blockNumber);
 
                 return amount;
             }

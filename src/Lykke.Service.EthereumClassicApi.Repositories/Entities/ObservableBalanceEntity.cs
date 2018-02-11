@@ -9,7 +9,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Entities
     public class ObservableBalanceEntity : AzureTableEntity
     {
         private BigInteger _amount;
-        private bool _locked;
+        private BigInteger _blockNumber;
 
 
         public string Address { get; set; }
@@ -31,19 +31,19 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Entities
             }
         }
 
-        public bool Locked
+        public BigInteger BlockNumber
         {
             get
             {
-                return _locked;
+                return _blockNumber;
             }
             set
             {
-                if (_locked != value)
+                if (_blockNumber != value)
                 {
-                    _locked = value;
+                    _blockNumber = value;
 
-                    MarkValueTypePropertyAsDirty(nameof(Locked));
+                    MarkValueTypePropertyAsDirty(nameof(BlockNumber));
                 }
             }
         }

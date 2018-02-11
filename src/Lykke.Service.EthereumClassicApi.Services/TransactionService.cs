@@ -69,9 +69,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
                     $"Signer for [{operationId}] should be [{builtTransaction.FromAddress}] actual [{txSigner}]."
                 );
             }
-
-            await LockBalanceIfNecessaryAsync(builtTransaction.FromAddress);
-
+            
             var txHash = await SendRawTransactionOrGetTxHashAsync(signedTxData);
 
             _chaosKitty.Meow(txHash);
@@ -281,15 +279,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
             throw new UnsupportedEdgeCaseException("Transaction not appeared in memory pool in the specified period of time.");
         }
-
-        private async Task LockBalanceIfNecessaryAsync(string fromAddress)
-        {
-            if (await _observableBalanceRepository.ExistsAsync(fromAddress))
-            {
-                await _observableBalanceRepository.UpdateLockAsync(fromAddress, true);
-            }
-        }
-
+        
         /// <summary>
         ///     Sends raw transaction, or, if it has already been sent, returns it's txHash
         /// </summary>
