@@ -57,10 +57,10 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             {
                 return BadRequest
                 (
-                    ErrorResponse.Create("Transaction amount should be greater then zero.")
+                    ErrorResponse.Create("Amount is too small.")
                 );
             }
-
+            
             var txData = await _transactionService.BuildTransactionAsync
             (
                 txParams.Amount,

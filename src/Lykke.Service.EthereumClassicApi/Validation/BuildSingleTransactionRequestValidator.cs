@@ -7,9 +7,9 @@ using System.Numerics;
 
 namespace Lykke.Service.EthereumClassicApi.Validation
 {
-    public class BuildTransactionRequestValidator : AbstractValidator<BuildSingleTransactionRequest>
+    public class BuildSingleTransactionRequestValidator : AbstractValidator<BuildSingleTransactionRequest>
     {
-        public BuildTransactionRequestValidator()
+        public BuildSingleTransactionRequestValidator()
         {
             RuleFor(x => x.Amount)
                 .Must((amount) => BigInteger.TryParse(amount, out var amountParsed) && amountParsed > 0)

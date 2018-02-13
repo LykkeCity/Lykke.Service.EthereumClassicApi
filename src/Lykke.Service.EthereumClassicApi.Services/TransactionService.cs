@@ -20,20 +20,17 @@ namespace Lykke.Service.EthereumClassicApi.Services
     {
         private readonly IEthereum _ethereum;
         private readonly IGasPriceOracleService _gasPriceOracleService;
-        private readonly IObservableBalanceRepository _observableBalanceRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly IChaosKitty _chaosKitty;
 
         public TransactionService(
             IEthereum ethereum,
             IGasPriceOracleService gasPriceOracleService,
-            IObservableBalanceRepository observableBalanceRepository,
             ITransactionRepository transactionRepository,
             IChaosKitty chaosKitty)
         {
             _ethereum = ethereum;
             _gasPriceOracleService = gasPriceOracleService;
-            _observableBalanceRepository = observableBalanceRepository;
             _transactionRepository = transactionRepository;
             _chaosKitty = chaosKitty;
         }

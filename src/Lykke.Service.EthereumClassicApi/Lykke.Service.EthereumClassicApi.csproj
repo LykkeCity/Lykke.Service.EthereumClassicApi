@@ -16,6 +16,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Utils\**" />
+    <EmbeddedResource Remove="Utils\**" />
+    <None Remove="Utils\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Lykke.Service.EthereumClassic.Api.csproj.DotSettings" />
     <None Remove="Lykke.Service.EthereumClassic.csproj.DotSettings" />
     <None Remove="Lykke.Service.EthereumClassicApi.csproj.DotSettings" />
@@ -47,10 +53,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Lykke.Service.EthereumClassicApi.Actors\Lykke.Service.EthereumClassicApi.Actors.csproj" />
     <ProjectReference Include="..\Lykke.Service.EthereumClassicApi.Common\Lykke.Service.EthereumClassicApi.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Utils\" />
   </ItemGroup>
 
 </Project>
