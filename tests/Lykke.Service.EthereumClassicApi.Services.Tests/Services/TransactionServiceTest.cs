@@ -90,7 +90,6 @@ namespace Lykke.Service.EthereumClassicApi.Services.Tests.Extensions
             TransactionService service = new TransactionService(
                 ethereum.Object,
                 gasPriceOracleService.Object,
-                observableBalanceRepository.Object,
                 transactionRepository.Object,
                 chaosKitty.Object);
 
