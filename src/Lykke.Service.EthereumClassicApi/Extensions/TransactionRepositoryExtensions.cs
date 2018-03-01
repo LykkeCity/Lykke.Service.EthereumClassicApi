@@ -10,7 +10,7 @@ namespace Lykke.Service.EthereumClassicApi.Extensions
 {
     internal static class TransactionRepositoryExtensions
     {
-        public static async Task<BroadcastedTransactionResponse> TryGetTransactionStateAsync(this ITransactionRepository transactionRepository, Guid operationId)
+        public static async Task<BroadcastedSingleTransactionResponse> TryGetTransactionStateAsync(this ITransactionRepository transactionRepository, Guid operationId)
         {
             var transactions = (await transactionRepository.GetAllAsync(operationId))
                 .ToList();
@@ -56,9 +56,10 @@ namespace Lykke.Service.EthereumClassicApi.Extensions
                         throw new ArgumentOutOfRangeException();
                 }
 
-                return new BroadcastedTransactionResponse
+                return new BroadcastedSingleTransactionResponse
                 {
                     Amount = transaction.Amount.ToString(),
+                    Block = transaction.BlockNumber.HasValue ? (long) transaction.BlockNumber.Value : 0,
                     Error = transaction.Error,
                     Fee = transaction.Fee.ToString(),
                     Hash = transaction.SignedTxHash,

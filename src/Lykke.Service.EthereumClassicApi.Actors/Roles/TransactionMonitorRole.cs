@@ -5,7 +5,6 @@ using Lykke.Service.EthereumClassicApi.Actors.Roles.Interfaces;
 using Lykke.Service.EthereumClassicApi.Common;
 using Lykke.Service.EthereumClassicApi.Common.Exceptions;
 using Lykke.Service.EthereumClassicApi.Repositories.DTOs;
-using Lykke.Service.EthereumClassicApi.Repositories.Entities;
 using Lykke.Service.EthereumClassicApi.Repositories.Extensions;
 using Lykke.Service.EthereumClassicApi.Repositories.Interfaces;
 using Lykke.Service.EthereumClassicApi.Services.Interfaces;
@@ -14,17 +13,14 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
 {
     public class TransactionMonitorRole : ITransactionMonitorRole
     {
-        private readonly IObservableBalanceRepository _observableBalanceRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly ITransactionStateService _transactionStateService;
 
 
         public TransactionMonitorRole(
-            IObservableBalanceRepository observableBalanceRepository,
             ITransactionRepository transactionRepository,
             ITransactionStateService transactionStateService)
         {
-            _observableBalanceRepository = observableBalanceRepository;
             _transactionRepository = transactionRepository;
             _transactionStateService = transactionStateService;
         }
@@ -38,6 +34,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             {
                 var currentState = await _transactionStateService.GetTransactionStateAsync(operationTransaction.SignedTxHash);
 
+                operationTransaction.BlockNumber = currentState.BlockNumber;
                 operationTransaction.CompletedOn = currentState.CompletedOn;
                 operationTransaction.Error = currentState.Error;
                 operationTransaction.State = currentState.State;
@@ -52,13 +49,13 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             var completedTransaction = completedTransactions.FirstOrDefault();
             if (completedTransaction != null)
             {
-                await UnlockBalanceIfNecessaryAsync(completedTransaction.FromAddress);
-
                 await _transactionRepository.UpdateAsync(new CompletedTransactionDto
-                { 
-                    // ReSharper disable once PossibleInvalidOperationException
-                    // CompletedOn should always be set for completed or failed transactions
+                {
+                    // CompletedOn and BlockNumber should always be set for finished transactions
+                    // ReSharper disable PossibleInvalidOperationException
+                    BlockNumber = completedTransaction.BlockNumber.Value,
                     CompletedOn = completedTransaction.CompletedOn.Value,
+                    // ReSharper restore PossibleInvalidOperationException
                     Error = completedTransaction.Error,
                     OperationId = operationId,
                     State = completedTransaction.State,
@@ -70,14 +67,6 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             else
             {
                 return false;
-            }
-        }
-
-        private async Task UnlockBalanceIfNecessaryAsync(string fromAddress)
-        {
-            if (await _observableBalanceRepository.ExistsAsync(fromAddress))
-            {
-                await _observableBalanceRepository.UpdateLockAsync(fromAddress, false);
             }
         }
     }

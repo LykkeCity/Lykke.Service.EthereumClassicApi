@@ -56,13 +56,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
 
         public async Task<(IEnumerable<ObservableBalanceEntity> Balances, string ContinuationToken)> GetAllWithNonZeroAmountAsync(int take, string continuationToken)
         {
-            var filterCondition = TableQuery.CombineFilters
-            (
-                TableQuery.GenerateFilterCondition("Amount", QueryComparisons.NotEqual, "0"),
-                TableOperators.And,
-                TableQuery.GenerateFilterConditionForBool("Locked", QueryComparisons.NotEqual, true)
-            );
-            
+            var filterCondition = TableQuery.GenerateFilterCondition("Amount", QueryComparisons.NotEqual, "0");
             var query = new TableQuery<ObservableBalanceEntity>().Where(filterCondition);
             
             return await _table.GetDataWithContinuationTokenAsync(query, take, continuationToken);
@@ -77,7 +71,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
 
                 Address = address,
                 Amount = 0,
-                Locked = false
+                BlockNumber = 0
             };
 
             return await _table.TryInsertAsync(entity);
@@ -88,29 +82,12 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
             return await _table.GetDataAsync(GetPartitionKey(address), GetRowKey(address));
         }
 
-        public async Task UpdateAmountAsync(string address, BigInteger amount)
+        public async Task UpdateAmountAsync(string address, BigInteger amount, BigInteger blockNumber)
         {
             ObservableBalanceEntity UpdateAction(ObservableBalanceEntity entity)
             {
                 entity.Amount = amount;
-
-                return entity;
-            }
-
-            await _table.MergeAsync
-            (
-                GetPartitionKey(address),
-                GetRowKey(address),
-                UpdateAction
-            );
-        }
-
-        public async Task UpdateLockAsync(string address, bool locked)
-        {
-            ObservableBalanceEntity UpdateAction(ObservableBalanceEntity entity)
-            {
-                entity.Amount = 0;
-                entity.Locked = locked;
+                entity.BlockNumber = blockNumber;
 
                 return entity;
             }

@@ -20,20 +20,17 @@ namespace Lykke.Service.EthereumClassicApi.Services
     {
         private readonly IEthereum _ethereum;
         private readonly IGasPriceOracleService _gasPriceOracleService;
-        private readonly IObservableBalanceRepository _observableBalanceRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly IChaosKitty _chaosKitty;
 
         public TransactionService(
             IEthereum ethereum,
             IGasPriceOracleService gasPriceOracleService,
-            IObservableBalanceRepository observableBalanceRepository,
             ITransactionRepository transactionRepository,
             IChaosKitty chaosKitty)
         {
             _ethereum = ethereum;
             _gasPriceOracleService = gasPriceOracleService;
-            _observableBalanceRepository = observableBalanceRepository;
             _transactionRepository = transactionRepository;
             _chaosKitty = chaosKitty;
         }
@@ -69,9 +66,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
                     $"Signer for [{operationId}] should be [{builtTransaction.FromAddress}] actual [{txSigner}]."
                 );
             }
-
-            await LockBalanceIfNecessaryAsync(builtTransaction.FromAddress);
-
+            
             var txHash = await SendRawTransactionOrGetTxHashAsync(signedTxData);
 
             _chaosKitty.Meow(txHash);
@@ -281,15 +276,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
             throw new UnsupportedEdgeCaseException("Transaction not appeared in memory pool in the specified period of time.");
         }
-
-        private async Task LockBalanceIfNecessaryAsync(string fromAddress)
-        {
-            if (await _observableBalanceRepository.ExistsAsync(fromAddress))
-            {
-                await _observableBalanceRepository.UpdateLockAsync(fromAddress, true);
-            }
-        }
-
+        
         /// <summary>
         ///     Sends raw transaction, or, if it has already been sent, returns it's txHash
         /// </summary>

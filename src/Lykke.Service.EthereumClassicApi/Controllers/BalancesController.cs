@@ -68,7 +68,8 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
                 {
                     Address = x.Address.ToLowerInvariant(),
                     AssetId = Constants.EtcAsset.AssetId,
-                    Balance = x.Amount.ToString()
+                    Balance = x.Amount.ToString(),
+                    Block = (long) x.BlockNumber
                 })
                 .ToImmutableList();
 

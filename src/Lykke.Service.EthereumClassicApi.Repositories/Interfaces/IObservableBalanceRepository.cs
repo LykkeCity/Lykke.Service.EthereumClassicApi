@@ -20,8 +20,6 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Interfaces
 
         Task<ObservableBalanceEntity> TryGetAsync(string address);
 
-        Task UpdateAmountAsync(string address, BigInteger amount);
-
-        Task UpdateLockAsync(string address, bool locked);
+        Task UpdateAmountAsync(string address, BigInteger amount, BigInteger blockNumbber);
     }
 }
