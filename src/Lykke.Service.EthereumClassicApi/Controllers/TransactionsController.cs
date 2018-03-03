@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Net;
+using System.Numerics;
 using System.Threading.Tasks;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Service.BlockchainApi.Contract.Transactions;
@@ -41,9 +42,9 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("single")]
         [ValidateModel]
-        public async Task<IActionResult> Build([FromBody] BuildTransactionRequest request)
+        public async Task<IActionResult> Build([FromBody] BuildSingleTransactionRequest request)
         {
             var txParams = await _transactionService.CalculateTransactionParamsAsync
             (
@@ -56,10 +57,10 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             {
                 return BadRequest
                 (
-                    ErrorResponse.Create("Transaction amount should be greater then zero.")
+                    ErrorResponse.Create("Amount is too small.")
                 );
             }
-
+            
             var txData = await _transactionService.BuildTransactionAsync
             (
                 txParams.Amount,
@@ -77,6 +78,18 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             });
         }
 
+        [HttpPost("many-inputs")]
+        public IActionResult Build([FromBody] BuildTransactionWithManyInputsRequest request)
+        {
+            return StatusCode((int) HttpStatusCode.NotImplemented);
+        }
+
+        [HttpPost("many-outputs")]
+        public IActionResult Build([FromBody] BuildTransactionWithManyOutputsRequest request)
+        {
+            return StatusCode((int) HttpStatusCode.NotImplemented);
+        }
+        
         [HttpDelete("broadcast/{operationId:guid}")]
         [ValidateModel]
         public async Task<IActionResult> DeleteState(DeleteTransactionRequest request)
@@ -91,9 +104,9 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             }
         }
 
-        [HttpGet("broadcast/{operationId:guid}")]
+        [HttpGet("broadcast/single/{operationId:guid}")]
         [ValidateModel]
-        public async Task<IActionResult> GetState(GetTransactionStateRequest request)
+        public async Task<IActionResult> GetSingleTransactionState(GetTransactionStateRequest request)
         {
             var transactionState = await _transactionRepository.TryGetTransactionStateAsync(request.OperationId);
 
@@ -105,6 +118,18 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             {
                 return NoContent();
             }
+        }
+
+        [HttpGet("broadcast/many-inputs/{operationId:guid}")]
+        public IActionResult GetManyInputsTransactionState(GetTransactionStateRequest request)
+        {
+            return StatusCode((int)HttpStatusCode.NotImplemented);
+        }
+
+        [HttpGet("broadcast/many-outputs/{operationId:guid}")]
+        public IActionResult GetManyOutputsTransactionState(GetTransactionStateRequest request)
+        {
+            return StatusCode((int)HttpStatusCode.NotImplemented);
         }
 
         [HttpPut]

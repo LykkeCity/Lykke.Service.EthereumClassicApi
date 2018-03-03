@@ -110,6 +110,7 @@ namespace Lykke.Service.EthereumClassicApi.Repositories
         {
             TransactionEntity UpdateAction(TransactionEntity entity)
             {
+                entity.BlockNumber = dto.BlockNumber;
                 entity.CompletedOn = dto.CompletedOn;
                 entity.Error = dto.Error;
                 entity.State = dto.State;

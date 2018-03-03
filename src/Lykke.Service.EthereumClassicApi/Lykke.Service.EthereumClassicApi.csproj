@@ -16,6 +16,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Utils\**" />
+    <EmbeddedResource Remove="Utils\**" />
+    <None Remove="Utils\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Lykke.Service.EthereumClassic.Api.csproj.DotSettings" />
     <None Remove="Lykke.Service.EthereumClassic.csproj.DotSettings" />
     <None Remove="Lykke.Service.EthereumClassicApi.csproj.DotSettings" />
@@ -29,28 +35,24 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.6.2" />
-    <PackageReference Include="FluentValidation" Version="7.4.0" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="7.4.0" />
-    <PackageReference Include="Lykke.Common" Version="4.4.1" />
-    <PackageReference Include="Lykke.Common.ApiLibrary" Version="1.3.1" />
-    <PackageReference Include="Lykke.Service.BlockchainApi.Contract" Version="7.0.1" />
+    <PackageReference Include="FluentValidation" Version="7.5.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="7.5.0" />
+    <PackageReference Include="Lykke.Common" Version="4.5.0" />
+    <PackageReference Include="Lykke.Common.ApiLibrary" Version="1.4.0" />
+    <PackageReference Include="Lykke.Service.BlockchainApi.Contract" Version="11.0.0" />
     <PackageReference Include="Lykke.Service.Session" Version="1.0.33" />
-    <PackageReference Include="Lykke.SettingsReader" Version="1.1.4" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Lykke.SettingsReader" Version="2.1.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.2.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="1.1.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Lykke.Service.EthereumClassicApi.Actors\Lykke.Service.EthereumClassicApi.Actors.csproj" />
     <ProjectReference Include="..\Lykke.Service.EthereumClassicApi.Common\Lykke.Service.EthereumClassicApi.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Utils\" />
   </ItemGroup>
 
 </Project>

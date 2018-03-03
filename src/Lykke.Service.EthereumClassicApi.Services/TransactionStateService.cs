@@ -38,6 +38,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
                 return new TransactionStateDto
                 {
+                    BlockNumber = receipt.BlockNumber,
                     Error = transactionError,
                     State = transactionState,
                     CompletedOn = DateTimeOffset.FromUnixTimeSeconds((long)blockTimestamp).UtcDateTime
@@ -46,7 +47,8 @@ namespace Lykke.Service.EthereumClassicApi.Services
 
             return new TransactionStateDto
             {
-                Error = string.Empty,
+                BlockNumber = null,
+                Error = null,
                 State = TransactionState.InProgress,
                 CompletedOn = null
             };
