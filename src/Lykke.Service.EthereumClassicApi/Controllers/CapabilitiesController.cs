@@ -18,6 +18,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
             };
         }
 
+        [HttpGet]
         public IActionResult Get()
         {
             return Ok(CapabilitiesResponse);
