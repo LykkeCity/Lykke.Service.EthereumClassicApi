@@ -9,7 +9,7 @@ namespace Lykke.Service.EthereumClassicApi.Services.Interfaces
     {
         Task<string> BroadcastTransactionAsync(Guid operationId, string signedTxData);
 
-        Task<string> BuildTransactionAsync(BigInteger amount, BigInteger fee, string fromAddress, BigInteger gasPrice, bool includeFee, Guid operationId, string toAddress);
+        Task<string> BuildTransactionAsync(BigInteger amount, BigInteger fee, string fromAddress, BigInteger gasPrice, bool includeFee, Guid operationId, string toAddress, BigInteger? gasAmount = null);
 
         Task<TransactionParamsDto> CalculateTransactionParamsAsync(BigInteger amount, bool includeFee, string toAddress);
 

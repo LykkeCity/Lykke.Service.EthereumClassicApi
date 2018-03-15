@@ -56,7 +56,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
                 To = to,
                 Value = new HexBigInteger(amount)
             };
-
+            
             return (await _web3.Eth.Transactions.EstimateGas.SendRequestAsync(input))
                 .Value;
         }

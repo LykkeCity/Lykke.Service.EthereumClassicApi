@@ -86,7 +86,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
             return txHash;
         }
 
-        public async Task<string> BuildTransactionAsync(BigInteger amount, BigInteger fee, string fromAddress, BigInteger gasPrice, bool includeFee, Guid operationId, string toAddress)
+        public async Task<string> BuildTransactionAsync(BigInteger amount, BigInteger fee, string fromAddress, BigInteger gasPrice, bool includeFee, Guid operationId, string toAddress, BigInteger? gasAmount = null)
         {
             #region Validation
             
@@ -133,7 +133,7 @@ namespace Lykke.Service.EthereumClassicApi.Services
                 amount,
                 nonce,
                 gasPrice,
-                Constants.EtcTransferGasAmount
+                gasAmount ?? Constants.EtcTransferGasAmount
             );
 
             await _transactionRepository.AddAsync(new BuiltTransactionDto

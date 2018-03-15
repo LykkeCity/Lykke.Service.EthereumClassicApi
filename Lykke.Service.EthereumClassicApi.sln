@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2020
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2667894B-252B-44C1-8DFD-AADB298C5B11}"
 EndProject
@@ -32,6 +32,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Service.EthereumClassicApi.Common.Tests", "tests\Lykke.Service.EthereumClassicApi.Common.Tests\Lykke.Service.EthereumClassicApi.Common.Tests.csproj", "{87074044-6604-43E1-A544-3A785C28C780}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Service.EthereumClassicApi.Logger", "src\Lykke.Service.EthereumClassicApi.Logger\Lykke.Service.EthereumClassicApi.Logger.csproj", "{E8C69981-0E01-4C0A-9570-8686F1204B04}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{64CF5213-A77D-4CDC-BFF8-3EA1F95A16EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lykke.Service.EthereumClassicApi.ConsoleTool", "tools\Lykke.Service.EthereumClassicApi.ConsoleTool\Lykke.Service.EthereumClassicApi.ConsoleTool.csproj", "{670B008C-879A-4CB9-AD59-015D08CC1415}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,6 +95,10 @@ Global
 		{E8C69981-0E01-4C0A-9570-8686F1204B04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8C69981-0E01-4C0A-9570-8686F1204B04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8C69981-0E01-4C0A-9570-8686F1204B04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{670B008C-879A-4CB9-AD59-015D08CC1415}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{670B008C-879A-4CB9-AD59-015D08CC1415}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{670B008C-879A-4CB9-AD59-015D08CC1415}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{670B008C-879A-4CB9-AD59-015D08CC1415}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -109,6 +117,7 @@ Global
 		{E114B0C2-C860-49BD-B1EC-8E35F6A4A85E} = {2667894B-252B-44C1-8DFD-AADB298C5B11}
 		{87074044-6604-43E1-A544-3A785C28C780} = {7D6759C7-E781-4AB1-96D9-0C4834537994}
 		{E8C69981-0E01-4C0A-9570-8686F1204B04} = {2667894B-252B-44C1-8DFD-AADB298C5B11}
+		{670B008C-879A-4CB9-AD59-015D08CC1415} = {64CF5213-A77D-4CDC-BFF8-3EA1F95A16EE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FC2CA458-8144-420C-9C8A-7DEF31B6B271}
