@@ -32,7 +32,7 @@ namespace Lykke.Service.EthereumClassicApi.Controllers
                     Version = healthStatus.ApplicationVersion
                 });
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode
                 (
