@@ -1,6 +1,4 @@
 ﻿using Common.Log;
-using Lykke.Service.BlockchainSignService.Client;
-using Lykke.Service.BlockchainSignService.Client.Models;
 using Lykke.Service.EthereumClassicApi.Blockchain;
 using Lykke.Service.EthereumClassicApi.Blockchain.Interfaces;
 using Lykke.Service.EthereumClassicApi.Common;
@@ -10,12 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Lykke.Service.BlockchainSignFacade.Contract.Models;
+using Lykke.Service.BlockchainSignService.Client.Models;
 
 namespace Lykke.Service.EthereumClassicApi.ConsoleTool
 {
     class Program
     {
-        private static BlockchainSignServiceClient _signServiceClient;
+        private const string BlockchainType = "EthereumClassic";
+        private static Lykke.Service.BlockchainSignFacade.Client.BlockchainSignFacadeClient _signServiceClient;
         private static IEthereum _ethereum;
         private const string SignServiceUrl = "signServiceUrl";
         private const string ApiKey = "apiKey";
@@ -30,7 +31,7 @@ namespace Lykke.Service.EthereumClassicApi.ConsoleTool
 
             var arguments = new Dictionary<string, CommandArgument>
             {
-                { SignServiceUrl, application.Argument(SignServiceUrl, "Url of a BlockchainSign service facade(ETC).") },
+                { SignServiceUrl, application.Argument(SignServiceUrl, "Url of a blockchain sign service facade(common).") },
                 { ApiKey, application.Argument(ApiKey, "Api key of a blockchain integration sign facade(ETC).") },
                 { EthereumNodeUrl, application.Argument(EthereumNodeUrl, "Ethereum Node Url(ETH Network). Parity expected.") }
             };
@@ -80,7 +81,7 @@ namespace Lykke.Service.EthereumClassicApi.ConsoleTool
         {
             var parity = new Nethereum.Parity.Web3Parity(ethNodeUrl);
             _ethereum = new Parity(parity);
-            _signServiceClient = new Lykke.Service.BlockchainSignService.Client.BlockchainSignServiceClient(signServiceUrl, new LogToConsole(), apiKey);
+            _signServiceClient = new Lykke.Service.BlockchainSignFacade.Client.BlockchainSignFacadeClient(signServiceUrl, apiKey, new LogToConsole());
 
             do
             {
@@ -124,7 +125,20 @@ namespace Lykke.Service.EthereumClassicApi.ConsoleTool
                     Constants.EtcTransferGasAmount);
 
                 Console.WriteLine("Signing Transaction");
-                var signedTransaction = await _signServiceClient.SignTransactionAsync(new SignRequestModel(new[] { etcDepositAddress }, buildedTransaction));
+                var currentWallet = await _signServiceClient.GetWalletByPublicAddressAsync(BlockchainType, etcDepositAddress);
+
+                if (currentWallet == null)
+                {
+                    Console.WriteLine("Deposit address does not exist");
+                    continue;
+                }
+
+                var signedTransaction = await _signServiceClient.SignTransactionAsync(BlockchainType, new SignTransactionRequest()
+                {
+                    PublicAddresses = new[] { etcDepositAddress },
+                    TransactionContext = buildedTransaction
+
+                });
 
                 Console.WriteLine("Sending Transaction");
                 string trHex = await _ethereum.SendRawTransactionAsync(signedTransaction.SignedTransaction);
