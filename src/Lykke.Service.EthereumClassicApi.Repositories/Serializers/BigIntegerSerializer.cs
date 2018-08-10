@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using Lykke.AzureStorage.Tables.Entity.Serializers;
 
 namespace Lykke.Service.EthereumClassicApi.Repositories.Serializers
@@ -13,6 +14,16 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Serializers
         public object Deserialize(string serialized)
         {
             return BigInteger.Parse(serialized);
+        }
+
+        public string Serialize(object value, Type type)
+        {
+            return Serialize(value);
+        }
+
+        public object Deserialize(string serialized, Type type)
+        {
+            return Deserialize(serialized);
         }
     }
 }
