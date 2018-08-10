@@ -15,5 +15,15 @@ namespace Lykke.Service.EthereumClassicApi.Repositories.Serializers
         {
             return BigInteger.Parse(serialized);
         }
+
+        public string Serialize(object value, Type type)
+        {
+            return Serialize(value);
+        }
+
+        public object Deserialize(string serialized, Type type)
+        {
+            return Deserialize(serialized);
+        }
     }
 }
