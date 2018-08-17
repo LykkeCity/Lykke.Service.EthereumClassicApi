@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.6.2" />
-    <PackageReference Include="Lykke.Common" Version="4.5.0" />
+    <PackageReference Include="Lykke.Common" Version="7.0.3" />
     <PackageReference Include="Nethereum.Parity" Version="2.2.3" />
   </ItemGroup>
 
