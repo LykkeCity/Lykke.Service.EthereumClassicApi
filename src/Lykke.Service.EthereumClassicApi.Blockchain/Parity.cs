@@ -33,7 +33,7 @@ namespace Lykke.Service.EthereumClassicApi.Blockchain
             var request = new RpcRequest($"{NewGuid.Get()}", "trace_transaction", txHash);
             var response = await _web3Parity.Client.SendRequestAsync<JArray>(request);
 
-            return response.Select(x => x["error"]?.ToString()).FirstOrDefault();
+            return response?.Select(x => x?["error"]?.ToString()).FirstOrDefault();
         }
     }
 }
