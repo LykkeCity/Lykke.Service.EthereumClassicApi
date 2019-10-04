@@ -15,8 +15,7 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
     {
         private readonly ITransactionRepository _transactionRepository;
         private readonly ITransactionStateService _transactionStateService;
-
-
+        
         public TransactionMonitorRole(
             ITransactionRepository transactionRepository,
             ITransactionStateService transactionStateService)
@@ -32,12 +31,19 @@ namespace Lykke.Service.EthereumClassicApi.Actors.Roles
             
             foreach (var operationTransaction in operationTransactions.Where(x => x.State == TransactionState.InProgress))
             {
-                var currentState = await _transactionStateService.GetTransactionStateAsync(operationTransaction.SignedTxHash);
-
-                operationTransaction.BlockNumber = currentState.BlockNumber;
-                operationTransaction.CompletedOn = currentState.CompletedOn;
-                operationTransaction.Error = currentState.Error;
-                operationTransaction.State = currentState.State;
+                try
+                {
+                    var currentState = await _transactionStateService.GetTransactionStateAsync(operationTransaction.SignedTxHash);
+                    
+                    operationTransaction.BlockNumber = currentState.BlockNumber;
+                    operationTransaction.CompletedOn = currentState.CompletedOn;
+                    operationTransaction.Error = currentState.Error;
+                    operationTransaction.State = currentState.State;
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException($"Failed to get state of the transaction {operationTransaction.SignedTxHash}", ex);
+                }
             }
 
             var completedTransactions = operationTransactions.Where(x => x.IsFinished()).ToList();
